@@ -1,0 +1,52 @@
+<li class="dropdown {% if '/lab/turnos/' in request.path %}active{% endif %}">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Turnos<span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="{% url 'lab:LIA-list' %}"
+                    {% ifequal  area_value 'LIA' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIA</a>
+                <a href="{% url 'lab:LIM1-list' %}"
+                    {% ifequal  area_value 'LIM1' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM1</a>
+                <a href="{% url 'lab:LIM2-list' %}"
+                    {% ifequal  area_value 'LIM2' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM2</a>
+                <a href="{% url 'lab:LIM3-list' %}"
+                    {% ifequal  area_value 'LIM3' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM3</a>
+                <a href="{% url 'lab:LIM6-list' %}"
+                    {% ifequal  area_value 'LIM6' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM6</a>
+                <a href="{% url 'lab:EXT-list' %}"
+                    {% ifequal  area_value 'EXT' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >EXT</a>
+                <a href="{% url 'lab:SIS-list' %}"
+                    {% ifequal  area_value 'SIS' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >SIS</a>
+                <a href="{% url 'lab:DES-list' %}"
+                    {% ifequal  area_value 'DES' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >DES</a>
+            <li>
+        </ul>
+    </a>
+</li>
+
+<!--
+style="background-color:#F5F5F5"
+-->

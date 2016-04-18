@@ -1,0 +1,11 @@
+<li class="nav-button {% if '/adm/presup/' in request.path %}active{% endif %}">
+    <a href="{% url 'adm:presup-list' %}">Presupuestos</a>
+</li>
+
+<li class="nav-button {% if '/adm/ofertatec/' in request.path %}active{% endif %}">
+    <a href="{% url 'adm:ofertatec-list' %}">Oferta Tecnológica</a>
+</li>
+
+<li class="nav-button {% if '/adm/usuarios/' in request.path %}active{% endif %}">
+    <a href="{% url 'adm:usuarios-list' %}">Usuarios</a>
+</li>

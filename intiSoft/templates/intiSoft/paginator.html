@@ -1,0 +1,33 @@
+{% if is_paginated %}
+
+    {% load pagination_tags %}
+
+    {% paginate page_obj 5 paging %}
+        <div name="paginator" style="float:right">
+            <nav>
+                <ul class="pagination">
+                    {% if paging.prev %}
+                        <li>
+                            <a href="?page={{ paging.prev.number }}{% if order_by %}&order_by={{ order_by }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% for page in paging.pages %}
+                            <li class="{% if page.is_current %}active{% endif %}">
+                                <a href="?page={{ page.number }}&{% if order_by %}&order_by={{ order_by }}{% endif %}">{{ page.number }}</a>
+                            </li>
+                    {% endfor %}
+                    {% if paging.next %}
+                        <li>
+                            <a href="?page={{ paging.next.number }}&{% if order_by %}&order_by={{ order_by }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endpaginate %}
+{% endif %}
+

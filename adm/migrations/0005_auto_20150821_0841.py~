@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('adm', '0004_auto_20150819_1132'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='ofertatec',
+            name='codigo',
+            field=models.CharField(default=10602010500121, max_length=14),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='detalle',
+            field=models.CharField(default='Calibraci\xf3n de Calibres, capacidad hasta 300mm', max_length=150),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='iem',
+            field=models.CharField(default='s/procedimiento interno LIM1-PE05', max_length=150),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='precio',
+            field=models.FloatField(default=644),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='proveedor',
+            field=models.IntegerField(default=106),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='rubro',
+            field=models.CharField(default='Metrolog\xeda', max_length=150),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='subrubro',
+            field=models.CharField(default='Dimensional', max_length=150),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='ofertatec',
+            name='tipo_servicio',
+            field=models.CharField(default='Calibraci\xf3n', max_length=150),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='presupuesto',
+            name='aceptado',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='presupuesto',
+            name='codigo',
+            field=models.CharField(default=4878, max_length=15),
+            preserve_default=False,
+        ),
+    ]

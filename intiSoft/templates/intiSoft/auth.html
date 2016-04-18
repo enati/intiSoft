@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'intiSoft/css/auth.css' %}"/>
+<!--
+    <script type="text/javascript" src="{% static 'intiSoft/js/auth.js' %}"></script>
+-->
+    {% block head %}{% endblock%}
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="content" class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

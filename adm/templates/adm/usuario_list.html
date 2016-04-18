@@ -1,0 +1,92 @@
+{% extends "intiSoft/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <a href="{% url 'adm:usuarios-create' %}">
+            <button type="button" class="btn btn-danger"
+            {% if 'adm.add_usuario' not in user.get_all_permissions %}
+            disabled
+            {% endif %}>Crear</button>
+        </a>
+    </div>
+    <div class="col-md-12">
+        <table class="table table-hover table-pointer">
+            <caption>Planilla de usuarios</caption>
+            <thead>
+                {% for name, label, options in fields %}
+                    <td>
+                        <div class="dropdown">
+                            <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                               aria-expanded="false"> {{ label }}
+                               <span class="caret"></span>
+                            </span>
+                            <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
+                                <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
+                                <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a onclick="seleccionar_todo(form_{{ name }})">Marcar todos</a></li>
+                                <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
+                                <li role="separator" class="divider"></li>
+                                <input type="text" class="form-control cbSearch" id="{{name}}-search">
+                                <form name="form_{{ name }}" class="form-contact" action="{% url 'adm:usuarios-list' %}" method="GET">
+                                    <div style="max-height:110px; overflow-y:auto">
+                                        {% for option in options %}
+                                             <div class="checkbox" style="padding-left:5%"">
+                                                <label><input type="checkbox" class="cb" name="{{ name }}" value="{{ option }}"
+                                                {% if option|add:"_"|add:name in checked_fields %}checked{% endif %}> {{ option }} </label>
+                                              </div>
+                                        {% endfor %}
+                                    </div>
+                                    <br/>
+                                    <button onclick="submitAll()" type="button" class="btn" style="border: 1px solid grey; margin-left:10px">
+                                    Ok
+                                </form>
+                            </ul>
+                        </div>
+                    </td>
+                {% endfor %}
+            <td></td>
+            </thead>
+            <tbody>
+                {% for usuario in usuario_list %}
+                    <tr
+                        {% if 'adm.change_usuario' in user.get_all_permissions %}
+                            onclick="if (trlink) {location.href='{% url 'adm:usuarios-update' usuario.id %}'}"
+                        {% endif %}
+                    >
+                        <td>{{ usuario.nro_usuario }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.cuit }}</td>
+                        <td>{{ usuario.mail | default_if_none:"" }}</td>
+                        <td>{{ usuario.rubro }}</td>
+                        <td>
+                            <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
+                                data-model="usuario" type="button" class="btn btn-default"
+                                data-id={{usuario.id}} data-toggle="modal" data-target="#myModal"
+                                {% if 'adm.delete_usuario' not in user.get_all_permissions %}
+                                disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+{% include "intiSoft/modals.html" %}
+{% endblock %}
+
+
+

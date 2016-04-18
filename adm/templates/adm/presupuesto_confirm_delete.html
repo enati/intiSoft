@@ -1,0 +1,11 @@
+{% extends "intiSoft/base.html" %}
+
+{% block content %}
+<div style="margin-top:10%; text-align:center">
+    <form action="" method="post">{% csrf_token %}
+        <p class="lead">¿Está seguro que quiere eliminar el registro?</p>
+        <input type="submit" class="btn btn-danger" value="Confirmar" />
+        <input type="submit" class="btn btn-warning" name="cancelar" value="Cancelar" />
+    </form>
+</div>
+{% endblock %}

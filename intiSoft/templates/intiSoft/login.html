@@ -1,0 +1,22 @@
+{% extends "intiSoft/auth.html" %}
+
+{% block content %}
+        <h1>Bienvenido</h1>
+        {% if form.errors %}
+        <p>Su usuario y contraseña no coinciden, intente nuevamente.</p>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+            <p>No tiene permiso para ver esta página, logueese con un usuario adecuado.</p>
+            {% endif %}
+        {% endif %}
+
+        <form class="form" method="post" action="{% url 'user-login' %}">
+            {% csrf_token %}
+            {{ form.username }}
+            {{ form.password }}
+            <button type="submit" id="login-button">Iniciar</button>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+{% endblock %}

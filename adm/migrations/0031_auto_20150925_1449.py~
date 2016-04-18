@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('adm', '0030_auto_20150925_1438'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='subrubro',
+            name='rubro',
+            field=models.ForeignKey(verbose_name=b'Rubro', to='adm.Rubro'),
+            preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='ofertatec',
+            name='rubro',
+            field=models.ForeignKey(to='adm.Rubro'),
+        ),
+    ]

@@ -1,0 +1,157 @@
+{% extends "intiSoft/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-offset-1 col-md-10">
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 3px solid #eee"/>
+        <!-- Titulo -->
+        <div class="col-md-12">
+            <h2 class="text-danger">Mi Perfil</h2>
+        </div>
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+        <div class="col-md-12">
+            <form class="form-horizontal" style="padding-top:5%" action="" method="POST">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label class="control-label col-md-6" style="text-align:left"
+                          for="id_first_name">
+                            Nombre
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.first_name}}
+                           {% for error in form.first_name.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label class="control-label col-md-6" style="text-align:left"
+                          for="id_last_name">
+                            Apellido
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.last_name}}
+                           {% for error in form.last_name.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Usuario -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                         for="id_usuario">
+                            Usuario
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.username }}
+                           {% for error in form.username.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                          for="id_email">
+                            Email
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.email}}
+                           {% for error in form.email.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- Separador -->
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+                </br>
+                <!-- Password -->
+                <div class="col-md-6" style="padding-left:0px">
+                    <div class="form-group">
+                        <label class="control-label col-md-6" style="text-align:left"
+                          for="id_old_password">
+                            Contraseña
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.old_password}}
+                           {% for error in form.old_password.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-6" style="text-align:left"
+                          for="id_new_password">
+                            Nueva contraseña
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.new_password}}
+                           {% for error in form.new_password.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-6" style="text-align:left"
+                          for="id_cnew_password">
+                            Confirmar contraseña
+                        </label>
+                        <div class="col-md-6">
+                           {{ form.cnew_password}}
+                           {% for error in form.cnew_password.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <button id="change_pass" class="btn btn-warning">Cambiar contraseña</button>
+                </div>
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="col-md-12">
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div class="col-md-2">
+                        <input type="submit" value="Guardar"  class="btn btn-danger">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-default" onclick="window.history.back()">
+                        Volver</button>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

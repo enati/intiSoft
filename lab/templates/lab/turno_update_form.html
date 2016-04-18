@@ -1,0 +1,47 @@
+{% extends "intiSoft/base.html" %}
+
+{% block head %}
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $( ".datepicker" ).datepicker();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form class="form-contact" style="padding-top:5%" action="" method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group col-md-4">
+                <label class="control-label" for="id_{{ field.name }}"> {{ field.label }} </label>
+                {% if field.name == 'precio' %}
+                    <div class="input-group">
+                        <div class="input-group-addon">$</div>
+                            {{ field }}
+                    </div>
+                {% elif field.name == 'area' %}
+                    area: {{ field }}
+                {% else %}
+                    {{ field }}
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="alert alert-error">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <div class="col-md-12">
+            <input type="submit" value="Guardar"  class="btn btn-primary">
+        </div>
+        {% if form.errors %}
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-error">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </form>
+{% endblock %}
+

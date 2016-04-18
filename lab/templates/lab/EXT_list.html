@@ -1,0 +1,2 @@
+{% url 'lab:EXT-list' as action_url %}
+{% include "lab/turno_list.html" with actionUrl='lab:EXT-list' createUrl='lab:EXT-create' updateUrl='lab:EXT-update' area_value='EXT' add_perm='lab.add_turno_EXT' change_perm='lab.change_turno_EXT' delete_perm='lab.delete_turno_EXT' finish_perm='lab.finish_turno_EXT' cancel_perm='lab.cancel_turno_EXT' postUrl=action_url %}

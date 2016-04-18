@@ -1,0 +1,145 @@
+{% extends "intiSoft/base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-offset-1 col-md-2">
+        <!-- Solo muestro las acciones disponibles si el presupuesto ya fue guardado -->
+        {% if object %}
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Acciones
+                    <span class="caret" />
+                </button>
+                <ul class="dropdown-menu">
+                    {% if 'adm.delete_usuario' in user.get_all_permissions %}
+                    <li>
+                        <a href="#" data-action="Eliminar" data-model="usuario" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Borrar Usuario</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<br/>
+<br/>
+<div class="row">
+    <div class="col-md-offset-1 col-md-10">
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 3px solid #eee"/>
+        <!-- Titulo -->
+        <div class="col-md-12">
+            <h2 class="text-danger">{{ form.nombre.value | default_if_none:"" }}</h2>
+        </div>
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+        <div class="col-md-12">
+            <form class="form-horizontal" style="padding-top:5%" action="" method="POST">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_nombre">
+                            Nombre
+                        </label>
+                        <div class="col-md-8">
+                           {{ form.nombre }}
+                           {% for error in form.nombre.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Rubro -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_rubro">
+                            Rubro
+                        </label>
+                        <div class="col-md-8">
+                           {{ form.rubro }}
+                           {% for error in form.rubro.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Mail -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_mail">
+                            Email
+                        </label>
+                        <div class="col-md-8">
+                           {{ form.mail}}
+                           {% for error in form.mail.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Nro de usuario -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                         for="id_nro_usuario">
+                            Número de Usuario
+                        </label>
+                        <div class="col-md-4">
+                           {{ form.nro_usuario }}
+                           {% for error in form.nro_usuario.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                    <!-- CUIT -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                         for="id_cuit">
+                            Cuit
+                        </label>
+                        <div class="col-md-4">
+                           {{ form.cuit}}
+                           {% for error in form.cuit.errors %}
+                               <div class="alert alert-error">
+                                   <strong>{{ error|escape }}</strong>
+                               </div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-2">
+                        <input type="submit" value="Guardar" class="btn btn-danger">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-default" onclick="window.history.back()">
+                        Volver</button>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% url 'adm:usuarios-list' as action_url %}
+{% include "intiSoft/modals.html" with postUrl=action_url %}
+{% endblock %}
+

@@ -1,0 +1,2 @@
+{% url 'lab:LIA-list' as action_url %}
+{% include "lab/turno_form.html" with add_perm='lab.add_turno_LIA' change_perm='lab.change_turno_LIA' delete_perm='lab.delete_turno_LIA' finish_perm='lab.finish_turno_LIA' cancel_perm='lab.cancel_turno_LIA' postUrl=action_url %}

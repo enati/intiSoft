@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import datetime
+from django.utils.timezone import utc
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('adm', '0003_auto_20150729_0921'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='presupuesto',
+            name='aceptado',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='presupuesto',
+            name='codigo',
+            field=models.CharField(default=1, max_length=15),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='presupuesto',
+            name='fecha_realizado',
+            field=models.DateTimeField(default=datetime.datetime(2015, 8, 19, 14, 32, 31, 928293, tzinfo=utc), verbose_name=b'Realizado'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='presupuesto',
+            name='usuario',
+            field=models.OneToOneField(default=1, to='adm.Usuario'),
+            preserve_default=False,
+        ),
+    ]

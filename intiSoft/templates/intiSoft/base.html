@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="{% static 'intiSoft/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'intiSoft/css/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'intiSoft/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'intiSoft/css/font-awesome.min.css' %}">
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery-1.10.2.js' %}"></script>
+    <script src="{% static 'intiSoft/js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery.cookie.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/csrftoken.js' %}"></script>
+    {% block head %}{% endblock%}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://www.inti.gob.ar/">INTI</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    {% block nav %}{% endblock %}
+                    {% include "adm/nav_buttons.html" %}
+                    {% include "lab/nav_buttons.html" %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> {{ user.username }} <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'user-profile' user.id %}">Perfil</a></li>
+                            <li><a href="{% url 'user-logout' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+</head>
+
+<body>
+    <div id="content" style="margin-left:2%; margin-right: 2%">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

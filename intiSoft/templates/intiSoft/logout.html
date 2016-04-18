@@ -1,0 +1,11 @@
+{% extends "intiSoft/auth.html" %}
+
+{% block head %}
+    <meta http-equiv="refresh" content="3;url={% url 'user-login' %}" />
+{% endblock %}
+
+{% block content %}
+<div style="margin-top:10%">
+    <p class="lead text-center">Ha cerrado sesión satisfactoriamente, en breve será redirigido.</p>
+</div>
+{% endblock %}
