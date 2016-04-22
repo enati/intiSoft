@@ -69,13 +69,18 @@ class WorkoutCalendar(HTMLCalendar):
             s = '%s %s' % (month_name[themonth], theyear)
         else:
             s = '%s' % month_name[themonth]
-        nextMonth, year = self.next_month(themonth, theyear)
+        nextMonth, nextYear = self.next_month(themonth, theyear)
+        previousMonth, previousYear = self.previous_month(themonth, theyear)
+        if len(nextMonth) == 1:
+            nextMonth = '0' + nextMonth
+        if len(previousMonth) == 1:
+            previousMonth = '0' + previousMonth
         return """<tr><th colspan="7" class="month">
-                    <a href=""" + reverse('lab:%s-calendar' % self.lab) + """>
+                    <a href=""" + reverse('lab:%s-calendar' % self.lab, kwargs={'year': previousYear, 'month': previousMonth}) + """>
                         <span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>
                     </a>""" +\
                     s +\
-                    """<a href=""" + reverse('lab:%s-calendar' % self.lab) + """>
+                    """<a href=""" + reverse('lab:%s-calendar' % self.lab, kwargs={'year': nextYear, 'month': nextMonth}) + """>
                         <span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span>
                     </a>
                 </th></tr>"""
@@ -91,6 +96,12 @@ class WorkoutCalendar(HTMLCalendar):
 
     def next_month(self, month, year):
         if month == 12:
-            return (1, year + 1)
+            return ('1', str(year + 1))
         else:
-            return (month + 1, year)
+            return (str(month + 1), str(year))
+
+    def previous_month(self, month, year):
+        if month == 1:
+            return ('12', str(year - 1))
+        else:
+            return (str(month - 1), year)

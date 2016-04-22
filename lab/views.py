@@ -626,9 +626,7 @@ class CalendarView(View):
     template_name = 'lab/calendar.html'
     lab = ''
 
-    def get(self, request):
-        month = thismonth
-        year = thisyear
+    def get(self, request, year=thisyear, month=thismonth):
         if len(month) == 1:
             month = '0' + str(month)
         date = year + '-' + month

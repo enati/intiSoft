@@ -5,8 +5,9 @@ from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     url(r'^turnos/$', login_required(views.TurnoList.as_view()), name='turnos-list'),
-    url(r'^turnos/calendar/LIA/$', login_required(views.LIACalendarView.as_view()), name='LIA-calendar'),
+    url(r'^turnos/calendar/LIA/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', login_required(views.LIACalendarView.as_view()), name='LIA-calendar'),
     url(r'^turnos/calendar/LIM1/$', login_required(views.LIM1CalendarView.as_view()), name='LIM1-calendar'),
+    url(r'^turnos/calendar/LIM1/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', login_required(views.LIM1CalendarView.as_view()), name='LIM1-calendar'),
     url(r'^turnos/calendar/LIM2/$', login_required(views.LIM2CalendarView.as_view()), name='LIM2-calendar'),
     url(r'^turnos/calendar/LIM3/$', login_required(views.LIM3CalendarView.as_view()), name='LIM3-calendar'),
     url(r'^turnos/calendar/LIM6/$', login_required(views.LIM6CalendarView.as_view()), name='LIM6-calendar'),
