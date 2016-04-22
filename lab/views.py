@@ -12,6 +12,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
+from django.shortcuts import render
+from django.utils.safestring import mark_safe
+from labCalendar import WorkoutCalendar
+from django.views.generic import View
+
+thismonth = str(datetime.now().month)
+thisyear = str(datetime.now().year)
 
 
 class TurnoList(ListView):
@@ -613,3 +620,60 @@ class DESDelete(TurnoDelete):
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESDelete, self).dispatch(request, *args, **kwargs)
+
+
+class CalendarView(View):
+    template_name = 'lab/calendar.html'
+    lab = ''
+
+    def get(self, request):
+        month = thismonth
+        year = thisyear
+        if len(month) == 1:
+            month = '0' + str(month)
+        date = year + '-' + month
+        turnos = Turno.objects.order_by('fecha_inicio').filter(fecha_inicio__contains=date, area=self.lab)
+        cal = WorkoutCalendar(turnos, self.lab).formatmonth(int(year), int(month))
+        return render(request, self.template_name, {'user': request.user, 'calendar': mark_safe(cal)})
+        return HttpResponse('result')
+
+
+class LIACalendarView(CalendarView):
+    template_name = 'lab/LIA_calendar.html'
+    lab = 'LIA'
+
+
+class LIM1CalendarView(CalendarView):
+    template_name = 'lab/LIM1_calendar.html'
+    lab = 'LIM1'
+
+
+class LIM2CalendarView(CalendarView):
+    template_name = 'lab/LIM2_calendar.html'
+    lab = 'LIM2'
+
+
+class LIM3CalendarView(CalendarView):
+    template_name = 'lab/LIM3_calendar.html'
+    lab = 'LIM3'
+
+
+class LIM6CalendarView(CalendarView):
+    template_name = 'lab/LIM6_calendar.html'
+    lab = 'LIM6'
+
+
+class EXTCalendarView(CalendarView):
+    template_name = 'lab/EXT_calendar.html'
+    lab = 'EXT'
+
+
+class SISCalendarView(CalendarView):
+    template_name = 'lab/SIS_calendar.html'
+    lab = 'SIS'
+
+
+class DESCalendarView(CalendarView):
+    template_name = 'lab/DES_calendar.html'
+    lab = 'DES'
+

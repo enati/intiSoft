@@ -212,3 +212,91 @@ select, option {
     overflow:hidden;
 }
 
+.today {
+    background-color: #ddd;
+}
+
+td.mon, td.tue, td.wed, td.thu, td.fri, td.sat, td.sun {
+    height: 150px;
+    width: 150px
+}
+
+th.month {
+    font-size: 30px;
+    text-align: center;
+}
+
+
+.warning {
+    background-color: #F9F199;
+    border: solid 1px #ddd;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding:1px;
+    margin: 2px;
+}
+
+.danger {
+    background-color: #CE7070;
+    border: solid 1px #ddd;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding:1px;
+    margin: 2px;
+}
+
+.neutral {
+    background-color: #fff;
+    border: solid 1px #ddd;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding:1px;
+    margin: 2px;
+}
+
+.success {
+    background-color: #7BCDA3;
+    border: solid 1px #ddd;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding:1px;
+    margin: 2px;
+}
+
+a, a:visited  {
+    color: #000;
+    text-decoration: none !important;
+}
+
+table.month > tbody > tr > td > ul > li > a,
+table.month > tbody > tr > td > ul > li > a:visited,
+table.month > tbody > tr > th > a,
+table.month > tbody > tr > th > a:visited {
+    color: #000;
+    text-decoration: none !important;
+}
+
+table.month > tbody > tr > td > ul > li > a:hover,
+table.month > tbody > tr > th > a:hover {
+    color: #000;
+    font-weight: bold;
+}
+
+.btn-calendar, .btn-list {
+    margin-left:3px;
+    float: right;
+}
+
+.overlay2 > a:after {
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    z-index: 2;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: rgba(255,255,255,0.7);
+    content: "REVISIONAR";
+}

@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from lab.signals import *
 from intiSoft.exception import StateError
 
+
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
 
