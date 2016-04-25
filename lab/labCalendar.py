@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from adm.views import Presupuesto, Usuario
-from calendar import HTMLCalendar, month_name
+from calendar import HTMLCalendar, weekheader
 from datetime import date
 from itertools import groupby
 from django.utils.html import conditional_escape as esc
@@ -13,6 +13,13 @@ class WorkoutCalendar(HTMLCalendar):
         super(WorkoutCalendar, self).__init__()
         self.workouts = self.group_by_day(workouts)
         self.lab = lab
+
+    def formatweekday(self, day):
+        """
+        Return a weekday name as a table header.
+        """
+        day_abbr = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+        return '<th class="%s">%s</th>' % (self.cssclasses[day], day_abbr[day])
 
     def formatday(self, day, weekday):
         if day != 0:
@@ -65,6 +72,8 @@ class WorkoutCalendar(HTMLCalendar):
         """
         Return a month name as a table row.
         """
+        month_name = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto',
+              'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         if withyear:
             s = '%s %s' % (month_name[themonth], theyear)
         else:
