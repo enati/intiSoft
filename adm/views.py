@@ -2,9 +2,9 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario
+from .models import Presupuesto, OfertaTec, Usuario, OT
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -35,6 +35,110 @@ def less_five(orig_date):
         date = orig_date
     return date
 
+#===========================================
+#========== VISTAS OT =============
+#===========================================
+
+
+class OTCreate(CreateView):
+    model = OT
+    form_class = OTForm
+    success_url = reverse_lazy('adm:ot-list')
+
+    @method_decorator(permission_required('adm.add_ot',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(OTCreate, self).dispatch(*args, **kwargs)
+
+
+class OTUpdate(UpdateView):
+    model = OT
+    form_class = OTForm
+    template_name_suffix = '_form'
+    success_url = reverse_lazy('adm:ot-list')
+
+    @method_decorator(permission_required('adm.change_ot',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(OTUpdate, self).dispatch(*args, **kwargs)
+
+
+class OTList(ListView):
+    model = Presupuesto
+    template_name = 'adm/ot_list.html'
+    paginate_by = 30
+
+    def get_queryset(self):
+        # Por defecto los ordeno por codigo (desc)
+        queryset = OT.objects.all().order_by('-codigo')
+        kwargs = {}
+        for key, vals in self.request.GET.lists():
+            if key != 'page':
+                if key == 'order_by':
+                    queryset = queryset.order_by(vals[0])
+                elif key == 'estado':
+                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
+                elif key == 'fecha_realizado' or key == 'fecha_aviso':
+                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
+                           for v in vals]
+                if kwargs:
+                    queryset = queryset.filter(**kwargs)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(OTList, self).get_context_data(**kwargs)
+
+        ots = OT.objects.all()
+
+        field_names = ['estado', 'codigo', 'presupuesto',
+                       'fecha_realizado',
+                       'fecha_aviso',
+                       'importe']
+        field_labels = ['Estado', 'Nro.', 'Presupuesto',
+                        'Fecha de Realizacion',
+                        'Aviso de Trabajo Realizado']
+
+        # Agregado para mostrar los campos ordenados
+        # OTs sin facturar
+        sfCount = len(ots.filter(estado='sin_facturar'))
+        # OTs sin pagar
+        npCount = len(ots.filter(estado='no_pago'))
+        # OTs pagadas
+        pagCount = len(ots.filter(estado='pagado'))
+        # OTs canceladas
+        canCount = len(ots.filter(estado='cancelado'))
+        options = []
+        estado_vals = ['sin_facturar(' + str(sfCount) + ')',
+                       'no_pago(' + str(npCount) + ')',
+                       'pagado(' + str(pagCount) + ')',
+                       'cancelado(' + str(canCount) + ')']
+        options.append(estado_vals)
+        cod_vals = sorted(set([o.codigo for o in ots]))
+        options.append(cod_vals)
+        presup_vals = sorted(set([o.presupuesto.codigo for o in ots]))
+        options.append(presup_vals)
+        fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
+                        for o in ots if o.fecha_realizado is not None]))
+        options.append(fec1_vals)
+        fec2_vals = sorted(set([o.fecha_aviso.strftime("%d/%m/%Y")
+                        for o in ots if o.fecha_aviso is not None]))
+        options.append(fec2_vals)
+        importe_vals = sorted(set([o.importe for o in ots]))
+        options.append(importe_vals)
+        context['fields'] = list(zip(field_names, field_labels, options))
+        # Chequeo los filtros seleccionados para conservar el estado de los
+        # checkboxes
+        checked_fields = []
+        for key, vals in self.request.GET.lists():
+            if key != 'order_by':
+                checked_fields += ["%s_%s" % (v, key) for v in vals]
+        context['checked_fields'] = checked_fields
+        # Fecha de hoy para coloreo de filas
+        context['today'] = datetime.now().strftime("%d/%m/%Y")
+        # Para la paginacion
+        if 'order_by' in self.request.GET:
+            context['order_by'] = self.request.GET['order_by']
+        return context
 
 #===========================================
 #========== VISTAS PRESUPUESTO =============
@@ -142,10 +246,10 @@ class PresupuestoList(ListView):
                         for p in presupuestos if p.fecha_realizado is not None]))
         options.append(fec2_vals)
         fec3_vals = sorted(set([p.fecha_aceptado.strftime("%d/%m/%Y")
-                        for p in presupuestos if p.fecha_aceptado if not None]))
+                        for p in presupuestos if p.fecha_aceptado is not None]))
         options.append(fec3_vals)
         fec4_vals = sorted(set([p.fecha_instrumento.strftime("%d/%m/%Y")
-                      for p in presupuestos if p.fecha_instrumento if not None]))
+                      for p in presupuestos if p.fecha_instrumento is not None]))
         options.append(fec4_vals)
         nro_recepcion_vals = sorted(set([p.nro_recepcion for p in presupuestos]))
         options.append(nro_recepcion_vals)
@@ -556,3 +660,4 @@ class UsuarioUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(UsuarioUpdate, self).dispatch(*args, **kwargs)
+

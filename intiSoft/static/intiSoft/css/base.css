@@ -155,7 +155,7 @@ p.truncated {
     font: normal 36px "Helvetica Neue",Helvetica,Arial,sans-serif !important;
 }
 
-.presup_code {
+.presup_code, .OT_code {
     border: 0px;
     color: #A94442;
     font: normal 36px "Helvetica Neue",Helvetica,Arial,sans-serif !important;

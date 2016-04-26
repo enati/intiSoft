@@ -263,18 +263,21 @@ $(document).ready(function() {
         var inputField = document.getElementById('inputField')
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
+        var art = ' el ';
+        if (model=='OT')
+            art = ' la ';
         if (action.localeCompare('Finalizar')==0) {
             var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
             Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
-            modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar el "+model+"?")
+            modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }
         if (action.localeCompare('Cancelar')==0) {
-            modal.find('.modal-body h4').text("¿Está seguro que quiere cancelar el "+model+"?")
+            modal.find('.modal-body h4').text("¿Está seguro que quiere cancelar"+art+model+"?")
             modal.find('.modal-body p').text("")
         }
         if (action.localeCompare('Eliminar')==0) {
-            modal.find('.modal-body h4').text("¿Está seguro que quiere eliminar el "+model+"?")
+            modal.find('.modal-body h4').text("¿Está seguro que quiere eliminar"+art+model+"?")
             modal.find('.modal-body p').text("")
         }
         if (action.localeCompare('Actualizar')==0) {

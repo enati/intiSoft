@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario
+from .models import Presupuesto, OfertaTec, Usuario, OT
 
 editable_fields = ['fecha_instrumento', 'fecha_realizado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -13,6 +13,44 @@ def bootstrap_format(f, **kwargs):
     tmp = formfield.widget.attrs.get('class') or ''
     formfield.widget.attrs.update({'class': 'form-control ' + tmp})
     return formfield
+
+
+class OTForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(OTForm, self).__init__(*args, **kwargs)
+        # El nro de presup no tiene que tener form-control
+        self.fields['codigo'].widget.attrs['class'] = 'OT_code'
+        self.fields['codigo'].widget.attrs['form'] = 'OTForm'
+        if self.instance and self.instance.estado != 'sin_facturar':
+            for f in self.fields:
+                self.fields[f].widget.attrs['disabled'] = True
+                self.fields[f].required = False
+
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.codigo
+        else:
+            if len(self.cleaned_data['codigo']) != 5:
+                msg = "Se esperan 5 dígitos."
+                self._errors['codigo'] = self.error_class([msg])
+            return self.cleaned_data['codigo']
+
+    class Meta:
+        model = OT
+        fields = ['estado',
+                  'codigo',
+                  'presupuesto',
+                  'fecha_realizado',
+                  'fecha_aviso',
+                  'importe']
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_aviso': forms.DateInput(attrs={'class': 'datepicker',
+                                                  'readonly': True},),
+            }
 
 
 class PresupuestoForm(forms.ModelForm):

@@ -211,5 +211,45 @@ pre_save.connect(pre_save_presup, sender=Presupuesto)
 post_save.connect(chequear_revisionado, sender=Presupuesto)
 
 
+def nextOTCode():
+    #cursor = connection.cursor()
+    #cursor.execute("""SELECT (t1.codigo + 1)
+                     #FROM adm_presupuesto t1
+                     #WHERE NOT EXISTS
+                        #(SELECT t2.codigo FROM adm_presupuesto t2 WHERE t2.codigo = t1.codigo + 1)
+                     #""")
+    #row = cursor.fetchone()
+    #if row:
+        #n = str(int(row[0]))
+        #zeros = '0' * (5 - len(n))
+        #return zeros + n
+    #else:
+    return '00001'
+
+
+class OT(TimeStampedModel, AuthStampedModel):
+
+    ESTADOS = (
+        ('sin_facturar', 'Sin Facturar'),     # El primer valor es el que se guarda en la DB
+        ('no_pago', 'No Pago'),
+        ('pagado', 'Pagado'),
+        ('cancelado', 'Cancelado')
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='sin_facturar', verbose_name='Estado')
+    codigo = models.CharField(max_length=15, verbose_name='Nro. OT',
+                              unique=True, default=nextOTCode,
+                              error_messages={'unique': "Ya existe una OT con ese número."})
+    fecha_realizado = models.DateField(verbose_name='Fecha',
+                                       blank=True, null=True)
+    importe = models.FloatField(verbose_name='Importe', blank=True, null=True)
+    presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
+                                    on_delete=models.PROTECT)
+    fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
+                                       blank=True, null=True)
+
+    class Meta:
+        permissions = (("cancel_ot", "Can cancel OT"),)
 
 

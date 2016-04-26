@@ -2,6 +2,10 @@
     <a href="{% url 'adm:presup-list' %}">Presupuestos</a>
 </li>
 
+<li class="nav-button {% if '/adm/OT/' in request.path %}active{% endif %}">
+    <a href="{% url 'adm:ot-list' %}">OT</a>
+</li>
+
 <li class="nav-button {% if '/adm/ofertatec/' in request.path %}active{% endif %}">
     <a href="{% url 'adm:ofertatec-list' %}">Oferta Tecnológica</a>
 </li>
