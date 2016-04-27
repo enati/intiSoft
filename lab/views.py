@@ -538,6 +538,7 @@ def get_presup(request, *args, **kwargs):
         data['usuario'] = presup_obj.usuario.nombre
         data['mail'] = presup_obj.usuario.mail
         data['rubro'] = presup_obj.usuario.rubro
+        data['area'] = presup_obj.get_turno_activo().area
     except:
         data = {}
     return HttpResponse(json.dumps(data), content_type="text/json")

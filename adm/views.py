@@ -110,6 +110,12 @@ class OTUpdate(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(OTUpdate, self).dispatch(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(OTUpdate, self).get_context_data(**kwargs)
+        turno = (context['object']).presupuesto.get_turno_activo()
+        context['turno_activo'] = turno
+        return context
+
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests and instantiates filled versions of the form
@@ -176,6 +182,8 @@ class OTList(ListView):
                 elif key == 'fecha_realizado' or key == 'fecha_aviso':
                     kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
                            for v in vals]
+                else:
+                    kwargs['%s__in' % key] = vals
                 if kwargs:
                     queryset = queryset.filter(**kwargs)
         return queryset
@@ -185,7 +193,7 @@ class OTList(ListView):
 
         ots = OT.objects.all()
 
-        field_names = ['estado', 'codigo', 'presupuesto',
+        field_names = ['estado', 'codigo', 'presupuesto__codigo',
                        'fecha_realizado',
                        'fecha_aviso',
                        'importe']

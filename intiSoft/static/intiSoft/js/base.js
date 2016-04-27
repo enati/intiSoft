@@ -128,6 +128,8 @@ $(document).ready(function() {
                     $("#id_usuario").text(data['usuario']);
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_presupuesto__area").text(data['area']);
+                    $("#id_presupuesto__usuario__nombre").text(data['usuario']);
                 },
             });
         }
@@ -143,6 +145,27 @@ $(document).ready(function() {
                 success: function(data){
                     $("#id_nro_usuario").text(data['nro_usuario']);
                     $("#id_cuit").text(data['cuit']);
+                    $("#id_rubro").text(data['rubro']);
+                },
+            });
+        }
+    });
+
+
+    $("#id_codigo").on('change keyup', function (e) {
+        var presup_id = $(this).val()
+        if (presup_id != "") {
+            $.ajax({
+                url: domain + '/lab/turnos/get_presup/',
+                method: 'get',
+                data: {'presup_id': presup_id},
+                success: function(data){
+                    $("#id_fecha_solicitado").text(data['fecha_solicitado']);
+                    $("#id_fecha_realizado").text(data['fecha_realizado']);
+                    $("#id_fecha_aceptado").text(data['fecha_aceptado']);
+                    $("#id_fecha_instrumento").text(data['fecha_instrumento']);
+                    $("#id_usuario").text(data['usuario']);
+                    $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
                 },
             });
