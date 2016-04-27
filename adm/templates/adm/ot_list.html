@@ -70,6 +70,7 @@
                             {% endif %}
                             class = {% if ot.estado == 'sin_facturar' %} "neutral"
                                       {% elif ot.estado == 'pagado' %} "success"
+                                      {% elif ot.estado == 'no_pago' %} "warning"
                                       {% elif ot.estado == 'no_pago' %} "danger"
                                     {% endif %}
                         >

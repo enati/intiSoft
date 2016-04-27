@@ -249,6 +249,16 @@ class OT(TimeStampedModel, AuthStampedModel):
     fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
                                        blank=True, null=True)
 
+    def _toState_no_pago(self):
+        self.estado = 'no_pago'
+        self.save()
+        return True
+
+    def _toState_sin_facturar(self):
+        self.estado = 'sin_facturar'
+        self.save()
+        return True
+
     class Meta:
         permissions = (("cancel_ot", "Can cancel OT"),)
 
@@ -258,6 +268,25 @@ class Factura(TimeStampedModel, AuthStampedModel):
     numero = models.CharField(max_length=15, verbose_name='Nro. Factura', unique=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            #This code only happens if the objects is
+            #not in the database yet. Otherwise it would
+            #have pk
+            ot_obj = OT.objects.get(pk=self.ot_id)
+            if ot_obj.estado == 'sin_facturar':
+                ot_obj._toState_no_pago()
+        super(Factura, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        res = super(Factura, self).delete(*args, **kwargs)
+        # Si borre la ultima factura asociada a una OT,
+        # vuelvo la OT a estado sin_facturar
+        ot_obj = OT.objects.get(pk=self.ot_id)
+        if not(ot_obj.factura_set.all()):
+            ot_obj._toState_sin_facturar()
+        return res
 
     class Meta:
         ordering = ['id']
