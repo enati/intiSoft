@@ -212,19 +212,19 @@ post_save.connect(chequear_revisionado, sender=Presupuesto)
 
 
 def nextOTCode():
-    #cursor = connection.cursor()
-    #cursor.execute("""SELECT (t1.codigo + 1)
-                     #FROM adm_presupuesto t1
-                     #WHERE NOT EXISTS
-                        #(SELECT t2.codigo FROM adm_presupuesto t2 WHERE t2.codigo = t1.codigo + 1)
-                     #""")
-    #row = cursor.fetchone()
-    #if row:
-        #n = str(int(row[0]))
-        #zeros = '0' * (5 - len(n))
-        #return zeros + n
-    #else:
-    return '00001'
+    cursor = connection.cursor()
+    cursor.execute("""SELECT (t1.codigo + 1)
+                     FROM adm_ot t1
+                     WHERE NOT EXISTS
+                        (SELECT t2.codigo FROM adm_ot t2 WHERE t2.codigo = t1.codigo + 1)
+                     """)
+    row = cursor.fetchone()
+    if row:
+        n = str(int(row[0]))
+        zeros = '0' * (5 - len(n))
+        return zeros + n
+    else:
+        return '00001'
 
 
 class OT(TimeStampedModel, AuthStampedModel):
@@ -242,8 +242,8 @@ class OT(TimeStampedModel, AuthStampedModel):
                               unique=True, default=nextOTCode,
                               error_messages={'unique': "Ya existe una OT con ese número."})
     fecha_realizado = models.DateField(verbose_name='Fecha',
-                                       blank=True, null=True)
-    importe = models.FloatField(verbose_name='Importe', blank=True, null=True)
+                                       blank=False, null=True)
+    importe = models.FloatField(verbose_name='Importe', blank=False, null=True, default=0)
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
                                     on_delete=models.PROTECT)
     fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',

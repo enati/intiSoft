@@ -85,6 +85,12 @@ class OTForm(forms.ModelForm):
             'presupuesto': {
                 'required': 'Campo obligatorio.',
             },
+            'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'importe': {
+                'required': 'Campo obligatorio.',
+            },
         }
 
 
