@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, OT
+from .models import Presupuesto, OfertaTec, Usuario, OT, Factura
+from django.forms.models import inlineformset_factory
+from django.forms.models import BaseInlineFormSet
 
 editable_fields = ['fecha_instrumento', 'fecha_realizado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -23,10 +25,14 @@ class OTForm(forms.ModelForm):
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'OTForm'
-        if self.instance and self.instance.estado != 'sin_facturar':
-            for f in self.fields:
-                self.fields[f].widget.attrs['disabled'] = True
-                self.fields[f].required = False
+        if self.instance:
+            if self.instance.estado in ['sin_facturar']:
+                # Filtro los presupuestos que no estan finalizados
+                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado='finalizado')
+            if self.instance.estado != 'sin_facturar':
+                for f in self.fields:
+                    self.fields[f].widget.attrs['disabled'] = True
+                    self.fields[f].required = False
 
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -36,6 +42,30 @@ class OTForm(forms.ModelForm):
                 msg = "Se esperan 5 dígitos."
                 self._errors['codigo'] = self.error_class([msg])
             return self.cleaned_data['codigo']
+
+    def clean_fecha_realizado(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.fecha_realizado
+        else:
+            return self.cleaned_data['fecha_realizado']
+
+    def clean_fecha_aviso(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.fecha_aviso
+        else:
+            return self.cleaned_data['fecha_aviso']
+
+    def clean_importe(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.importe
+        else:
+            return self.cleaned_data['importe']
+
+    def clean_presupuesto(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.presupuesto
+        else:
+            return self.cleaned_data['presupuesto']
 
     class Meta:
         model = OT
@@ -51,6 +81,48 @@ class OTForm(forms.ModelForm):
             'fecha_aviso': forms.DateInput(attrs={'class': 'datepicker',
                                                   'readonly': True},),
             }
+        error_messages = {
+            'presupuesto': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+
+class CustomInlineFormset(BaseInlineFormSet):
+    """
+    Custom formset that support initial data
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CustomInlineFormset, self).__init__(*args, **kwargs)
+
+        if self.instance and self.instance.estado in ['pagado', 'cancelado']:
+            for form in self.forms:
+                for field in form.fields:
+                    form.fields[field].widget.attrs['disabled'] = True
+                    form.fields[field].required = False
+
+
+class Factura_LineaForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Factura
+        fields = ['numero',
+                  'importe']
+        error_messages = {
+            'numero': {
+                'required': 'Campo obligatorio.',
+                'unique': 'Ya existe una factura con ese numero.',
+            },
+        }
+
+Factura_LineaFormSet = inlineformset_factory(OT,
+                                             Factura,
+                                             extra=1,
+                                             formfield_callback=bootstrap_format,
+                                             form=Factura_LineaForm,
+                                             formset=CustomInlineFormset)
 
 
 class PresupuestoForm(forms.ModelForm):

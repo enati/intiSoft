@@ -2,9 +2,16 @@
 
 {% block head %}
     {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
         $(function() {
             //$(".datepicker").datepicker("option", "maxDate", '0');
+        });
+
+        $(function() {
+            $(".inline.{{ factura_form.prefix }}").formset({
+                prefix: "{{ factura_form.prefix }}",
+            })
         });
     </script>
 {% endblock %}
@@ -118,13 +125,16 @@
                           for="id_importe">
                             Importe
                         </label>
-                        <div class="col-md-6">
-                           {{ form.importe }}
-                           {% for error in form.fecha_importe.errors %}
-                               <div class="alert alert-error">
-                                   <strong>{{ error|escape }}</strong>
-                               </div>
-                           {% endfor %}
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <div class="input-group-addon">$</div>
+                               {{ form.importe }}
+                               {% for error in form.fecha_importe.errors %}
+                                   <div class="alert alert-error">
+                                       <strong>{{ error|escape }}</strong>
+                                   </div>
+                               {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -132,7 +142,8 @@
 
                 <!-- Separador -->
                 <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                    <div class="col-md-6">
+                <div class="col-md-6"/>
+                    <div>
                         <h3 class="text-danger">Presupuesto</h3>
                         <!-- Codigo -->
                         <div class="form-group">
@@ -142,12 +153,15 @@
                             </label>
                             <div class="col-md-6">
                                {{ form.presupuesto }}
+                              {% for error in form.presupuesto.errors %}
+                                   <div class="alert alert-error">
+                                       <strong>{{ error|escape }}</strong>
+                                   </div>
+                               {% endfor %}
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-12" />
-                    <div class="col-md-6">
+                    <div>
                         <!-- Area -->
                         <div class="form-group">
                             <label class="control-label col-md-5" style="text-align:left"
@@ -158,6 +172,33 @@
                                {{ form.instance.presupuesto.area }}
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="col-md-6" />
+                    <div>
+                        <!-- Facturas -->
+                        <h3 class="text-danger">Facturas</h3>
+                        {{ factura_form.management_form }}
+                        {{ factura_form.non_form_errors }}
+                        <table id="factura_formtable" class="table">
+                            <col style="width:50%">
+                            <col style="width:50%">
+                            <thead>
+                                <td>Numero</td>
+                                <td>Importe</td>
+                            </thead>
+                            <tbody>
+                                {% for form in factura_form %}
+                                        {{ form.id }}
+                                    <tr class="inline {{ factura_form.prefix }}">
+                                        <td>{{ form.numero }} {{ form.numero.errors }}</td>
+                                        <td>{{ form.importe }} {{ form.importe.errors }}</td>
+                                        <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 </br>

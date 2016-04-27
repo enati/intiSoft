@@ -253,3 +253,13 @@ class OT(TimeStampedModel, AuthStampedModel):
         permissions = (("cancel_ot", "Can cancel OT"),)
 
 
+class Factura(TimeStampedModel, AuthStampedModel):
+
+    numero = models.CharField(max_length=15, verbose_name='Nro. Factura', unique=True)
+    importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
+    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['id']
+
+
