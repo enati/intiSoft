@@ -83,6 +83,7 @@ class OfertaTec(TimeStampedModel, AuthStampedModel):
         ordering = ['codigo']
 
 
+# Ultimo codigo disponible (sin tener en cuenta saltos)
 #def nextCode():
     #lastCode = Presupuesto.objects.order_by('codigo').last()
     #if lastCode:
@@ -91,13 +92,16 @@ class OfertaTec(TimeStampedModel, AuthStampedModel):
         #return zeros + n
     #return '00001'
 
-
+# Ultimo codigo disponible (teniendo en cuenta saltos,
+# empezando desde el 05869)
 def nextCode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
                      FROM adm_presupuesto t1
-                     WHERE NOT EXISTS
-                        (SELECT t2.codigo FROM adm_presupuesto t2 WHERE t2.codigo = t1.codigo + 1)
+                     WHERE
+                         NOT EXISTS
+                            (SELECT t2.codigo FROM adm_presupuesto t2 WHERE t2.codigo = t1.codigo + 1)
+                         AND t1.codigo > 5869
                      """)
     row = cursor.fetchone()
     if row:
