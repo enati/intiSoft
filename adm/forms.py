@@ -38,9 +38,6 @@ class OTForm(forms.ModelForm):
         if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.codigo
         else:
-            if len(self.cleaned_data['codigo']) != 5:
-                msg = "Se esperan 5 dígitos."
-                self._errors['codigo'] = self.error_class([msg])
             return self.cleaned_data['codigo']
 
     def clean_fecha_realizado(self):
@@ -115,11 +112,19 @@ class Factura_LineaForm(forms.ModelForm):
 
         model = Factura
         fields = ['numero',
+                  'fecha',
                   'importe']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            }
         error_messages = {
             'numero': {
                 'required': 'Campo obligatorio.',
                 'unique': 'Ya existe una factura con ese numero.',
+            },
+            'fecha': {
+                'required': 'Campo obligatorio.',
             },
         }
 

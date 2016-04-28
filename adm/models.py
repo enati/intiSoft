@@ -239,7 +239,9 @@ class OT(TimeStampedModel, AuthStampedModel):
     estado = models.CharField(max_length=12, choices=ESTADOS,
                               default='sin_facturar', verbose_name='Estado')
     codigo = models.CharField(max_length=15, verbose_name='Nro. OT',
-                              unique=True, default=nextOTCode,
+                              unique=True, default='00000',
+                              validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
+                                                         message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     fecha_realizado = models.DateField(verbose_name='Fecha',
                                        blank=False, null=True)
@@ -265,7 +267,8 @@ class OT(TimeStampedModel, AuthStampedModel):
 
 class Factura(TimeStampedModel, AuthStampedModel):
 
-    numero = models.CharField(max_length=15, verbose_name='Nro. Factura', unique=True)
+    numero = models.CharField(max_length=15, verbose_name='Nro. Factura')
+    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
 
@@ -287,6 +290,24 @@ class Factura(TimeStampedModel, AuthStampedModel):
         if not(ot_obj.factura_set.all()):
             ot_obj._toState_sin_facturar()
         return res
+
+    class Meta:
+        ordering = ['id']
+
+
+class Recibo(TimeStampedModel, AuthStampedModel):
+
+    CHOICES = (
+        ('recibo', 'Recibo'),     # El primer valor es el que se guarda en la DB
+        ('nota_credito', 'Nota De Credito'),
+    )
+
+    comprobante_cobro = models.CharField(max_length=20, choices=CHOICES, verbose_name='Comprobante De Cobro')
+    numero = models.CharField(max_length=15, verbose_name='Nro.')
+    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
+    importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
+    factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
+    ot = models.ForeignKey(OT, verbose_name='OT')
 
     class Meta:
         ordering = ['id']

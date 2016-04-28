@@ -88,7 +88,7 @@
                                 {{o.ofertatec.area}}
                             {% endfor %}</td>
 -->
-                        <td>{{turno_activo.ofertatec_linea_set.first.ofertatec.area}}</td>
+                        <td>{{turno_activo.area}}</td>
                         <td>{{presup.fecha_realizado | date | default_if_none:""}}</td>
                         <td>{{presup.fecha_aceptado | date | default_if_none:""}}</td>
                         <td>{{presup.fecha_instrumento | date | default_if_none:""}}</td>
