@@ -307,7 +307,6 @@ class Recibo(TimeStampedModel, AuthStampedModel):
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
-    ot = models.ForeignKey(OT, verbose_name='OT')
 
     class Meta:
         ordering = ['id']

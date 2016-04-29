@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, OT, Factura
+from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 
@@ -91,19 +91,53 @@ class OTForm(forms.ModelForm):
         }
 
 
-class CustomInlineFormset(BaseInlineFormSet):
+class NestedInlineFormset(BaseInlineFormSet):
     """
     Custom formset that support initial data
     """
 
     def __init__(self, *args, **kwargs):
-        super(CustomInlineFormset, self).__init__(*args, **kwargs)
-
-        if self.instance and self.instance.estado in ['pagado', 'cancelado']:
-            for form in self.forms:
+        super(NestedInlineFormset, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            if self.instance and self.instance.estado in ['pagado', 'cancelado']:
                 for field in form.fields:
                     form.fields[field].widget.attrs['disabled'] = True
                     form.fields[field].required = False
+
+    def add_fields(self, form, index):
+
+        # allow the super class to create the fields as usual
+        super(NestedInlineFormset, self).add_fields(form, index)
+        form.nested = self.nested_formset_class(
+            instance=form.instance,
+            data=form.data if self.is_bound else None,
+            prefix='%s-%s' % (
+                form.prefix,
+                self.nested_formset_class.get_default_prefix(),
+            ),
+        )
+
+    def is_valid(self):
+
+        result = super(NestedInlineFormset, self).is_valid()
+
+        if self.is_bound:
+            # look at any nested formsets, as well
+            for form in self.forms:
+                if not self._should_delete_form(form):
+                    result = result and form.nested.is_valid()
+
+        return result
+
+    def save(self, commit=True):
+
+        result = super(NestedInlineFormset, self).save(commit=commit)
+
+        for form in self.forms:
+            if not self._should_delete_form(form):
+                form.nested.save(commit=commit)
+
+        return result
 
 
 class Factura_LineaForm(forms.ModelForm):
@@ -121,19 +155,67 @@ class Factura_LineaForm(forms.ModelForm):
         error_messages = {
             'numero': {
                 'required': 'Campo obligatorio.',
+            },
+            'fecha': {
+                'required': 'Campo obligatorio.',
+            },
+            'importe': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+
+class Recibo_LineaForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Recibo
+        fields = ['comprobante_cobro',
+                  'numero',
+                  'fecha',
+                  'importe',
+                  'factura']
+        widgets = {
+            'fecha': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            }
+        error_messages = {
+            'numero': {
+                'required': 'Campo obligatorio.',
                 'unique': 'Ya existe una factura con ese numero.',
             },
             'fecha': {
                 'required': 'Campo obligatorio.',
             },
+            'importe': {
+                'required': 'Campo obligatorio.',
+            },
         }
 
-Factura_LineaFormSet = inlineformset_factory(OT,
-                                             Factura,
-                                             extra=1,
-                                             formfield_callback=bootstrap_format,
-                                             form=Factura_LineaForm,
-                                             formset=CustomInlineFormset)
+
+def nested_formset_factory(parent_model, child_model, grandchild_model):
+
+    parent_child = inlineformset_factory(
+        parent_model,
+        child_model,
+        formset=NestedInlineFormset,
+        extra=1,
+        formfield_callback=bootstrap_format,
+        form=Factura_LineaForm,
+    )
+
+    parent_child.nested_formset_class = inlineformset_factory(
+        child_model,
+        grandchild_model,
+        extra=1,
+        formfield_callback=bootstrap_format,
+        form=Recibo_LineaForm,
+
+    )
+
+    return parent_child
+
+Factura_LineaFormSet = nested_formset_factory(OT, Factura, Recibo)
 
 
 class PresupuestoForm(forms.ModelForm):

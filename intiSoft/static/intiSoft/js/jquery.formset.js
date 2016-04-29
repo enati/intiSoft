@@ -60,7 +60,7 @@
                     row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
                 }
                 row.find('a.' + options.deleteCssClass).click(function() {
-                    var row = $(this).parents('.' + options.formCssClass),
+                    var row = $(this).closest('.' + options.formCssClass), //Cambio parents por closest para que no borre todo en forms anhidados
                         del = row.find('input:hidden[id $= "-DELETE"]'),
                         buttonRow = row.siblings("a." + options.addCssClass + ', .' + options.formCssClass + '-add'),
                         forms;

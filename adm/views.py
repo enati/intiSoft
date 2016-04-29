@@ -81,7 +81,7 @@ class OTCreate(CreateView):
     def form_valid(self, form, factura_form):
         """
         Called if all forms are valid. Creates an OT instance along with
-        associated Factuas and then redirects to a
+        associated Factuas and Recibos then redirects to a
         success page.
         """
         self.object = form.save()

@@ -11,7 +11,12 @@
         $(function() {
             $(".inline.{{ factura_form.prefix }}").formset({
                 prefix: "{{ factura_form.prefix }}",
-            })
+            });
+            {% for form in factura_form %}
+                $(".inline.{{ form.nested.prefix }}").formset({
+                    prefix: "{{form.nested.prefix}}",
+                })
+            {% endfor %}
         });
     </script>
 {% endblock %}
@@ -182,16 +187,18 @@
                 <!-- Separador -->
                 <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
 
-                <div class="col-md-6" />
+                <div class="col-md-12" />
                     <div>
                         <!-- Facturas -->
                         <h3 class="text-danger">Facturación</h3>
                         {{ factura_form.management_form }}
                         {{ factura_form.non_form_errors }}
                         <table id="factura_formtable" class="table">
+<!--
                             <col style="width:33%">
                             <col style="width:33%">
                             <col style="width:33%">
+-->
                             <thead>
                                 <td>Numero</td>
                                 <td>Fecha</td>
@@ -199,13 +206,37 @@
                             </thead>
                             <tbody>
                                 {% for form in factura_form %}
-                                        {{ form.id }}
+                                    {{ form.id }}
                                     <tr class="inline {{ factura_form.prefix }}">
                                         <td>{{ form.numero }} {{ form.numero.errors }}</td>
                                         <td>{{ form.fecha }} {{ form.fecha.errors }}</td>
                                         <td>{{ form.importe }} {{ form.importe.errors }}</td>
+                                        <td>
+                                            {{ form.nested.management_form }}
+                                            {{ form.nested.non_form_errors }}
+                                            <table id="recibo_formtable" class="table">
+                                                <thead>
+                                                    <td>Comprobante</td>
+                                                    <td>Numero</td>
+                                                    <td>Fecha</td>
+                                                    <td>Importe</td>
+                                                </thead>
+                                                <tbody>
+                                                    {% for r_form in form.nested %}
+                                                        {{ r_form.id }}
+                                                        <tr class="inline {{ form.nested.prefix }}">
+                                                            <td>{{ r_form.comprobante_cobro }}{{ r_form.comprobante_cobro.errors }}</td>
+                                                            <td>{{ r_form.numero }}{{ r_form.numero.errors }}</td>
+                                                            <td>{{ r_form.fecha }}{{ r_form.fecha.errors }}</td>
+                                                            <td>{{ r_form.importe }}{{ r_form.importe.errors }}</td>
+                                                            <td>{{ r_form.factura }}{{ r_form.importe.errors }}</td>
+                                                            {% if r_form.instance.pk %}{{ r_form.DELETE }}{% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
                                         <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
-                                        <td></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
