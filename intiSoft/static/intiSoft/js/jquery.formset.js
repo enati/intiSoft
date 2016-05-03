@@ -59,8 +59,9 @@
                     // last child element of the form's container:
                     row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
                 }
-                row.find('a.' + options.deleteCssClass).click(function() {
-                    var row = $(this).closest('.' + options.formCssClass), //Cambio parents por closest para que no borre todo en forms anhidados
+                //row.find('a.' + options.deleteCssClass).click(function() {
+                row.children('td').children('a.' + options.deleteCssClass).click(function() {     // FIX para que en el nested solo borre la linea del nested
+                    var row = $(this).parents('.' + options.formCssClass + '.' + options.prefix), //Cambio parents por closest para que no borre todo en forms anhidados
                         del = row.find('input:hidden[id $= "-DELETE"]'),
                         buttonRow = row.siblings("a." + options.addCssClass + ', .' + options.formCssClass + '-add'),
                         forms;
@@ -69,7 +70,7 @@
                         // Rather than remove this form from the DOM, we'll mark it as deleted
                         // and hide it, then let Django handle the deleting:
                         del.val('on');
-                        row.hide();
+                        row.hide()
                         forms = $('.' + options.formCssClass).not(':hidden');
                     } else {
                         row.remove();

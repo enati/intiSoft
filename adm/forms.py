@@ -108,6 +108,7 @@ class NestedInlineFormset(BaseInlineFormSet):
 
         # allow the super class to create the fields as usual
         super(NestedInlineFormset, self).add_fields(form, index)
+        #import pdb; pdb.set_trace()
         form.nested = self.nested_formset_class(
             instance=form.instance,
             data=form.data if self.is_bound else None,
@@ -116,17 +117,18 @@ class NestedInlineFormset(BaseInlineFormSet):
                 self.nested_formset_class.get_default_prefix(),
             ),
         )
+        #import pdb; pdb.set_trace()
 
     def is_valid(self):
 
         result = super(NestedInlineFormset, self).is_valid()
 
         if self.is_bound:
+            #import pdb; pdb.set_trace()
             # look at any nested formsets, as well
             for form in self.forms:
                 if not self._should_delete_form(form):
                     result = result and form.nested.is_valid()
-
         return result
 
     def save(self, commit=True):
@@ -173,8 +175,7 @@ class Recibo_LineaForm(forms.ModelForm):
         fields = ['comprobante_cobro',
                   'numero',
                   'fecha',
-                  'importe',
-                  'factura']
+                  'importe']
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
@@ -210,7 +211,6 @@ def nested_formset_factory(parent_model, child_model, grandchild_model):
         extra=1,
         formfield_callback=bootstrap_format,
         form=Recibo_LineaForm,
-
     )
 
     return parent_child
