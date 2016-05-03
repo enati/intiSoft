@@ -140,7 +140,7 @@
             } else {
                 // Otherwise, use the last form in the formset; this works much better if you've got
                 // extra (>= 1) forms (thnaks to justhamade for pointing this out):
-                template = $('.' + options.formCssClass + ':last').clone(true).removeAttr('id');
+                template = $('.' + options.formCssClass + '.' + options.prefix + ':last').clone(true).removeAttr('id');
                 template.find('input:hidden[id $= "-DELETE"]').remove();
                 // Clear all cloned fields, except those the user wants to keep (thanks to brunogola for the suggestion):
                 template.find(childElementSelector).not(options.keepFieldValues).each(function() {
@@ -197,14 +197,15 @@
     $.fn.formset.defaults = {
         prefix: 'form',                  // The form prefix for your django formset
         formTemplate: null,              // The jQuery selection cloned to generate new form instances
-        addText: 'Agregar otro',          // Text for the add link
-        deleteText: 'Eliminar',            // Text for the delete link
+        addText: 'Agregar',              // Text for the add link
+        deleteText: 'Eliminar',          // Text for the delete link
         addCssClass: 'add-row',          // CSS class applied to the add link
         deleteCssClass: 'delete-row',    // CSS class applied to the delete link
         formCssClass: 'dynamic-form',    // CSS class applied to each form in a formset
         extraClasses: [],                // Additional CSS classes, which will be applied to each form in turn
-        keepFieldValues: 'input',             // jQuery selector for fields whose values should be kept when the form is cloned
+        keepFieldValues: 'input',        // jQuery selector for fields whose values should be kept when the form is cloned
         added: null,                     // Function called each time a new form is added
         removed: null                    // Function called each time a form is deleted
     };
 })(jQuery)
+

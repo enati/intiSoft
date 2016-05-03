@@ -10,8 +10,11 @@
 
         $(function() {
             {% for form in factura_form %}
-                $(".inline.{{ form.nested.prefix }}").formset({
-                    prefix: "{{form.nested.prefix}}",
+                $(".inline.{{ form.nested.0.prefix }}").formset({
+                    prefix: "{{form.nested.0.prefix}}",
+                })
+                $(".inline.{{ form.nested.1.prefix }}").formset({
+                    prefix: "{{form.nested.1.prefix}}",
                 })
             {% endfor %}
             $(".inline.{{ factura_form.prefix }}").formset({
@@ -208,8 +211,8 @@
                                         <td>{{ f_form.importe }} {{ f_form.importe.errors }}</td>
                                         <td>
                                             <table id="recibo_formtable" class="table">
-                                                {{ f_form.nested.management_form }}
-                                                {{ f_form.nested.non_form_errors }}
+                                                {{ f_form.nested.0.management_form }}
+                                                {{ f_form.nested.0.non_form_errors }}
                                                 <thead>
                                                     <td>Comprobante</td>
                                                     <td>Numero</td>
@@ -217,13 +220,31 @@
                                                     <td>Importe</td>
                                                 </thead>
                                                 <tbody>
-                                                    {% for r_form in f_form.nested %}
+                                                    {% for r_form in f_form.nested.0 %}
                                                         {{ r_form.id }}
-                                                        <tr class="inline {{ f_form.nested.prefix }}">
+                                                        <tr class="inline {{ f_form.nested.0.prefix }}">
                                                             <td>{{ r_form.comprobante_cobro }}{{ r_form.comprobante_cobro.errors }}</td>
                                                             <td>{{ r_form.numero }}{{ r_form.numero.errors }}</td>
                                                             <td>{{ r_form.fecha }}{{ r_form.fecha.errors }}</td>
                                                             <td>{{ r_form.importe }}{{ r_form.importe.errors }}</td>
+                                                            <td>{% if r_form.instance.pk %}{{ r_form.DELETE }}{% endif %}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table id="remito_formtable" class="table">
+                                                {{ f_form.nested.1.management_form }}
+                                                {{ f_form.nested.1.non_form_errors }}
+                                                <thead>
+                                                    <td>Numero</td>
+                                                </thead>
+                                                <tbody>
+                                                    {% for r_form in f_form.nested.1 %}
+                                                        {{ r_form.id }}
+                                                        <tr class="inline {{ f_form.nested.1.prefix }}">
+                                                            <td>{{ r_form.numero }}{{ r_form.numero.errors }}</td>
                                                             <td>{% if r_form.instance.pk %}{{ r_form.DELETE }}{% endif %}</td>
                                                         </tr>
                                                     {% endfor %}

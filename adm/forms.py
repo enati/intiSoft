@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo
+from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo, Remito
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 
@@ -109,14 +109,16 @@ class NestedInlineFormset(BaseInlineFormSet):
         # allow the super class to create the fields as usual
         super(NestedInlineFormset, self).add_fields(form, index)
         #import pdb; pdb.set_trace()
-        form.nested = self.nested_formset_class(
-            instance=form.instance,
-            data=form.data if self.is_bound else None,
-            prefix='%s-%s' % (
-                form.prefix,
-                self.nested_formset_class.get_default_prefix(),
-            ),
-        )
+        form.nested = []
+        for i, nested_formset in enumerate(self.nested_formset_class):
+            form.nested.append(nested_formset(
+                instance=form.instance,
+                data=form.data if self.is_bound else None,
+                prefix='%s-%s' % (
+                    form.prefix,
+                    nested_formset.get_default_prefix(),
+                ),
+            ))
         #import pdb; pdb.set_trace()
 
     def is_valid(self):
@@ -128,7 +130,7 @@ class NestedInlineFormset(BaseInlineFormSet):
             # look at any nested formsets, as well
             for form in self.forms:
                 if not self._should_delete_form(form):
-                    result = result and form.nested.is_valid()
+                    result = result and form.nested[0].is_valid() and form.nested[1].is_valid()
         return result
 
     def save(self, commit=True):
@@ -137,7 +139,8 @@ class NestedInlineFormset(BaseInlineFormSet):
 
         for form in self.forms:
             if not self._should_delete_form(form):
-                form.nested.save(commit=commit)
+                form.nested[0].save(commit=commit)
+                form.nested[1].save(commit=commit)
 
         return result
 
@@ -194,7 +197,15 @@ class Recibo_LineaForm(forms.ModelForm):
         }
 
 
-def nested_formset_factory(parent_model, child_model, grandchild_model):
+class Remito_LineaForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Recibo
+        fields = ['numero']
+
+
+def nested_formset_factory(parent_model, child_model, grandchilds):
 
     parent_child = inlineformset_factory(
         parent_model,
@@ -205,17 +216,20 @@ def nested_formset_factory(parent_model, child_model, grandchild_model):
         form=Factura_LineaForm,
     )
 
-    parent_child.nested_formset_class = inlineformset_factory(
-        child_model,
-        grandchild_model,
-        extra=1,
-        formfield_callback=bootstrap_format,
-        form=Recibo_LineaForm,
-    )
+    parent_child.nested_formset_class = []
+
+    for (grandchild, g_form) in grandchilds:
+        parent_child.nested_formset_class.append(inlineformset_factory(
+            child_model,
+            grandchild,
+            extra=1,
+            formfield_callback=bootstrap_format,
+            form=g_form,
+        ))
 
     return parent_child
 
-Factura_LineaFormSet = nested_formset_factory(OT, Factura, Recibo)
+Factura_LineaFormSet = nested_formset_factory(OT, Factura, [(Recibo, Recibo_LineaForm), (Remito, Remito_LineaForm)])
 
 
 class PresupuestoForm(forms.ModelForm):

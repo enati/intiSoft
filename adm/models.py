@@ -312,3 +312,13 @@ class Recibo(TimeStampedModel, AuthStampedModel):
         ordering = ['id']
 
 
+class Remito(TimeStampedModel, AuthStampedModel):
+
+    numero = models.CharField(max_length=15, verbose_name='Nro.')
+    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
+    factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['id']
+
+
