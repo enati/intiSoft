@@ -61,7 +61,7 @@
                 }
                 //row.find('a.' + options.deleteCssClass).click(function() {
                 row.children('td').children('a.' + options.deleteCssClass).click(function() {     // FIX para que en el nested solo borre la linea del nested
-                    var row = $(this).parents('.' + options.formCssClass + '.' + options.prefix), //Cambio parents por closest para que no borre todo en forms anhidados
+                    var row = $(this).parents('.' + options.formCssClass + '.' + options.prefix),
                         del = row.find('input:hidden[id $= "-DELETE"]'),
                         buttonRow = row.siblings("a." + options.addCssClass + ', .' + options.formCssClass + '-add'),
                         forms;
@@ -75,7 +75,8 @@
                     } else {
                         row.remove();
                         // Update the TOTAL_FORMS count:
-                        forms = $('.' + options.formCssClass).not('.formset-custom-template');
+                        //forms = $('.' + options.formCssClass).not('.formset-custom-template'); // FIX para nested forms
+                        forms = $('.' + options.formCssClass + '.' + options.prefix).not('.formset-custom-template');
                         totalForms.val(forms.length);
                     }
                     for (var i=0, formCount=forms.length; i<formCount; i++) {
