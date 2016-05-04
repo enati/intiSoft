@@ -77,6 +77,7 @@ class OTForm(forms.ModelForm):
                                                       'readonly': True},),
             'fecha_aviso': forms.DateInput(attrs={'class': 'datepicker',
                                                   'readonly': True},),
+            'importe': forms.TextInput(),
             }
         error_messages = {
             'presupuesto': {
@@ -99,7 +100,7 @@ class NestedInlineFormset(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         super(NestedInlineFormset, self).__init__(*args, **kwargs)
         for form in self.forms:
-            if self.instance and self.instance.estado in ['pagado', 'cancelado']:
+            if self.instance and self.instance.estado in ['cancelado']:
                 for field in form.fields:
                     form.fields[field].widget.attrs['disabled'] = True
                     form.fields[field].required = False
@@ -156,6 +157,7 @@ class Factura_LineaForm(forms.ModelForm):
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
+            'importe': forms.TextInput(),
             }
         error_messages = {
             'numero': {
@@ -182,6 +184,7 @@ class Recibo_LineaForm(forms.ModelForm):
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
+            'importe': forms.TextInput(),
             }
         error_messages = {
             'numero': {
@@ -192,6 +195,9 @@ class Recibo_LineaForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
             'importe': {
+                'required': 'Campo obligatorio.',
+            },
+            'comprobante_cobro': {
                 'required': 'Campo obligatorio.',
             },
         }

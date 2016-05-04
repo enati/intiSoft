@@ -243,6 +243,29 @@ class OTList(ListView):
             context['order_by'] = self.request.GET['order_by']
         return context
 
+    def post(self, request, *args, **kwargs):
+        response_dict = {'ok': True, 'msg': None}
+        if 'Cancelar' in request.POST:
+            if request.user.has_perm('adm.cancel_ot'):
+                ot_id = request.POST.get('Cancelar')
+                ot_obj = OT.objects.get(pk=ot_id)
+                try:
+                    ot_obj._toState_cancelado()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Eliminar' in request.POST:
+            if request.user.has_perm('adm.delete_ot'):
+                ot_id = request.POST.get('Eliminar')
+                ot_obj = OT.objects.get(pk=ot_id)
+                ot_obj._delete()
+                response_dict['redirect'] = reverse_lazy('adm:ot-list').strip()
+            else:
+                raise PermissionDenied
+        return JsonResponse(response_dict)
+
 #===========================================
 #========== VISTAS PRESUPUESTO =============
 #===========================================

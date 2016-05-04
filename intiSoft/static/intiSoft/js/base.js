@@ -287,7 +287,7 @@ $(document).ready(function() {
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
         var art = ' el ';
-        if (model=='OT')
+        if ((model=='OT') || (model=='factura'))
             art = ' la ';
         if (action.localeCompare('Finalizar')==0) {
             var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\

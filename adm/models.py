@@ -261,6 +261,28 @@ class OT(TimeStampedModel, AuthStampedModel):
         self.save()
         return True
 
+    def _toState_pagado(self):
+        self.estado = 'pagado'
+        self.save()
+        return True
+
+    def _toState_cancelado(self):
+        if self.estado == 'finalizado':
+            raise StateError('No se pueden cancelar las OT pagadas.', '')
+        self.estado = 'cancelado'
+        self.save()
+        ## Cancelo las facturas asociadas, de haberlas
+        #for factura in self.factura_set.all():
+            #if factura.estado != 'cancelado':
+                #factura.estado = 'cancelado'
+                #factura.save()
+        return True
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        self.delete()
+        return True
+
     class Meta:
         permissions = (("cancel_ot", "Can cancel OT"),)
 
@@ -307,6 +329,29 @@ class Recibo(TimeStampedModel, AuthStampedModel):
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            #This code only happens if the objects is
+            #not in the database yet. Otherwise it would
+            #have pk
+            factura_obj = Factura.objects.get(pk=self.factura_id)
+            ot_obj = OT.objects.get(pk=factura_obj.ot_id)
+            if ot_obj.estado == 'no_pago':
+                ot_obj._toState_pagado()
+        super(Recibo, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        res = super(Recibo, self).delete(*args, **kwargs)
+        # Si borre el ultimo recibo asociado a una OT,
+        # vuelvo la OT a estado no_pago
+        factura_obj = Factura.objects.get(pk=self.factura_id)
+        ot_obj = OT.objects.get(pk=factura_obj.ot_id)
+        for factura in ot_obj.factura_set.all():
+            if (factura.recibo_set.all()):
+                return res
+        ot_obj._toState_no_pago()
+        return res
 
     class Meta:
         ordering = ['id']
