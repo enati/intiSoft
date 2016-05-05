@@ -3,6 +3,7 @@ from django import forms
 from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo, Remito
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
+from django.forms.forms import NON_FIELD_ERRORS
 
 editable_fields = ['fecha_instrumento', 'fecha_realizado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -99,17 +100,27 @@ class NestedInlineFormset(BaseInlineFormSet):
 
     def __init__(self, *args, **kwargs):
         super(NestedInlineFormset, self).__init__(*args, **kwargs)
+        #import pdb; pdb.set_trace()
         for form in self.forms:
-            if self.instance and self.instance.estado in ['cancelado']:
-                for field in form.fields:
-                    form.fields[field].widget.attrs['disabled'] = True
-                    form.fields[field].required = False
+            if form.instance:
+                form.fields['estado'].widget.attrs.update({'style': 'display: none'})
+                if form.instance.estado == 'cancelada':
+                    for field in form.fields:
+                        # Con el id se rompe
+                        if field != 'id':
+                            form.fields[field].widget.attrs['disabled'] = True
+                            form.fields[field].required = False
+                    for nested in form.nested:
+                        for nestedForm in nested.forms:
+                            for field in nestedForm.fields:
+                                if field != 'id':
+                                    nestedForm.fields[field].widget.attrs['disabled'] = True
+                                    nestedForm.fields[field].required = False
 
     def add_fields(self, form, index):
 
         # allow the super class to create the fields as usual
         super(NestedInlineFormset, self).add_fields(form, index)
-        #import pdb; pdb.set_trace()
         form.nested = []
         for i, nested_formset in enumerate(self.nested_formset_class):
             form.nested.append(nested_formset(
@@ -120,7 +131,6 @@ class NestedInlineFormset(BaseInlineFormSet):
                     nested_formset.get_default_prefix(),
                 ),
             ))
-        #import pdb; pdb.set_trace()
 
     def is_valid(self):
 
@@ -148,11 +158,30 @@ class NestedInlineFormset(BaseInlineFormSet):
 
 class Factura_LineaForm(forms.ModelForm):
 
+    #def clean_numero(self):
+        #if self.instance and self.instance.estado != 'cancelada':
+            #return self.instance.numero
+        #else:
+            #return self.cleaned_data['numero']
+
+    #def clean_fecha(self):
+        #if self.instance and self.instance.estado != 'cancelada':
+            #return self.instance.fecha
+        #else:
+            #return self.cleaned_data['fecha']
+
+    #def clean_importe(self):
+        #if self.instance and self.instance.estado != 'cancelada':
+            #return self.instance.importe
+        #else:
+            #return self.cleaned_data['importe']
+
     class Meta:
 
         model = Factura
         fields = ['numero',
                   'fecha',
+                  'estado',
                   'importe']
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
@@ -173,6 +202,30 @@ class Factura_LineaForm(forms.ModelForm):
 
 
 class Recibo_LineaForm(forms.ModelForm):
+
+    #def clean_comprobante_cobro(self):
+        #if self.instance and self.instance.factura.estado != 'cancelada':
+            #return self.instance.comprobante_cobro
+        #else:
+            #return self.cleaned_data['comprobante_cobro']
+
+    #def clean_numero(self):
+        #if self.instance and self.instance.factura.estado != 'cancelada':
+            #return self.instance.numero
+        #else:
+            #return self.cleaned_data['numero']
+
+    #def clean_fecha(self):
+        #if self.instance and self.instance.factura.estado != 'cancelada':
+            #return self.instance.fecha
+        #else:
+            #return self.cleaned_data['fecha']
+
+    #def clean_importe(self):
+        #if self.instance and self.instance.factura.estado != 'cancelada':
+            #return self.instance.importe
+        #else:
+            #return self.cleaned_data['importe']
 
     class Meta:
 
@@ -204,6 +257,22 @@ class Recibo_LineaForm(forms.ModelForm):
 
 
 class Remito_LineaForm(forms.ModelForm):
+
+    #def __init__(self, *args, **kwargs):
+        #super(Remito_LineaForm, self).__init__(*args, **kwargs)
+        ## El nro de presup no tiene que tener form-control
+        #if self.instance and self.instance.factura_id:
+            #if self.instance.factura.estado == 'cancelada':
+                #for f in self.fields:
+                    #self.fields[f].widget.attrs['disabled'] = True
+                    #self.fields[f].required = False
+
+    #def clean(self):
+        #cleaned_data = super(Remito_LineaForm, self).clean()
+        #if self.instance and self.instance.factura.estado == 'cancelada':
+            #msg = self.error_class(['No se pueden crear remitos ya que la factura esta cancelada'])
+            #self.add_error(NON_FIELD_ERRORS, msg)
+        #return cleaned_data
 
     class Meta:
 

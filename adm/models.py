@@ -272,10 +272,10 @@ class OT(TimeStampedModel, AuthStampedModel):
         self.estado = 'cancelado'
         self.save()
         ## Cancelo las facturas asociadas, de haberlas
-        #for factura in self.factura_set.all():
-            #if factura.estado != 'cancelado':
-                #factura.estado = 'cancelado'
-                #factura.save()
+        for factura in self.factura_set.all():
+            if factura.estado != 'cancelada':
+                factura.estado = 'cancelada'
+                factura.save()
         return True
 
     def _delete(self):
@@ -289,10 +289,23 @@ class OT(TimeStampedModel, AuthStampedModel):
 
 class Factura(TimeStampedModel, AuthStampedModel):
 
+    ESTADOS = (
+        ('activa', 'Activa'),     # El primer valor es el que se guarda en la DB
+        ('cancelada', 'Cancelada')
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='activa', verbose_name='Estado')
     numero = models.CharField(max_length=15, verbose_name='Nro. Factura')
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+
+    def _toState_cancelado(self):
+        if self.estado == 'activa':
+            self.estado = 'cancelada'
+            self.save()
+        return True
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -315,6 +328,7 @@ class Factura(TimeStampedModel, AuthStampedModel):
 
     class Meta:
         ordering = ['id']
+        permissions = (("cancel_factura", "Can cancel factura"),)
 
 
 class Recibo(TimeStampedModel, AuthStampedModel):

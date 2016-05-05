@@ -295,7 +295,7 @@ $(document).ready(function() {
             modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }
-        if (action.localeCompare('Cancelar')==0) {
+        if (action.localeCompare('Cancelar')==0 || action.localeCompare('CancelarF')==0) {
             modal.find('.modal-body h4').text("¿Está seguro que quiere cancelar"+art+model+"?")
             modal.find('.modal-body p').text("")
         }

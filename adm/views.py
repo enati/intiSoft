@@ -2,7 +2,7 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT
+from .models import Presupuesto, OfertaTec, Usuario, OT, Factura
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, Factura_LineaFormSet
 from datetime import datetime, timedelta
@@ -245,6 +245,17 @@ class OTList(ListView):
 
     def post(self, request, *args, **kwargs):
         response_dict = {'ok': True, 'msg': None}
+        if 'CancelarF' in request.POST:
+            if request.user.has_perm('adm.cancel_factura'):
+                factura_id = request.POST.get('CancelarF')
+                factura_obj = Factura.objects.get(pk=factura_id)
+                try:
+                    factura_obj._toState_cancelado()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
         if 'Cancelar' in request.POST:
             if request.user.has_perm('adm.cancel_ot'):
                 ot_id = request.POST.get('Cancelar')
