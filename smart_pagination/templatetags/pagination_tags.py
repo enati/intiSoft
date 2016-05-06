@@ -72,3 +72,13 @@ class PaginationNode(template.Node):
         context.update({self.var_name: paginator})
 
         return self.nodelist.render(context)
+
+
+@register.simple_tag
+def url_replace(request, field, value):
+
+    dict_ = request.GET.copy()
+
+    dict_[field] = value
+
+    return dict_.urlencode()

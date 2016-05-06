@@ -182,6 +182,13 @@ class OTList(ListView):
                 elif key == 'fecha_realizado' or key == 'fecha_aviso':
                     kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
                            for v in vals]
+                elif key == 'area':
+                    presup_by_ot = [o.presupuesto for o in queryset]
+                    filtered_presup = [p for p in presup_by_ot if p.get_turno_activo().area in vals]
+                    kwargs['presupuesto__in'] = filtered_presup
+                elif key == 'factura':
+                    ots = [o.id for o in queryset if o.factura_set.get_queryset().filter(numero__in=vals)]
+                    kwargs['id__in'] = ots
                 else:
                     kwargs['%s__in' % key] = vals
                 if kwargs:
@@ -190,18 +197,13 @@ class OTList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(OTList, self).get_context_data(**kwargs)
-
         ots = OT.objects.all()
 
-        field_names = ['estado', 'codigo', 'presupuesto__codigo',
-                       'fecha_realizado',
-                       'fecha_aviso',
-                       'importe']
-        field_labels = ['Estado', 'Nro.', 'Presupuesto',
-                        'Fecha de Realizacion',
-                        'Aviso de Trabajo Realizado']
+        field_names = ['estado', 'presupuesto', 'presupuesto__usuario__nombre',
+                       'codigo', 'fecha_realizado', 'importe', 'area', 'factura']
+        field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Importe',
+                        'Area', 'Nro. Factura']
 
-        # Agregado para mostrar los campos ordenados
         # OTs sin facturar
         sfCount = len(ots.filter(estado='sin_facturar'))
         # OTs sin pagar
@@ -216,18 +218,28 @@ class OTList(ListView):
                        'pagado(' + str(pagCount) + ')',
                        'cancelado(' + str(canCount) + ')']
         options.append(estado_vals)
-        cod_vals = sorted(set([o.codigo for o in ots]))
-        options.append(cod_vals)
         presup_vals = sorted(set([o.presupuesto.codigo for o in ots]))
         options.append(presup_vals)
+        usuario_vals = sorted(set([o.presupuesto.usuario.nombre for o in ots]))
+        options.append(usuario_vals)
+        cod_vals = sorted(set([o.codigo for o in ots]))
+        options.append(cod_vals)
         fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
                         for o in ots if o.fecha_realizado is not None]))
         options.append(fec1_vals)
-        fec2_vals = sorted(set([o.fecha_aviso.strftime("%d/%m/%Y")
-                        for o in ots if o.fecha_aviso is not None]))
-        options.append(fec2_vals)
-        importe_vals = sorted(set([o.importe for o in ots]))
+        importe_vals = sorted(set([o.importe for o in ots if o.importe]))
         options.append(importe_vals)
+        area_vals = sorted(set([o.presupuesto.get_turno_activo().area for o in ots]))
+        options.append(area_vals)
+        factura_list = [o.factura_set for o in ots]
+        factura_plist = reduce(lambda x, y: x + y,
+                                 [[t for t in f.get_queryset()] for f in factura_list], [])
+        factura_vals = set([f.numero for f in factura_plist])
+        options.append(factura_vals)
+
+        #fec2_vals = sorted(set([o.fecha_aviso.strftime("%d/%m/%Y")
+                        #for o in ots if o.fecha_aviso is not None]))
+        #options.append(fec2_vals)
         context['fields'] = list(zip(field_names, field_labels, options))
         # Chequeo los filtros seleccionados para conservar el estado de los
         # checkboxes
@@ -700,13 +712,13 @@ class UsuarioList(ListView):
     paginate_by = 25
 
     def get_queryset(self):
+        #import pdb; pdb.set_trace()
         queryset = Usuario.objects.all()
         kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-
                 else:
                     kwargs['%s__in' % key] = vals
                 if kwargs:
