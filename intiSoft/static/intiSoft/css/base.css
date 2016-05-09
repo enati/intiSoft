@@ -206,11 +206,11 @@ p.truncated {
     background-color: #D4D4D4;
 }
 
-select, option {
-    width: 700px;
-    text-overflow:ellipsis;
-    overflow:hidden;
-}
+//select, option {
+    //width: 700px;
+    //text-overflow:ellipsis;
+    //overflow:hidden;
+//}
 
 .today {
     background-color: #ddd;
