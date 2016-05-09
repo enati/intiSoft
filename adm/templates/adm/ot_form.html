@@ -129,23 +129,6 @@
                                    {% endfor %}
                                 </div>
                             </div>
-                            <!-- Fecha de Aviso -->
-    <!--
-                            <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
-                                  for="id_fecha_aviso">
-                                    Fecha de Aviso
-                                </label>
-                                <div class="col-md-6">
-                                   {{ form.fecha_aviso}}
-                                   {% for error in form.fecha_aviso.errors %}
-                                       <div class="alert alert-error">
-                                           <strong>{{ error|escape }}</strong>
-                                       </div>
-                                   {% endfor %}
-                                </div>
-                            </div>
-    -->
                         </div>
                         <div class="col-md-6"/>
                             <h3 class="text-danger">Presupuesto</h3>
@@ -193,6 +176,23 @@
                     <div class="col-md-12">
                         <!-- Facturas -->
                         <h3 class="text-danger">Facturacion</h3>
+                        <!-- Fecha de Aviso -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_fecha_aviso">
+                                    Fecha de Aviso
+                                </label>
+                                <div class="col-md-6">
+                                   {{ form.fecha_aviso}}
+                                   {% for error in form.fecha_aviso.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                         <table id="general_formtable" class="table">
                             {{ factura_form.management_form }}
                             {{ factura_form.non_form_errors }}

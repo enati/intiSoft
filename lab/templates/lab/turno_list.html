@@ -95,6 +95,12 @@
 -->
                         </td>
                         <td>{{turno.presupuesto.codigo}}</td>
+                        <td>{% for ot in turno.presupuesto.ot_set.all %}
+                                {% if ot.estado != 'cancelado' %}
+                                    {{ot.codigo}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
                         <td>
                             <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
                                 data-model="turno" type="button" class="btn btn-default"

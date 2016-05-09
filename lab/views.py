@@ -4,7 +4,7 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse_lazy, reverse
 from .models import Turno, OfertaTec_Linea
-from adm.models import OfertaTec, Presupuesto
+from adm.models import OfertaTec, Presupuesto, OT
 from datetime import datetime
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -47,6 +47,10 @@ class TurnoList(ListView):
                      key == 'presupuesto__fecha_aceptado':
                     kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
                                               for v in vals]
+                elif key == 'ot__codigo':
+                    ots = OT.objects.filter(codigo__in=vals)
+                    presup = [o.presupuesto.get_turno_activo().id for o in ots]
+                    kwargs['id__in'] = presup
                 else:
                     kwargs['%s__in' % key] = vals
                     if key.find('ofertatec__') != -1:
@@ -70,12 +74,12 @@ class TurnoList(ListView):
                        'presupuesto__fecha_instrumento',
                        'presupuesto__fecha_aceptado',
                        #'ofertatec__codigo',
-                       'presupuesto__codigo']
+                       'presupuesto__codigo', 'ot__codigo']
         field_labels = ['Estado', 'Usuario',
                         'Inicio', 'Finalizacion', 'Llegada del instrumento',
                         'Aceptacion Presupuesto',
                         #'Oferta Tec.',
-                        'Nro. Presupuesto']
+                        'Nro. Presupuesto', 'Nro. OT']
         # Turnos en espera
         espCount = len(turnos.filter(estado='en_espera'))
         # Turnos activos
@@ -118,6 +122,11 @@ class TurnoList(ListView):
         #options.append(ofertatec_vals)
         presup_vals = set([t.presupuesto.codigo for t in turnos if t.presupuesto])
         options.append(presup_vals)
+        ot_list = [t.presupuesto.ot_set for t in turnos if t.presupuesto]
+        ot_plist = reduce(lambda x, y: x + y,
+                                 [[t for t in o.get_queryset()] for o in ot_list], [])
+        ot_vals = sorted(set([o.codigo for o in ot_plist if o.estado != 'cancelado']))
+        options.append(ot_vals)
         context['fields'] = list(zip(field_names, field_labels, options))
         # Chequeo los filtros seleccionados para conservar el estado de los
         # checkboxes

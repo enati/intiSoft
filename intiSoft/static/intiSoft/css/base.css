@@ -44,6 +44,16 @@
   color: black;
   z-index:1;
 }
+.table#otTable > tbody > tr > td,
+.table#otTable > tbody > tr > th,
+.table#otTable > thead > tr > td,
+.table#otTable > thead > tr > th {
+    padding-left: 7px;
+    padding-right: 7px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 .table > thead {
     font-weight: 500;
 }
