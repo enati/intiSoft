@@ -20,6 +20,9 @@
             $(".inline.{{ factura_form.prefix }}").formset({
                 prefix: "{{ factura_form.prefix }}",
             });
+            $(".inline.{{ ot_linea_form.prefix }}").formset({
+                prefix: "{{ ot_linea_form.prefix }}",
+            });
         });
     </script>
 {% endblock %}
@@ -171,6 +174,54 @@
                     </div>
                 </div>
                 <!-- Separador -->
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                <!-- Separador -->
+                <div class="col-md-12">
+                    <h3 class="text-danger">Oferta Tecnológica</h3>
+                    {{ ot_linea_form.management_form }}
+                    {{ ot_linea_form.non_form_errors }}
+                    <table id="ot_formtable" class="table">
+                        <col style="width:30%">
+                        <col style="width:20%">
+                        <col style="width:5%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+                        <thead>
+                            <td>Código</td>
+                            <td style="display:none">Detalle</td>
+                            <td>Tipo De Servicio</td>
+                            <td>Cantidad</td>
+                            <td>Horas</td>
+                            <td>Precio Unitario</td>
+                        </thead>
+                        <tbody>
+                            {% for form in ot_linea_form %}
+                                {{ form.id }}
+                                <tr class="inline {{ ot_linea_form.prefix }}">
+                                    <td>{{ form.ofertatec }} {{ form.ofertatec.errors }}</td>
+                                    <td style="display:none">{{ form.detalle }} {{ form.detalle.errors }}</td>
+                                    <td>{{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}</td>
+                                    <td>{{ form.cantidad }} {{ form.cantidad.errors }}</td>
+                                    <td>{{ form.cant_horas }} {{ form.cant_horas.errors }}</td>
+                                    <td>{{ form.precio }} {{ form.precio.errors }}</td>
+                                    <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                            <!--{% for form in ot_linea_form %}
+                                {{ form.id }}
+                                <tr class="inline {{ ot_linea_form.prefix }}">
+                                    <td>{{ form.ofertatec }} {{ form.ofertatec.errors }}</td>
+                                    <td style="display:none">{{ form.detalle }} {{ form.detalle.errors }}</td>
+                                    <td>{{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}</td>
+                                    <td>{{ form.cantidad }} {{ form.cantidad.errors }}</td>
+                                    <td>{{ form.cant_horas }} {{ form.cant_horas.errors }}</td>
+                                    <td>{{ form.precio }} {{ form.precio.errors }}</td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}-->
+                        </tbody>
+                    </table>
+                </div>
                 <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
                 <div class="row">
                     <div class="col-md-12">

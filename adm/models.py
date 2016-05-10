@@ -287,6 +287,22 @@ class OT(TimeStampedModel, AuthStampedModel):
         permissions = (("cancel_ot", "Can cancel OT"),)
 
 
+class OT_Linea(TimeStampedModel, AuthStampedModel):
+    """ Lineas de Oferta Tecnologica de la OT """
+
+    ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
+    precio = models.FloatField(verbose_name='Precio')
+    cantidad = models.IntegerField(verbose_name='Cantidad', default=1)
+    cant_horas = models.FloatField(verbose_name='Horas', blank=True, null=True)
+    ot = models.ForeignKey(OT, verbose_name='OT')
+    observaciones = models.TextField(max_length=100, blank=True)
+    detalle = models.CharField(max_length=350, verbose_name='Detalle', blank=True, null=True)
+    tipo_servicio = models.CharField(max_length=20, verbose_name='Tipo de Servicio', blank=True, null=True)
+
+    class Meta:
+        ordering = ['id']
+
+
 class Factura(TimeStampedModel, AuthStampedModel):
 
     ESTADOS = (

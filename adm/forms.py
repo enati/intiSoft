@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo, Remito
+from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo, Remito, OT_Linea
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
@@ -305,6 +305,64 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
     return parent_child
 
 Factura_LineaFormSet = nested_formset_factory(OT, Factura, [(Recibo, Recibo_LineaForm), (Remito, Remito_LineaForm)])
+
+
+class CustomInlineFormset(BaseInlineFormSet):
+    """
+    Custom formset that support initial data
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CustomInlineFormset, self).__init__(*args, **kwargs)
+
+        for form in self.forms:
+            ## Label del select de oferta tecnologica
+            form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
+                                                        % (obj.codigo, obj.detalle)
+        if self.instance and self.instance.estado in \
+                 ('pagado', 'cancelado'):
+            for form in self.forms:
+                for field in form.fields:
+                    form.fields[field].widget.attrs['disabled'] = True
+                    form.fields[field].required = False
+
+    #def add_fields(self, form, index):
+        #super(CustomInlineFormset, self).add_fields(form, index)
+        #form.fields['ofertatec'].queryset = OfertaTec.objects.filter(area=initArea)
+
+
+class OT_LineaForm(forms.ModelForm):
+
+    class Meta:
+
+        model = OT_Linea
+        fields = ['ofertatec',
+                  'precio',
+                  'cantidad',
+                  'cant_horas',
+                  'ot',
+                  'detalle',
+                  'tipo_servicio']
+        error_messages = {
+            'ofertatec': {
+                'required': 'Campo obligatorio.',
+            },
+            'cantidad': {
+                'required': 'Campo obligatorio.',
+            },
+            'precio': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+
+OT_LineaFormSet = inlineformset_factory(OT,
+                                        OT_Linea,
+                                        extra=1,
+                                        formfield_callback=bootstrap_format,
+                                        form=OT_LineaForm,
+                                        formset=CustomInlineFormset,
+                                       )
 
 
 class PresupuestoForm(forms.ModelForm):

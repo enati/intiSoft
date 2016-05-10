@@ -130,6 +130,19 @@ $(document).ready(function() {
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
+
+                    var n = $('#id_ot_linea_set-TOTAL_FORMS').val()
+                    for (i=0; i<n; i++) {
+                        $('#ot_formtable tr.inline:first a.delete-row').click()
+                    }
+                    for (i=0; i<data['ofertatec'].length; i++) {
+                        $('#ot_formtable .add-row').click();
+                        $('#ot_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
+                        $('#ot_formtable tr:last>td>input')[1].value = data['ofertatec'][i].tipo_servicio;
+                        $('#ot_formtable tr:last>td>input')[2].value = data['ofertatec'][i].cantidad;
+                        $('#ot_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cant_horas;
+                        $('#ot_formtable tr:last>td>input')[4].value = data['ofertatec'][i].precio;
+                    }
                 },
             });
         }

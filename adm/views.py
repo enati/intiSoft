@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
 from .models import Presupuesto, OfertaTec, Usuario, OT, Factura
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, Factura_LineaFormSet
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, Factura_LineaFormSet, OT_LineaFormSet
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -59,9 +59,11 @@ class OTCreate(CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet()
+        ot_linea_form = OT_LineaFormSet()
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  factura_form=factura_form))
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
 
     def post(self, request, *args, **kwargs):
         """
@@ -73,12 +75,13 @@ class OTCreate(CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(self.request.POST)
-        if (form.is_valid() and factura_form.is_valid()):
-            return self.form_valid(form, factura_form)
+        ot_linea_form = OT_LineaFormSet(self.request.POST)
+        if (form.is_valid() and factura_form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, factura_form, ot_linea_form)
         else:
-            return self.form_invalid(form, factura_form)
+            return self.form_invalid(form, factura_form, ot_linea_form)
 
-    def form_valid(self, form, factura_form):
+    def form_valid(self, form, factura_form, ot_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Factuas and Recibos then redirects to a
@@ -87,16 +90,19 @@ class OTCreate(CreateView):
         self.object = form.save()
         factura_form.instance = self.object
         factura_form.save()
+        ot_linea_form.instance = self.object
+        ot_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, factura_form):
+    def form_invalid(self, form, factura_form, ot_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  factura_form=factura_form))
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
 
 
 class OTUpdate(UpdateView):
@@ -125,9 +131,11 @@ class OTUpdate(UpdateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(instance=self.object)
+        ot_linea_form = OT_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  factura_form=factura_form))
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
 
     def post(self, request, *args, **kwargs):
         """
@@ -139,12 +147,13 @@ class OTUpdate(UpdateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(self.request.POST, instance=self.object)
-        if (form.is_valid() and factura_form.is_valid()):
-            return self.form_valid(form, factura_form)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and factura_form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, factura_form, ot_linea_form)
         else:
-            return self.form_invalid(form, factura_form)
+            return self.form_invalid(form, factura_form, ot_linea_form)
 
-    def form_valid(self, form, factura_form):
+    def form_valid(self, form, factura_form, ot_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Facturas and then redirects to a
@@ -152,16 +161,18 @@ class OTUpdate(UpdateView):
         """
         form.save()
         factura_form.save()
+        ot_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, factura_form):
+    def form_invalid(self, form, factura_form, ot_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  factura_form=factura_form))
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
 
 
 class OTList(ListView):
