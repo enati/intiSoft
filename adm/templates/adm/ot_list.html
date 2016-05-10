@@ -143,6 +143,15 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
+                        <td>
+                            {% for f in ot.factura_set.all %}
+                                {% if f.estado != 'cancelada' %}
+                                    {% for r in f.remito_set.all %}
+                                        {{ r.numero }}</br>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
 <!--
 
 

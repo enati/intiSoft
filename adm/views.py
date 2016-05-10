@@ -228,6 +228,10 @@ class OTList(ListView):
                         if f.recibo_set.get_queryset().filter(
                                         comprobante_cobro__in=vals)]
                     kwargs['id__in'] = ots
+                elif key == 'remito':
+                    factura = Factura.objects.exclude(estado__in=['cancelada'])
+                    ots = [f.ot.id for f in factura if f.remito_set.get_queryset().filter(numero__in=vals)]
+                    kwargs['id__in'] = ots
                 else:
                     kwargs['%s__in' % key] = vals
                 if kwargs:
@@ -241,10 +245,10 @@ class OTList(ListView):
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
                        'codigo', 'fecha_realizado', 'importe', 'area', 'factura', 'factura__fecha',
                        'factura__importe', 'fecha_aviso',
-                       'recibo', 'recibo_tipo', 'recibo__fecha', 'recibo__importe']
+                       'recibo', 'recibo_tipo', 'recibo__fecha', 'recibo__importe', 'remito']
         field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp.',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
-                        'Recibo', 'Tipo', 'Fecha', 'Imp.']
+                        'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
 
         # OTs sin facturar
         sfCount = len(ots.filter(estado='sin_facturar'))
@@ -297,6 +301,11 @@ class OTList(ListView):
         options.append(recibo_fecha_vals)
         recibo_importe_vals = sorted(set([r.importe for f in recibo_plist]))
         options.append(recibo_importe_vals)
+        remito_list = [f.remito_set for f in factura_plist if f.estado != 'cancelada']
+        remito_plist = reduce(lambda x, y: x + y,
+                                 [[t for t in r.get_queryset()] for r in remito_list], [])
+        remito_vals = sorted(set([r.numero for r in remito_plist]))
+        options.append(remito_vals)
         context['fields'] = list(zip(field_names, field_labels, options))
         # Chequeo los filtros seleccionados para conservar el estado de los
         # checkboxes
