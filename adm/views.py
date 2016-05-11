@@ -201,35 +201,33 @@ class OTList(ListView):
                     ots = [o.id for o in queryset if o.factura_set.get_queryset().filter(numero__in=vals)]
                     kwargs['id__in'] = ots
                 elif key == 'factura__fecha':
-                    factura = Factura.objects.exclude(
-                                                      estado__in=['cancelada']
-                                                     ).filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
+                    factura = Factura.objects.all().filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
                                                                          for v in vals])
                     ots = [f.ot.id for f in factura]
                     kwargs['id__in'] = ots
                 elif key == 'factura__importe':
-                    factura = Factura.objects.filter.exclude(estado__in=['cancelada']).filter(importe__in=vals)
+                    factura = Factura.objects.filter.all().filter(importe__in=vals)
                     ots = [f.ot.id for f in factura]
                     kwargs['id__in'] = ots
                 elif key == 'recibo':
-                    factura = Factura.objects.exclude(estado__in=['cancelada'])
+                    factura = Factura.objects.all()
                     ots = [f.ot.id for f in factura if f.recibo_set.get_queryset().filter(numero__in=vals)]
                     kwargs['id__in'] = ots
                 elif key == 'recibo__fecha':
-                    factura = Factura.objects.exclude(estado__in=['cancelada'])
+                    factura = Factura.objects.all()
                     ots = [f.ot.id for f in factura
                         if f.recibo_set.get_queryset().filter(
                                         fecha__in=[datetime.strptime(v, "%d/%m/%Y")
                                                    for v in vals])]
                     kwargs['id__in'] = ots
                 elif key == 'recibo__tipo':
-                    factura = Factura.objects.exclude(estado__in=['cancelada'])
+                    factura = Factura.objects.all()
                     ots = [f.ot.id for f in factura
                         if f.recibo_set.get_queryset().filter(
                                         comprobante_cobro__in=vals)]
                     kwargs['id__in'] = ots
                 elif key == 'remito':
-                    factura = Factura.objects.exclude(estado__in=['cancelada'])
+                    factura = Factura.objects.all()
                     ots = [f.ot.id for f in factura if f.remito_set.get_queryset().filter(numero__in=vals)]
                     kwargs['id__in'] = ots
                 else:
@@ -280,17 +278,17 @@ class OTList(ListView):
         factura_list = [o.factura_set for o in ots]
         factura_plist = reduce(lambda x, y: x + y,
                                  [[t for t in f.get_queryset()] for f in factura_list], [])
-        factura_vals = sorted(set([f.numero for f in factura_plist if f.estado != 'cancelada']))
+        factura_vals = sorted(set([f.numero for f in factura_plist]))
         options.append(factura_vals)
         factura_fecha_vals = sorted(set([f.fecha.strftime("%d/%m/%Y") for f in factura_plist
-                                        if f.estado != 'cancelada' and f.fecha is not None]))
+                                         if f.fecha is not None]))
         options.append(factura_fecha_vals)
-        importef_vals = sorted(set([f.importe for f in factura_plist if f.estado != 'cancelada']))
+        importef_vals = sorted(set([f.importe for f in factura_plist]))
         options.append(importef_vals)
         fec2_vals = sorted(set([o.fecha_aviso.strftime("%d/%m/%Y")
                         for o in ots if o.fecha_aviso is not None]))
         options.append(fec2_vals)
-        recibo_list = [f.recibo_set for f in factura_plist if f.estado != 'cancelada']
+        recibo_list = [f.recibo_set for f in factura_plist]
         recibo_plist = reduce(lambda x, y: x + y,
                                  [[t for t in r.get_queryset()] for r in recibo_list], [])
         recibo_vals = sorted(set([r.numero for r in recibo_plist]))
@@ -301,7 +299,7 @@ class OTList(ListView):
         options.append(recibo_fecha_vals)
         recibo_importe_vals = sorted(set([r.importe for f in recibo_plist]))
         options.append(recibo_importe_vals)
-        remito_list = [f.remito_set for f in factura_plist if f.estado != 'cancelada']
+        remito_list = [f.remito_set for f in factura_plist]
         remito_plist = reduce(lambda x, y: x + y,
                                  [[t for t in r.get_queryset()] for r in remito_list], [])
         remito_vals = sorted(set([r.numero for r in remito_plist]))
