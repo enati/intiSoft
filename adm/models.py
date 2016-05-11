@@ -321,6 +321,9 @@ class Factura(TimeStampedModel, AuthStampedModel):
         if self.estado == 'activa':
             self.estado = 'cancelada'
             self.save()
+            ot_obj = OT.objects.get(pk=self.ot_id)
+            if not(ot_obj.factura_set.exclude(estado__in=['cancelada'])) and ot_obj.estado != 'cancelado':
+                ot_obj._toState_sin_facturar()
         return True
 
     def save(self, *args, **kwargs):
@@ -338,7 +341,7 @@ class Factura(TimeStampedModel, AuthStampedModel):
         # Si borre la ultima factura asociada a una OT,
         # vuelvo la OT a estado sin_facturar
         ot_obj = OT.objects.get(pk=self.ot_id)
-        if not(ot_obj.factura_set.all()):
+        if not(ot_obj.factura_set.exclude(estado__in=['cancelada'])):
             ot_obj._toState_sin_facturar()
         return res
 

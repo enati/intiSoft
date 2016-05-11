@@ -114,8 +114,11 @@ class NestedInlineFormset(BaseInlineFormSet):
                         for nestedForm in nested.forms:
                             for field in nestedForm.fields:
                                 if field != 'id':
-                                    nestedForm.fields[field].widget.attrs['disabled'] = True
-                                    nestedForm.fields[field].required = False
+                                    if field in ['comprobante_cobro', 'fecha']:
+                                        nestedForm.fields[field].widget.attrs['disabled'] = True
+                                    else:
+                                        nestedForm.fields[field].widget.attrs['readonly'] = True
+                                nestedForm.fields[field].required = False
 
     def add_fields(self, form, index):
 
@@ -314,7 +317,7 @@ class CustomInlineFormset(BaseInlineFormSet):
 
     def __init__(self, *args, **kwargs):
         super(CustomInlineFormset, self).__init__(*args, **kwargs)
-
+        #import pdb; pdb.set_trace()
         for form in self.forms:
             ## Label del select de oferta tecnologica
             form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
@@ -324,7 +327,7 @@ class CustomInlineFormset(BaseInlineFormSet):
             for form in self.forms:
                 for field in form.fields:
                     if field != 'id':
-                        form.fields[field].widget.attrs['disabled'] = True
+                        form.fields[field].widget.attrs['readonly'] = True
                         form.fields[field].required = False
 
     #def add_fields(self, form, index):
