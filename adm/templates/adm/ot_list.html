@@ -74,82 +74,93 @@
                         <td>{{ ot.fecha_realizado | date | default_if_none:"" }}</td>
                         <td>${{ ot.importe | default_if_none:"0.0" }}</td>
                         <td>{{ ot.presupuesto.get_turno_activo.area }}</td>
+                        <!-- FACTURAS -->
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        {{ f.numero }}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    {{ f.numero }}</br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    {{ f.numero }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        {{ f.fecha | date | default_if_none:"" }}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    {{ f.fecha | date | default_if_none:"" }}</br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    {{ f.fecha | date | default_if_none:"" }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        ${{ f.importe | default_if_none:"0.0" }}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    ${{ f.importe | default_if_none:"0.0" }}</br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    ${{ f.importe | default_if_none:"0.0" }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>{{ ot.fecha_aviso | date | default_if_none:"" }}</td>
+                        <!-- RECIBOS -->
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        {{ r.numero }}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    </br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    {{ r.numero }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        {% if r.comprobante_cobro == 'recibo' %}
-                                            R</br>
-                                        {% endif %}
-                                        {% if r.comprobante_cobro == 'nota_credito' %}
-                                            NC</br>
-                                        {% endif %}
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    </br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    {% if r.comprobante_cobro == 'recibo' %}
+                                        R</br>
+                                    {% endif %}
+                                    {% if r.comprobante_cobro == 'nota_credito' %}
+                                        NC</br>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        {{ r.fecha | date | default_if_none:""}}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    </br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    {{ r.fecha | date | default_if_none:""}}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.recibo_set.all %}
-                                        ${{ r.importe | default_if_none:"0.0" }}</br>
-                                    {% endfor %}
+                                {% if not f.recibo_set.all %}
+                                    </br>
                                 {% endif %}
+                                {% for r in f.recibo_set.all %}
+                                    ${{ r.importe | default_if_none:"0.0" }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
+                        <!-- REMITO -->
                         <td>
                             {% for f in ot.factura_set.all %}
-                                {% if f.estado != 'cancelada' %}
-                                    {% for r in f.remito_set.all %}
-                                        {{ r.numero }}</br>
-                                    {% endfor %}
+                                {% if not f.remito_set.all %}
+                                    </br>
                                 {% endif %}
+                                {% for r in f.remito_set.all %}
+                                    {{ r.numero }}</br>
+                                {% endfor %}
                             {% endfor %}
                         </td>
 <!--

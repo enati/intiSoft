@@ -323,8 +323,9 @@ class CustomInlineFormset(BaseInlineFormSet):
                  ('pagado', 'cancelado'):
             for form in self.forms:
                 for field in form.fields:
-                    form.fields[field].widget.attrs['disabled'] = True
-                    form.fields[field].required = False
+                    if field != 'id':
+                        form.fields[field].widget.attrs['disabled'] = True
+                        form.fields[field].required = False
 
     #def add_fields(self, form, index):
         #super(CustomInlineFormset, self).add_fields(form, index)
