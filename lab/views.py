@@ -30,11 +30,9 @@ class TurnoList(ListView):
         """
         Chequeo los turnos a revisionar
         """
-        for turno in queryset:
+        for turno in queryset.exclude(revisionar=True):
             if turno._revisionar():
                 turno.revisionar = True
-            else:
-                turno.revisionar = False
             turno.save()
 
     def get_queryset(self):

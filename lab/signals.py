@@ -41,6 +41,7 @@ def chequear_revisionado(sender, instance, **kwargs):
         # Si el turno debía ser revisionado y se modifico la fecha de inicio, aumento el nro de revision
         if instance.revisionar:
             instance.nro_revision += 1
+            instance.revisionar = False
             instance.save()
             presup_obj = Presupuesto.objects.get(turno=instance.id)
             presup_obj.revisionar = True
