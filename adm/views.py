@@ -422,12 +422,19 @@ class OfertaTecList(ListView):
 class OfertaTecCreate(CreateView):
     model = OfertaTec
     form_class = OfertaTecForm
-    success_url = reverse_lazy('adm:ofertatec-list')
 
     @method_decorator(permission_required('adm.add_ofertatec',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(OfertaTecCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OfertaTecCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:ofertatec-update', kwargs={'pk': self.object.id})
 
 
 class OfertaTecDelete(DeleteView):
@@ -457,6 +464,14 @@ class OfertaTecUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(OfertaTecUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OfertaTecUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:ofertatec-update', kwargs={'pk': self.object.id})
 
 
 #===========================================
