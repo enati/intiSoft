@@ -458,7 +458,6 @@ class OfertaTecUpdate(UpdateView):
     model = OfertaTec
     form_class = OfertaTecForm
     template_name_suffix = '_form'
-    success_url = reverse_lazy('adm:ofertatec-list')
 
     @method_decorator(permission_required('adm.change_ofertatec',
                       raise_exception=True))
@@ -546,12 +545,19 @@ class UsuarioList(ListView):
 class UsuarioCreate(CreateView):
     model = Usuario
     form_class = UsuarioForm
-    success_url = reverse_lazy('adm:usuarios-list')
 
     @method_decorator(permission_required('adm.add_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(UsuarioCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UsuarioCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
 
 
 class UsuarioDelete(DeleteView):
@@ -575,9 +581,16 @@ class UsuarioUpdate(UpdateView):
     model = Usuario
     form_class = UsuarioForm
     template_name_suffix = '_form'
-    success_url = reverse_lazy('adm:usuarios-list')
 
     @method_decorator(permission_required('adm.change_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(UsuarioUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UsuarioUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
