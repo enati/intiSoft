@@ -264,15 +264,22 @@ class TurnoCreate(CreateView):
             self.get_context_data(form=form,
                                   ofertatec_linea_form=ofertatec_linea_form))
 
+    def get_context_data(self, **kwargs):
+        context = super(TurnoCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
 
 class LIACreate(TurnoCreate):
     template_name = 'lab/LIA_form.html'
-    success_url = reverse_lazy('lab:LIA-list')
 
     @method_decorator(permission_required('lab.add_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIACreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIA'}
@@ -280,12 +287,14 @@ class LIACreate(TurnoCreate):
 
 class LIM1Create(TurnoCreate):
     template_name = 'lab/LIM1_form.html'
-    success_url = reverse_lazy('lab:LIM1-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM1Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM1'}
@@ -293,12 +302,14 @@ class LIM1Create(TurnoCreate):
 
 class LIM2Create(TurnoCreate):
     template_name = 'lab/LIM2_form.html'
-    success_url = reverse_lazy('lab:LIM2-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM2Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM2'}
@@ -306,12 +317,14 @@ class LIM2Create(TurnoCreate):
 
 class LIM3Create(TurnoCreate):
     template_name = 'lab/LIM3_form.html'
-    success_url = reverse_lazy('lab:LIM3-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM3Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM3'}
@@ -319,12 +332,14 @@ class LIM3Create(TurnoCreate):
 
 class LIM6Create(TurnoCreate):
     template_name = 'lab/LIM6_form.html'
-    success_url = reverse_lazy('lab:LIM6-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM6Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM6'}
@@ -332,12 +347,14 @@ class LIM6Create(TurnoCreate):
 
 class EXTCreate(TurnoCreate):
     template_name = 'lab/EXT_form.html'
-    success_url = reverse_lazy('lab:EXT-list')
 
     @method_decorator(permission_required('lab.add_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(EXTCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'EXT'}
@@ -345,12 +362,14 @@ class EXTCreate(TurnoCreate):
 
 class SISCreate(TurnoCreate):
     template_name = 'lab/SIS_form.html'
-    success_url = reverse_lazy('lab:SIS-list')
 
     @method_decorator(permission_required('lab.add_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(SISCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'SIS'}
@@ -358,12 +377,14 @@ class SISCreate(TurnoCreate):
 
 class DESCreate(TurnoCreate):
     template_name = 'lab/DES_form.html'
-    success_url = reverse_lazy('lab:DES-list')
 
     @method_decorator(permission_required('lab.add_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'DES'}
@@ -373,7 +394,6 @@ class TurnoUpdate(UpdateView):
     model = Turno
     form_class = TurnoForm
     template_name_suffix = '_form'
-    success_url = reverse_lazy('lab:turnos-list')
 
     def get(self, request, *args, **kwargs):
         """
@@ -422,85 +442,106 @@ class TurnoUpdate(UpdateView):
             self.get_context_data(form=form,
                                   ofertatec_linea_form=ofertatec_linea_form))
 
+    def get_context_data(self, **kwargs):
+        context = super(TurnoUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
 
 class LIAUpdate(TurnoUpdate):
     template_name = 'lab/LIA_form.html'
-    success_url = reverse_lazy('lab:LIA-list')
 
     @method_decorator(permission_required('lab.change_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIAUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
+
 
 class LIM1Update(TurnoUpdate):
     template_name = 'lab/LIM1_form.html'
-    success_url = reverse_lazy('lab:LIM1-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM1Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
+
 
 class LIM2Update(TurnoUpdate):
     template_name = 'lab/LIM2_form.html'
-    success_url = reverse_lazy('lab:LIM2-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM2Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
+
 
 class LIM3Update(TurnoUpdate):
     template_name = 'lab/LIM3_form.html'
-    success_url = reverse_lazy('lab:LIM3-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM3Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
+
 
 class LIM6Update(TurnoUpdate):
     template_name = 'lab/LIM6_form.html'
-    success_url = reverse_lazy('lab:LIM6-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM6Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
+
 
 class EXTUpdate(TurnoUpdate):
     template_name = 'lab/EXT_form.html'
-    success_url = reverse_lazy('lab:EXT-list')
 
     @method_decorator(permission_required('lab.change_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(EXTUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
+
 
 class SISUpdate(TurnoUpdate):
     template_name = 'lab/SIS_form.html'
-    success_url = reverse_lazy('lab:SIS-list')
 
     @method_decorator(permission_required('lab.change_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(SISUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
+
 
 class DESUpdate(TurnoUpdate):
     template_name = 'lab/DES_form.html'
-    success_url = reverse_lazy('lab:DES-list')
 
     @method_decorator(permission_required('lab.change_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
 
 
 class TurnoDelete(DeleteView):

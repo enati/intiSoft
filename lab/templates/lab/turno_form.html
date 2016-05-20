@@ -30,11 +30,51 @@
 {% endblock %}
 
 {% block content %}
-{% load intiSoft_filters %}
 <div class="row">
-    <div class="col-md-offset-1 col-md-2">
+    <div class="col-md-offset-3 col-md-9">
+        <div class="btn-group" role="group" aria-label="..." style="float:right">
+            {% for choice in form.estado.field.choices %}
+                <button type="button" class="btn btn-default {% if form.estado.value == choice.0 %}active{% endif %}">
+                    {{ choice.1 }}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% if object.revisionar %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-warning">
+            <h3>Revisionar</h3>
+            <p>Para generar una nueva revisión del turno se deberá modificar la fecha de inicio del mismo.</p>
+        </div>
+    {% endif %}
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-offset-1 col-md-6">
         <!-- Solo muestro las acciones disponibles si el turno ya fue guardado -->
         {% if object %}
+            {% if form.instance.estado not in "['finalizado', 'cancelado', 'vencido']" %}
+                {% if edit %}
+                    <div class="col-md-2">
+                        <input type="submit" value="Guardar" class="btn btn-danger" form="turnoForm">
+                    </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="cancel btn btn-default" href="{{ updateUrl }}">
+                            Cancelar
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="col-md-2">
+                        <input type="submit" value="Editar" class="btn btn-danger" form="turnoForm">
+                    </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="btn btn-default" href="{{ listUrl }}">
+                            Volver
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
             <div class="btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Acciones
@@ -64,26 +104,14 @@
                     {% endif %}
                 </ul>
             </div>
+        {% else %}
+            <div class="col-md-2">
+                <input type="submit" value="Guardar" class="btn btn-danger" form="turnoForm">
+            </div>
         {% endif %}
     </div>
-    <div class="col-md-9">
-        <div class="btn-group" role="group" aria-label="..." style="float:right">
-            {% for choice in form.estado.field.choices %}
-                <button type="button" class="btn btn-default {% if form.estado.value == choice.0 %}active{% endif %}">
-                    {{ choice.1 }}
-                </button>
-            {% endfor %}
-        </div>
-    </div>
 </div>
-<div class="row">
-    {% if object.revisionar %}
-        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-warning">
-            <h3>Revisionar</h3>
-            <p>Para generar una nueva revisión del turno se deberá modificar la fecha de inicio del mismo.</p>
-        </div>
-    {% endif %}
-</div>
+<br/>
 <div class="row">
     <div class="col-md-offset-1 col-md-10">
         <!-- Separador -->
@@ -99,27 +127,39 @@
         <!-- Separador -->
         <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
         <div class="col-md-12">
-            <form class="form-horizontal" style="padding-top:5%" action="" method="POST">
-                {% csrf_token %}
+            <form id="turnoForm" class="form-horizontal" style="padding-top:5%" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+                {% if edit %}
+                    {% csrf_token %}
+                {% else %}
+                    <input name="edit" type="hidden" value="1">
+                {% endif %}
                 <div class="col-md-6">
                     <!-- Estado -->
-                    {{ form.estado.as_hidden }}
+                    {% if edit %}
+                        {{ form.estado.as_hidden }}
+                    {% else %}
+                        {{ form.estado.value.as_hidden }}
+                    {% endif %}
                     <!-- Fecha de Inicio -->
                     <div class="form-group">
                         <label class="control-label col-md-5" style="text-align:left"
                          for="id_fecha_inicio"> Fecha de Inicio </label>
                          <div class="col-md-7">
-                            {{ form.fecha_inicio }}
-                            {% for error in form.fecha_inicio.errors %}
-                                <div class="alert alert-error">
-                                    <strong>{{ error|escape }}</strong>
-                                </div>
-                            {% endfor %}
+                             {% if edit %}
+                                 {{ form.fecha_inicio }}
+                                 {% for error in form.fecha_inicio.errors %}
+                                     <div class="alert alert-error">
+                                         <strong>{{ error|escape }}</strong>
+                                     </div>
+                                 {% endfor %}
+                             {% else %}
+                                 {{ form.fecha_inicio.value | default_if_none:"" }}
+                             {% endif %}
                          </div>
                     </div>
                     <!-- Fecha de Finalizacion Real -->
                     {% if object.estado == 'finalizado' %}
-                        <h4><b>Finalizado el {{object.fecha_fin_real | default_if_none:''}}</b><h4>
+                        <h4><b>Finalizado el {{ object.fecha_fin_real | default_if_none:"" }}</b><h4>
                     {% endif %}
                 </div>
                 <div class="col-md-6">
@@ -128,24 +168,32 @@
                         <label class="control-label col-md-5" style="text-align:left"
                          for="id_fecha_fin"> Fecha de Finalización </label>
                          <div class="col-md-7">
-                            {{ form.fecha_fin }}
-                            {% for error in form.fecha_fin.errors %}
-                                <div class="alert alert-error">
-                                    <strong>{{ error|escape }}</strong>
-                                </div>
-                            {% endfor %}
+                             {% if edit %}
+                                 {{ form.fecha_fin }}
+                                 {% for error in form.fecha_fin.errors %}
+                                     <div class="alert alert-error">
+                                         <strong>{{ error|escape }}</strong>
+                                     </div>
+                                 {% endfor %}
+                             {% else %}
+                                 {{ form.fecha_fin.value | default_if_none:"" }}
+                             {% endif %}
                          </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <!-- Area -->
-                    {{form.area}}
+                    {% if edit %}
+                        {{ form.area }}
+                    {% endif %}
                 </div>
                 <div class="col-md-12">
                     <div>
                         <h3 class="text-danger">Oferta Tecnológica</h3>
-                        {{ ofertatec_linea_form.management_form }}
-                        {{ ofertatec_linea_form.non_form_errors }}
+                        {% if edit %}
+                            {{ ofertatec_linea_form.management_form }}
+                            {{ ofertatec_linea_form.non_form_errors }}
+                        {% endif %}
                         <table id="ofertatec_formtable" class="table">
                             <col style="width:20%">
                             <col style="width:20%">
@@ -163,16 +211,65 @@
                             </thead>
                             <tbody>
                                 {% for form in ofertatec_linea_form %}
+                                    {% if edit %}
                                         {{ form.id }}
+                                    {% endif %}
                                     <tr class="inline {{ ofertatec_linea_form.prefix }}">
-                                        <td>{{ form.ofertatec }} {{ form.ofertatec.errors }}</td>
-                                        <td style="display:none">{{ form.detalle }} {{ form.detalle.errors }}</td>
-                                        <td>{{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}</td>
-                                        <td>{{ form.cantidad }} {{ form.cantidad.errors }}</td>
-                                        <td>{{ form.cant_horas }} {{ form.cant_horas.errors }}</td>
-                                        <td>{{ form.precio }} {{ form.precio.errors }}</td>
-                                        <td>{{ form.observaciones }} {{ form.observaciones.errors }}</td>
-                                        <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.ofertatec }} {{ form.ofertatec.errors }}
+                                            {% else %}
+                                                {{ form.instance.ofertatec.codigo }}
+                                            {% endif %}
+                                        </td>
+                                        <td style="display:none">
+                                            {% if edit %}
+                                                {{ form.detalle }} {{ form.detalle.errors }}
+                                            {% else %}
+                                                {{ form.detalle.value }}
+                                            {% endif %}
+
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}
+                                            {% else %}
+                                                {{ form.tipo_servicio.value  | default_if_none:"" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.cantidad }} {{ form.cantidad.errors }}
+                                            {% else %}
+                                                {{ form.cantidad.value }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.cant_horas }} {{ form.cant_horas.errors }}
+                                            {% else %}
+                                                {{ form.cant_horas.value | default_if_none:"" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.precio }} {{ form.precio.errors }}
+                                            {% else %}
+                                                {{ form.precio.value | default_if_none:"" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.observaciones }} {{ form.observaciones.errors }}
+                                            {% else %}
+                                                {{ form.observaciones.value | default_if_none:"" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -188,12 +285,16 @@
                         <label class="control-label col-md-5" style="text-align:left"
                          for="id_presupuesto"> Número</label>
                          <div class="col-md-7">
-                            {{ form.presupuesto }}
-                            {% for error in form.presupuesto.errors %}
-                                <div class="alert alert-error">
-                                    <strong>{{ error|escape }}</strong>
-                                </div>
-                            {% endfor %}
+                             {% if edit %}
+                                 {{ form.presupuesto }}
+                                 {% for error in form.presupuesto.errors %}
+                                     <div class="alert alert-error">
+                                         <strong>{{ error|escape }}</strong>
+                                     </div>
+                                 {% endfor %}
+                             {% else %}
+                                 {{ form.instance.presupuesto.codigo }}
+                             {% endif %}
                          </div>
                     </div>
                     <!-- Fecha de Solicitud del Presupuesto -->
@@ -213,7 +314,7 @@
                             Fecha de Realización
                         </label>
                         <div class="col-md-6">
-                           <p id="id_fecha_realizado">{{ form.instance.presupuesto.fecha_realizado | default_if_none:""}}</p>
+                           <p id="id_fecha_realizado">{{ form.instance.presupuesto.fecha_realizado | default_if_none:"" }}</p>
                         </div>
                     </div>
                     <!-- Fecha de Aceptacion del Presupuesto -->
@@ -270,20 +371,6 @@
                     </div>
                 </div>
                 <br/>
-                <div class="col-md-12">
-                    {% if form.instance.estado not in "['finalizado', 'cancelado', 'vencido']" %}
-                        <div class="col-md-2">
-                            <input type="submit" value="Guardar"  class="btn btn-danger">
-                        </div>
-                    {% endif %}
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-default" onclick="window.history.back()">
-                        Volver</button>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                </div>
                 {% if form.errors %}
                     {% for error in form.non_field_errors %}
                         <div class="alert alert-error">
@@ -297,6 +384,6 @@
         <br/>
     </div>
 </div>
-{% include "intiSoft/modals.html" with postUrl=postUrl %}
+{% include "intiSoft/modals.html" with postUrl=listUrl %}
 {% endblock %}
 
