@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from .models import Presupuesto, OfertaTec, Usuario
 from lab.models import OfertaTec_Linea
@@ -282,12 +282,19 @@ def get_user(request, *args, **kwargs):
 class PresupuestoCreate(CreateView):
     model = Presupuesto
     form_class = PresupuestoForm
-    success_url = reverse_lazy('adm:presup-list')
 
     @method_decorator(permission_required('adm.add_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(PresupuestoCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PresupuestoCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
 
 
 class PresupuestoDelete(DeleteView):
@@ -320,8 +327,8 @@ class PresupuestoUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(PresupuestoUpdate, self).get_context_data(**kwargs)
-        turno = (context['object']).get_turno_activo()
-        context['turno_activo'] = turno
+        context['edit'] = self.request.GET.get('edit', False)
+        context['turno_activo'] = (context['object']).get_turno_activo()
         #obj_presup = self.get_object()
         #obj_turno = obj_presup.get_turno_activo()
         #count = 0
@@ -331,6 +338,9 @@ class PresupuestoUpdate(UpdateView):
             #context['total'] = count
         return context
 
+    def get_success_url(self):
+        #import pdb; pdb.set_trace()
+        return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
 
 #=================================================
 #========= VISTAS OFERTA TECNOLOGICA =============

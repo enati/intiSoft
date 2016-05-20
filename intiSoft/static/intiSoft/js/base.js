@@ -22,6 +22,7 @@ function deseleccionar_todo(f_name){
 }
 
 $(document).ready(function() {
+
     //$(".chosen-select").chosen();
     $.datepicker._gotoToday = function(id) {
         var target = $(id);
@@ -150,22 +151,22 @@ $(document).ready(function() {
     });
 
 
-    postForm = function() {
-        var form = $("#presupForm");
-        var id = $("#viewWord").data('id');
-        $.ajax({
-            url: domain + '/adm/presup/update/' + id + '/',
-            method: 'post',
-            data: form.serialize(),
-        });
-    };
+    //postForm = function() {
+    //    var form = $("#presupForm");
+    //    var id = $("#viewWord").data('id');
+    //    $.ajax({
+    //        url: domain + '/adm/presup/update/' + id + '/',
+    //        method: 'post',
+    //        data: form.serialize(),
+    //    });
+    //};
 
     $("#id_asistencia").click(function() {
         var id = $("#viewWord").data('id');
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_calibracion").click(function() {
@@ -173,7 +174,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_in_situ").click(function() {
@@ -181,7 +182,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_lia").click(function() {
@@ -189,7 +190,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#viewWord").click(function(e) {
