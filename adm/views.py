@@ -46,6 +46,16 @@ class PresupuestoList(ListView):
     template_name = 'adm/presupuesto_list.html'
     paginate_by = 30
 
+    def _checkstate(self, queryset):
+        """
+        Chequeo los presupuestos que hay que cancelar.
+        Seran cancelados los presupuestos que no hayan sido aceptados pasados 21 dias corridos
+        de la fecha de realizacion del mismo.
+        """
+        for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
+            if presup.fecha_realizado + timedelta(days=21) <= datetime.now().date():
+                presup._toState_cancelado()
+
     def get_queryset(self):
         # Por defecto los ordeno por fecha de realizacion (desc)
         queryset = Presupuesto.objects.all().order_by('-codigo')
@@ -72,6 +82,7 @@ class PresupuestoList(ListView):
                         return p_queryset
                 if kwargs:
                     queryset = queryset.filter(**kwargs)
+        self._checkstate(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
