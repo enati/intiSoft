@@ -181,6 +181,7 @@ class OfertaTec_Linea(TimeStampedModel, AuthStampedModel):
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
     precio = models.FloatField(verbose_name='Precio')
+    precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)
     cant_horas = models.FloatField(verbose_name='Horas', blank=True, null=True)
     turno = models.ForeignKey(Turno, verbose_name='Turno')

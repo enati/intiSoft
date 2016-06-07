@@ -166,6 +166,7 @@ class OfertaTec_LineaForm(forms.ModelForm):
         model = OfertaTec_Linea
         fields = ['ofertatec',
                   'precio',
+                  'precio_total',
                   'cantidad',
                   'cant_horas',
                   'observaciones',

@@ -100,6 +100,9 @@ $(document).ready(function() {
             splitted_id[splitted_id.length-1] = 'tipo_servicio';
             tipo_servicio_id = '#'.concat(splitted_id.join("-"));
             tipo_servicio = $(tipo_servicio_id);
+            splitted_id[splitted_id.length-1] = 'precio_total';
+            precio_total_id = '#'.concat(splitted_id.join("-"));
+            precio_total= $(precio_total_id);
             $.ajax({
                 url: domain + '/lab/turnos/get_price/',
                 method: 'get',
@@ -108,6 +111,7 @@ $(document).ready(function() {
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
+                    precio_total.val(data['precio_total']);
                     $('#ofertatecform_table').load('#ofertatecform_table');
                 }
              });
@@ -148,6 +152,15 @@ $(document).ready(function() {
                 },
             });
         }
+    });
+
+    $("[id$=cant_horas]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id')
+        formset_number = cant_horas_id.split("-")[1];
+        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
+        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
+        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
+        precio_total.val(cant_horas*precio);
     });
 
 
