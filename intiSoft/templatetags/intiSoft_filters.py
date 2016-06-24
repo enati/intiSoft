@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
 import datetime
+from adm.models import OfertaTec
 
 register = template.Library()
 
@@ -44,4 +45,12 @@ def range_3(actual_page):
 
 @register.filter(name='disable')
 def disable(field):
-   return field.as_widget(attrs={"disabled" : "disabled"})
+    return field.as_widget(attrs={"disabled" : "disabled"})
+
+
+@register.filter(name='getOTCode')
+def getOTCode(ot_id):
+    try:
+        return OfertaTec.objects.get(pk=ot_id).codigo
+    except:
+        return []

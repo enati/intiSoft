@@ -40,7 +40,8 @@ INSTALLED_APPS = (
     'lab',
     'adm',
     'intiSoft',
-    'smart_pagination'
+    'smart_pagination',
+    'reversion',
 )
 
 MIDDLEWARE_CLASSES = (

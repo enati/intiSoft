@@ -8,6 +8,7 @@ from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from django.db import connection
 from intiSoft.exception import StateError
+import reversion
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -27,6 +28,7 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
     return res
 
 
+@reversion.register()
 class Usuario(TimeStampedModel, AuthStampedModel):
     nro_usuario = models.CharField(validators=[RegexValidator(r'^\d{5}$')],
                                    max_length=5, blank=True,
@@ -54,6 +56,7 @@ class Usuario(TimeStampedModel, AuthStampedModel):
         ordering = ['nombre']
 
 
+@reversion.register()
 class OfertaTec(TimeStampedModel, AuthStampedModel):
 
     proveedor = models.IntegerField(default='106', verbose_name='Proveedor')
@@ -118,6 +121,7 @@ def nextCode():
                      #HAVING gap_ends_at IS NOT NULL""")
 
 
+@reversion.register(follow=["usuario"])
 class Presupuesto(TimeStampedModel, AuthStampedModel):
 
     ESTADOS = (
