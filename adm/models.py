@@ -121,7 +121,7 @@ def nextCode():
                      #HAVING gap_ends_at IS NOT NULL""")
 
 
-@reversion.register(follow=["usuario"])
+@reversion.register(follow=["usuario", "turno_set"])
 class Presupuesto(TimeStampedModel, AuthStampedModel):
 
     ESTADOS = (

@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^presup/viewWord/(?P<pk>\d+)/$', 'adm.views.viewWord', name='presup-viewWord'),
     #url(r'^presup/actBtn/(?P<pk>\d+)/$', 'adm.views.actualizar_precios', name='presup-actBtn'),
     url(r'^presup/update/(?P<pk>\d+)/$', login_required(views.PresupuestoUpdate.as_view()), name='presup-update'),
+    url(r'^presup/update/(?P<pk>\d+)/revision/', 'adm.views.createRevision', name='presup-revision'),
+    url(r'^presup/update/(?P<pk>\d+)/rollback/', 'adm.views.rollBackRevision', name='presup-rollback'),
     url(r'^presup/create/$', login_required(views.PresupuestoCreate.as_view()), name='presup-create'),
 
     url(r'^presup/get_user/$', 'adm.views.get_user', name='user-getdata'),

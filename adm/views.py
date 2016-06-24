@@ -13,7 +13,8 @@ from .utils import genWord
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
-
+from reversion.models import Version
+import reversion
 
 #===========================================
 #======== FUNCIONES AUXILIARES =============
@@ -34,6 +35,126 @@ def less_five(orig_date):
     except:
         date = orig_date
     return date
+
+#===========================================
+#======= FUNCIONES ROUTEABLES ==============
+#===========================================
+
+
+def viewWord(request, *args, **kwargs):
+    presup_id = kwargs.get('pk')
+    presup_obj = Presupuesto.objects.get(id=presup_id)
+    vals = {}
+    turno_activo = presup_obj.get_turno_activo()
+    vals['area'] = turno_activo.area if turno_activo else ''
+    vals['codigo'] = presup_obj.codigo + '-R' + str(presup_obj.nro_revision)
+    vals['fecha'] = presup_obj.fecha_realizado.strftime('%d/%m/%Y') \
+                    if presup_obj.fecha_realizado else ''
+    vals['email'] = presup_obj.usuario.mail
+    vals['solicitante'] = presup_obj.usuario.nombre
+    vals['contacto'] = presup_obj.usuario.nombre
+    vals['ofertatec'] = []
+    vals['fecha_inicio'] = less_five(turno_activo.fecha_inicio) if turno_activo else ''
+    vals['fecha_fin'] = plus_five(turno_activo.fecha_fin) if turno_activo else ''
+    vals['plantilla'] = ''
+
+    if presup_obj.asistencia:
+        vals['plantilla'] = 'Presupuesto Asistencia.docx'
+    elif presup_obj.calibracion:
+        vals['plantilla'] = 'Presupuesto Calibracion.docx'
+    elif presup_obj.in_situ:
+        vals['plantilla'] = 'Presupuesto In Situ.docx'
+    elif presup_obj.lia:
+        vals['plantilla'] = 'Presupuesto LIA.docx'
+
+    if turno_activo:
+        for o in turno_activo.ofertatec_linea_set.get_queryset():
+            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio))
+        #vals['ofertatec'] += turno_activo.ofertatec.codigo if turno_activo else ''
+        #vals['detalle'] = turno_activo.ofertatec.detalle if turno_activo else ''
+        #vals['precio'] = str(turno_activo.ofertatec.precio) if turno_activo else ''
+    # Create the HttpResponse object with the appropriate headers.
+    #response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    # Create the Word object
+    return genWord(vals)
+
+
+def get_user(request, *args, **kwargs):
+    try:
+        user_id = request.GET['user_id']
+        user_obj = Usuario.objects.get(pk=user_id)
+        data = {'nro_usuario': user_obj.nro_usuario,
+                'cuit': user_obj.cuit,
+                'rubro': user_obj.rubro,
+                }
+    except:
+        data = {}
+    return HttpResponse(json.dumps(data), content_type="text/json")
+
+
+def createRevision(request, *args, **kwargs):
+    try:
+        # Declare a revision block.
+        with reversion.create_revision():
+
+            # Save a new model instance.
+            obj_pk = kwargs.get('pk')
+            obj = Presupuesto.objects.get(pk=obj_pk)
+            obj.save()
+
+            presupVers = Version.objects.get_for_object(obj)
+            actualRevNumber = 'REV0'
+            if presupVers:
+                ultRev = presupVers.first()
+                numUltRev = int(ultRev.revision.comment.split('REV')[1])
+                actualRevNumber = 'REV' + str(numUltRev + 1)
+
+            # Store some meta-information.
+            reversion.set_user(request.user)
+            reversion.set_comment(actualRevNumber)
+        # Actualizo el presupuesto
+        obj.nro_revision += 1
+        obj.revisionar = False
+        obj.save()
+        return JsonResponse({'ok': 'ok'})
+    except:
+        return JsonResponse({'err': 'err'})
+
+
+def rollBackRevision(request, *args, **kwargs):
+    obj_pk = kwargs.get('pk')
+    obj = Presupuesto.objects.get(pk=obj_pk)
+    redirect = reverse_lazy('adm:presup-update', kwargs={'pk': kwargs['pk']}).strip()
+    try:
+        presupVers = Version.objects.get_for_object(obj)
+        if presupVers:
+            ultRev = presupVers.first()
+            obj.nro_revision -= 1
+            if ultRev.field_dict['revisionar']:
+                obj.revisionar = True
+            obj.save()
+            ultRev.delete()
+        return JsonResponse({'ok': 'ok', 'redirect': redirect})
+    except:
+        return JsonResponse({'err': 'err', 'redirect': redirect})
+
+
+class PresupuestoCreate(CreateView):
+    model = Presupuesto
+    form_class = PresupuestoForm
+
+    @method_decorator(permission_required('adm.add_presupuesto',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(PresupuestoCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PresupuestoCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
 
 
 #===========================================
@@ -239,75 +360,6 @@ class PresupuestoList(ListView):
         return JsonResponse(response_dict)
 
 
-def viewWord(request, *args, **kwargs):
-    presup_id = kwargs.get('pk')
-    presup_obj = Presupuesto.objects.get(id=presup_id)
-    vals = {}
-    turno_activo = presup_obj.get_turno_activo()
-    vals['area'] = turno_activo.area if turno_activo else ''
-    vals['codigo'] = presup_obj.codigo + '-R' + str(presup_obj.nro_revision)
-    vals['fecha'] = presup_obj.fecha_realizado.strftime('%d/%m/%Y') \
-                    if presup_obj.fecha_realizado else ''
-    vals['email'] = presup_obj.usuario.mail
-    vals['solicitante'] = presup_obj.usuario.nombre
-    vals['contacto'] = presup_obj.usuario.nombre
-    vals['ofertatec'] = []
-    vals['fecha_inicio'] = less_five(turno_activo.fecha_inicio) if turno_activo else ''
-    vals['fecha_fin'] = plus_five(turno_activo.fecha_fin) if turno_activo else ''
-    vals['plantilla'] = ''
-
-    if presup_obj.asistencia:
-        vals['plantilla'] = 'Presupuesto Asistencia.docx'
-    elif presup_obj.calibracion:
-        vals['plantilla'] = 'Presupuesto Calibracion.docx'
-    elif presup_obj.in_situ:
-        vals['plantilla'] = 'Presupuesto In Situ.docx'
-    elif presup_obj.lia:
-        vals['plantilla'] = 'Presupuesto LIA.docx'
-
-    if turno_activo:
-        for o in turno_activo.ofertatec_linea_set.get_queryset():
-            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio))
-        #vals['ofertatec'] += turno_activo.ofertatec.codigo if turno_activo else ''
-        #vals['detalle'] = turno_activo.ofertatec.detalle if turno_activo else ''
-        #vals['precio'] = str(turno_activo.ofertatec.precio) if turno_activo else ''
-    # Create the HttpResponse object with the appropriate headers.
-    #response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    # Create the Word object
-    return genWord(vals)
-
-
-def get_user(request, *args, **kwargs):
-    try:
-        user_id = request.GET['user_id']
-        user_obj = Usuario.objects.get(pk=user_id)
-        data = {'nro_usuario': user_obj.nro_usuario,
-                'cuit': user_obj.cuit,
-                'rubro': user_obj.rubro,
-                }
-    except:
-        data = {}
-    return HttpResponse(json.dumps(data), content_type="text/json")
-
-
-class PresupuestoCreate(CreateView):
-    model = Presupuesto
-    form_class = PresupuestoForm
-
-    @method_decorator(permission_required('adm.add_presupuesto',
-                      raise_exception=True))
-    def dispatch(self, *args, **kwargs):
-        return super(PresupuestoCreate, self).dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(PresupuestoCreate, self).get_context_data(**kwargs)
-        context['edit'] = True
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
-
-
 class PresupuestoDelete(DeleteView):
     model = Presupuesto
     success_url = reverse_lazy('adm:presup-list')
@@ -340,13 +392,29 @@ class PresupuestoUpdate(UpdateView):
         context = super(PresupuestoUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['turno_activo'] = (context['object']).get_turno_activo()
-        #obj_presup = self.get_object()
-        #obj_turno = obj_presup.get_turno_activo()
-        #count = 0
-        #if obj_turno:
-            #for ot in obj_turno.ofertatec_linea_set.all():
-                #count += ot.cant_horas * ot.precio if ot.cant_horas else ot.precio
-            #context['total'] = count
+        context['revision'] = self.request.GET.get('revision', False)
+        # Revisionado
+        presupVers = Version.objects.get_for_object(self.object)
+        turnoVersByRevision = []
+        usuarioVersByRevision = []
+        otLineaVersByRevision = []
+        #import pdb; pdb.set_trace()
+        if presupVers:
+            for pv in presupVers:
+                revId = pv.revision.id
+                # Todos los objetos versionados en la revision revId
+                objectsVersiones = Version.objects.filter(revision=revId)
+                # Todos los turnos versionados en la revision revId
+                tv = objectsVersiones.filter(content_type__model='turno')
+                turnoVersByRevision.append(tv)
+                # Todos los usuarios versionados en la revision revId
+                uv = objectsVersiones.filter(content_type__model='usuario')
+                usuarioVersByRevision.append(uv)
+                # Todos las lineas de ot versionados en la revision revId
+                ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
+                otLineaVersByRevision.append(ot)
+
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
         return context
 
     def get_success_url(self):
