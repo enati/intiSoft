@@ -483,12 +483,7 @@ def createRevision(request, *args, **kwargs):
             obj = Turno.objects.get(pk=obj_pk)
             obj.save()
 
-            turnoVers = Version.objects.get_for_object(obj)
-            actualRevNumber = 'REV0'
-            if turnoVers:
-                ultRev = turnoVers.first()
-                numUltRev = int(ultRev.revision.comment.split('REV')[1])
-                actualRevNumber = 'REV' + str(numUltRev + 1)
+            actualRevNumber = 'REV' + str(obj.nro_revision)
 
             # Store some meta-information.
             reversion.set_user(request.user)
