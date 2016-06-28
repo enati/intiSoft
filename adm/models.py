@@ -3,7 +3,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from adm.signals import *
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_init, pre_save
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from django.db import connection
@@ -124,6 +124,8 @@ def nextCode():
 @reversion.register(follow=["usuario", "turno_set"])
 class Presupuesto(TimeStampedModel, AuthStampedModel):
 
+    old_fecha_aceptado = None
+
     ESTADOS = (
         ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
         ('aceptado', 'Aceptado'),
@@ -165,11 +167,21 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
 
     def _toState_aceptado(self):
         """Faltarian las validaciones"""
-        # El estado se cambia desde el clean
-        # Paso el turno asociado a estado activo, en caso de haberlo
+        self.estado = 'aceptado'
+        self.save()
         turno = self.get_turno_activo()
         if turno:
             turno.estado = 'activo'
+            turno.save()
+        return True
+
+    def _toState_borrador(self):
+        self.estado = 'borrador'
+        self.save()
+        # Paso a borrador el turno asociado
+        turno = self.get_turno_activo()
+        if turno:
+            turno.estado = 'en_espera'
             turno.save()
         return True
 
@@ -215,8 +227,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
                        ("cancel_presupuesto", "Can cancel presupuesto"))
 
 # Signals
-pre_save.connect(pre_save_presup, sender=Presupuesto)
-post_save.connect(chequear_revisionado, sender=Presupuesto)
+pre_save.connect(check_state, sender=Presupuesto)
+post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
 
