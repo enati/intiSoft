@@ -50,6 +50,14 @@ class OTCreate(CreateView):
     def dispatch(self, *args, **kwargs):
         return super(OTCreate, self).dispatch(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(OTCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:ot-update', kwargs={'pk': self.object.id})
+
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests and instantiates blank versions of the form
@@ -120,7 +128,11 @@ class OTUpdate(UpdateView):
         context = super(OTUpdate, self).get_context_data(**kwargs)
         turno = (context['object']).presupuesto.get_turno_activo()
         context['turno_activo'] = turno
+        context['edit'] = self.request.GET.get('edit', False)
         return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:ot-update', kwargs={'pk': self.object.id})
 
     def get(self, request, *args, **kwargs):
         """

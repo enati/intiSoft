@@ -42,3 +42,7 @@ def range_3(actual_page):
     return range(actual_page - 3, actual_page + 4)
 
 
+@register.filter(name='disable')
+def disable(field):
+    return field.as_widget(attrs={"disabled": "disabled"})
+
