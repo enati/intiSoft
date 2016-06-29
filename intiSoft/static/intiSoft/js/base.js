@@ -160,7 +160,12 @@ $(document).ready(function() {
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
         precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
         precio_total = $("[id$="+formset_number+"-precio_total"+"]");
-        precio_total.val(cant_horas*precio);
+        if (isNaN(cant_horas)) {
+            precio_total.val(precio);
+        }
+        else {
+            precio_total.val(cant_horas*precio);
+        }
     });
 
 
