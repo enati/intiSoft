@@ -196,17 +196,23 @@
                         {% endif %}
                         <table id="ofertatec_formtable" class="table">
                             <col style="width:20%">
-                            <col style="width:20%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                            <!--<col style="width:15%">
+                            <col style="width:5%">
                             <col style="width:5%">
                             <col style="width:10%">
-                            <col style="width:12%">
+                            <col style="width:12%">-->
                             <thead>
                                 <td>Código</td>
                                 <td style="display:none">Detalle</td>
+<!--
                                 <td>Tipo De Servicio</td>
+-->
                                 <td>Cantidad</td>
                                 <td>Horas</td>
                                 <td>Precio Unitario</td>
+                                <td>Precio Total</td>
                                 <td>Observaciones</td>
                             </thead>
                             <tbody>
@@ -230,6 +236,7 @@
                                             {% endif %}
 
                                         </td>
+<!--
                                         <td>
                                             {% if edit %}
                                                 {{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}
@@ -237,6 +244,7 @@
                                                 {{ form.tipo_servicio.value  | default_if_none:"" }}
                                             {% endif %}
                                         </td>
+-->
                                         <td>
                                             {% if edit %}
                                                 {{ form.cantidad }} {{ form.cantidad.errors }}
@@ -256,6 +264,13 @@
                                                 {{ form.precio }} {{ form.precio.errors }}
                                             {% else %}
                                                 {{ form.precio.value | default_if_none:"" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if edit %}
+                                                {{ form.precio_total }} {{ form.precio_total.errors }}
+                                            {% else %}
+                                                {{ form.precio_total.value | default_if_none:"" }}
                                             {% endif %}
                                         </td>
                                         <td>
