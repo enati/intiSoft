@@ -230,6 +230,15 @@ class Recibo_LineaForm(forms.ModelForm):
         #else:
             #return self.cleaned_data['importe']
 
+    def __init__(self, *args, **kwargs):
+        super(Recibo_LineaForm, self).__init__(*args, **kwargs)
+    # El nro de presup no tiene que tener form-control
+    #if self.instance and self.instance.factura_id:
+        #if self.instance.factura.estado == 'cancelada':
+        for f in self.fields:
+            #self.fields[f].widget.attrs['disabled'] = True
+            self.fields[f].required = False
+
     class Meta:
 
         model = Recibo
@@ -261,14 +270,14 @@ class Recibo_LineaForm(forms.ModelForm):
 
 class Remito_LineaForm(forms.ModelForm):
 
-    #def __init__(self, *args, **kwargs):
-        #super(Remito_LineaForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Remito_LineaForm, self).__init__(*args, **kwargs)
         ## El nro de presup no tiene que tener form-control
         #if self.instance and self.instance.factura_id:
             #if self.instance.factura.estado == 'cancelada':
-                #for f in self.fields:
-                    #self.fields[f].widget.attrs['disabled'] = True
-                    #self.fields[f].required = False
+        for f in self.fields:
+            #self.fields[f].widget.attrs['disabled'] = True
+            self.fields[f].required = False
 
     #def clean(self):
         #cleaned_data = super(Remito_LineaForm, self).clean()
@@ -289,6 +298,7 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
         parent_model,
         child_model,
         formset=NestedInlineFormset,
+        #min_num=1,
         extra=1,
         formfield_callback=bootstrap_format,
         form=Factura_LineaForm,
@@ -300,7 +310,8 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
         parent_child.nested_formset_class.append(inlineformset_factory(
             child_model,
             grandchild,
-            extra=1,
+            min_num=1,
+            extra=0,
             formfield_callback=bootstrap_format,
             form=g_form,
         ))
@@ -317,7 +328,6 @@ class CustomInlineFormset(BaseInlineFormSet):
 
     def __init__(self, *args, **kwargs):
         super(CustomInlineFormset, self).__init__(*args, **kwargs)
-        #import pdb; pdb.set_trace()
         for form in self.forms:
             ## Label del select de oferta tecnologica
             form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
@@ -362,7 +372,8 @@ class OT_LineaForm(forms.ModelForm):
 
 OT_LineaFormSet = inlineformset_factory(OT,
                                         OT_Linea,
-                                        extra=1,
+                                        min_num=1,
+                                        extra=0,
                                         formfield_callback=bootstrap_format,
                                         form=OT_LineaForm,
                                         formset=CustomInlineFormset,
