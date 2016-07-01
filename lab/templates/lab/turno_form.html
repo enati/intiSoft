@@ -155,7 +155,7 @@
             {% for tv, pv, uv, ov in turnoVersions %}
                 <li role="presentation">
                     <a href="#{{ tv.revision.comment }}" aria-controls="{{ tv.revision.comment }}" role="tab" data-toggle="tab">
-                        {{ tv.revision.comment }}
+                        {{ tv.revision.comment | revName }}
                     </a>
                 </li>
             {% endfor %}

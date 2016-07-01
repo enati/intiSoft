@@ -154,7 +154,7 @@
             {% for pv, tv, uv, ov in presupVersions %}
                 <li role="presentation">
                     <a href="#{{ pv.revision.comment }}" aria-controls="{{ pv.revision.comment }}" role="tab" data-toggle="tab">
-                        {{ pv.revision.comment }}
+                        {{ pv.revision.comment | revName }}
                     </a>
                 </li>
             {% endfor %}

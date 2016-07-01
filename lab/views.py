@@ -449,11 +449,10 @@ class TurnoUpdate(UpdateView):
         context['edit'] = self.request.GET.get('edit', False)
         context['revision'] = self.request.GET.get('revision', False)
         # Revisionado
-        turnoVers = Version.objects.get_for_object(self.object)
+        turnoVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='P_')
         presupVersByRevision = []
         usuarioVersByRevision = []
         otLineaVersByRevision = []
-
         if turnoVers:
             for tv in turnoVers:
                 revId = tv.revision.id
@@ -483,7 +482,7 @@ def createRevision(request, *args, **kwargs):
             obj = Turno.objects.get(pk=obj_pk)
             obj.save()
 
-            actualRevNumber = 'REV' + str(obj.nro_revision)
+            actualRevNumber = 'T_REV' + str(obj.nro_revision)
 
             # Store some meta-information.
             reversion.set_user(request.user)

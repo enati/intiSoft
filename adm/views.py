@@ -96,13 +96,12 @@ def createRevision(request, *args, **kwargs):
     try:
         # Declare a revision block.
         with reversion.create_revision():
-
             # Save a new model instance.
             obj_pk = kwargs.get('pk')
             obj = Presupuesto.objects.get(pk=obj_pk)
             obj.save()
 
-            actualRevNumber = 'REV' + str(obj.nro_revision)
+            actualRevNumber = 'P_REV' + str(obj.nro_revision)
 
             # Store some meta-information.
             reversion.set_user(request.user)
@@ -386,11 +385,10 @@ class PresupuestoUpdate(UpdateView):
         context['turno_activo'] = (context['object']).get_turno_activo()
         context['revision'] = self.request.GET.get('revision', False)
         # Revisionado
-        presupVers = Version.objects.get_for_object(self.object)
+        presupVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='T_')
         turnoVersByRevision = []
         usuarioVersByRevision = []
         otLineaVersByRevision = []
-        #import pdb; pdb.set_trace()
         if presupVers:
             for pv in presupVers:
                 revId = pv.revision.id

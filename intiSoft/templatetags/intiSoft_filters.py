@@ -54,3 +54,11 @@ def getOTCode(ot_id):
         return OfertaTec.objects.get(pk=ot_id).codigo
     except:
         return []
+
+
+@register.filter(name='revName')
+def revName(name):
+    try:
+        return name[2:]
+    except:
+        return []
