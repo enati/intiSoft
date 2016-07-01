@@ -107,6 +107,11 @@ function rollBackPresupuesto() {
 
 $(document).ready(function() {
 
+    // Reseteo las fechas cuando hago una nueva revision
+    if (window.location.href.indexOf('revision') != -1) {
+        $('#id_fecha_realizado').val('');
+        $('#id_fecha_aceptado').val('');
+    };
     //$(".chosen-select").chosen();
     $.datepicker._gotoToday = function(id) {
         var target = $(id);
