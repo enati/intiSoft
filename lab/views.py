@@ -508,11 +508,8 @@ def rollBackRevision(request, *args, **kwargs):
         turnoVers = Version.objects.get_for_object(obj)
         if turnoVers:
             ultRev = turnoVers.first()
-            obj.nro_revision -= 1
-            if ultRev.field_dict['revisionar']:
-                obj.revisionar = True
-            obj.save()
-            ultRev.delete()
+            ultRev.revision.revert(True)
+            ultRev.revision.delete()
         return JsonResponse({'ok': 'ok', 'redirect': redirect})
     except:
         return JsonResponse({'err': 'err', 'redirect': redirect})
