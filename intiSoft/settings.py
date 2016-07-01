@@ -40,7 +40,8 @@ INSTALLED_APPS = (
     'lab',
     'adm',
     'intiSoft',
-    'smart_pagination'
+    'smart_pagination',
+    'reversion',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,6 +119,8 @@ DATE_INPUT_FORMATS = ['%d/%m/%Y', '%m/%d/%Y']
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL.replace('/', ''))
 
 LOGIN_REDIRECT_URL = '/'
 

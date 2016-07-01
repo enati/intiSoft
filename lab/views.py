@@ -16,6 +16,8 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from labCalendar import WorkoutCalendar
 from django.views.generic import View
+from reversion.models import Version
+import reversion
 
 thismonth = str(datetime.now().month)
 thisyear = str(datetime.now().year)
@@ -445,7 +447,71 @@ class TurnoUpdate(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(TurnoUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['revision'] = self.request.GET.get('revision', False)
+        # Revisionado
+        turnoVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='P_')
+        presupVersByRevision = []
+        usuarioVersByRevision = []
+        otLineaVersByRevision = []
+        if turnoVers:
+            for tv in turnoVers:
+                revId = tv.revision.id
+                # Todos los objetos versionados en la revision revId
+                objectsVersiones = Version.objects.filter(revision=revId)
+                # Todos los presupuestos versionados en la revision revId
+                pv = objectsVersiones.filter(content_type__model='presupuesto')
+                presupVersByRevision.append(pv)
+                # Todos los usuarios versionados en la revision revId
+                uv = objectsVersiones.filter(content_type__model='usuario')
+                usuarioVersByRevision.append(uv)
+                # Todos las lineas de ot versionados en la revision revId
+                ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
+                otLineaVersByRevision.append(ot)
+
+        context['turnoVersions'] = zip(turnoVers, presupVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
         return context
+
+
+def createRevision(request, *args, **kwargs):
+    try:
+        # Declare a revision block.
+        with reversion.create_revision():
+
+            # Save a new model instance.
+            obj_pk = kwargs.get('pk')
+            obj = Turno.objects.get(pk=obj_pk)
+            obj.save()
+
+            actualRevNumber = 'T_REV' + str(obj.nro_revision)
+
+            # Store some meta-information.
+            reversion.set_user(request.user)
+            reversion.set_comment(actualRevNumber)
+        # Actualizo el turno
+        obj.nro_revision += 1
+        obj.revisionar = False
+        obj.save()
+        # Aviso al presupuesto que hay que revisionar
+        obj.presupuesto.revisionar = True
+        obj.presupuesto.save()
+        return JsonResponse({'ok': 'ok'})
+    except:
+        return JsonResponse({'err': 'err'})
+
+
+def rollBackRevision(request, *args, **kwargs):
+    obj_pk = kwargs.get('pk')
+    obj = Turno.objects.get(pk=obj_pk)
+    redirect = reverse_lazy('lab:' + obj.area + '-update', kwargs={'pk': kwargs['pk']}).strip()
+    try:
+        turnoVers = Version.objects.get_for_object(obj)
+        if turnoVers:
+            ultRev = turnoVers.first()
+            ultRev.revision.revert(True)
+            ultRev.revision.delete()
+        return JsonResponse({'ok': 'ok', 'redirect': redirect})
+    except:
+        return JsonResponse({'err': 'err', 'redirect': redirect})
 
 
 class LIAUpdate(TurnoUpdate):
