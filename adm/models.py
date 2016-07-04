@@ -160,9 +160,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
         return self.codigo
 
     def get_turno_activo(self):
-        turno = self.turno_set.all().filter(estado__in=['en_espera',
-                                                          'activo',
-                                                          'finalizado'])
+        if self.estado == 'cancelado':
+            turno = self.turno_set.order_by('-created')
+        else:
+            turno = self.turno_set.all().filter(estado__in=['en_espera',
+                                                            'activo',
+                                                            'finalizado'])
         return turno[0] if turno else None
 
     def _toState_aceptado(self):
