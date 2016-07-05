@@ -238,6 +238,8 @@
                                     <col style="width:5%">
                                     <col style="width:10%">
                                     <col style="width:12%">
+                                    <col style="width:12%">
+                                    <col style="width:12%">
                                     <thead>
                                         <td>Código</td>
                                         <td style="display:none">Detalle</td>
@@ -245,6 +247,7 @@
                                         <td>Cantidad</td>
                                         <td>Horas</td>
                                         <td>Precio Unitario</td>
+                                        <td>Precio Total</td>
                                         <td>Observaciones</td>
                                     </thead>
                                     <tbody>
@@ -294,6 +297,13 @@
                                                         {{ form.precio }} {{ form.precio.errors }}
                                                     {% else %}
                                                         {{ form.precio.value | default_if_none:"" }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if edit %}
+                                                        {{ form.precio_total }} {{ form.precio_total.errors }}
+                                                    {% else %}
+                                                        {{ form.precio_total.value | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
@@ -464,6 +474,7 @@
                                             <td>Cantidad</td>
                                             <td>Horas</td>
                                             <td>Precio Unitario</td>
+                                            <td>Precio Total</td>
                                             <td>Observaciones</td>
                                         </thead>
                                         <tbody>
@@ -486,6 +497,9 @@
                                                     </td>
                                                     <td>
                                                         {{ ot.field_dict.precio | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.precio_total | default_if_none:"" }}
                                                     </td>
                                                     <td>
                                                         {{ ot.field_dict.observaciones | default_if_none:"" }}
