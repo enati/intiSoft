@@ -1,0 +1,27 @@
+{% extends "intiSoft/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-2 col-md-offset-10 col-xs-2 col-xs-offset-10" >
+        <a href={% url calendarUrl %}>
+            <button type="button" class="btn btn-default btn-calendar" aria-label="Left Align">
+              <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+            </button>
+        </a>
+        <a href={% url listUrl %}>
+            <button type="button" class="btn btn-default btn-list" aria-label="Left Align">
+              <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+            </button>
+        </a>
+    </div>
+</div>
+<br/>
+{{calendar}}
+<table style="margin: 0 auto">
+    <td><div id="ref" class="alert-neutral">&nbsp;</div>En Espera</td>
+    <td><div id="ref" class="alert-warning">&nbsp;</div>Activo</td>
+    <td><div id="ref" class="alert-success">&nbsp;</div>Finalizado</td>
+    <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelado</td>
+<table>
+<br/>
+<br/>
+{% endblock %}

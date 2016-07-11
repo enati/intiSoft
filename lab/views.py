@@ -12,6 +12,15 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
+from django.shortcuts import render
+from django.utils.safestring import mark_safe
+from labCalendar import WorkoutCalendar
+from django.views.generic import View
+from reversion.models import Version
+import reversion
+
+thismonth = str(datetime.now().month)
+thisyear = str(datetime.now().year)
 
 
 class TurnoList(ListView):
@@ -23,11 +32,9 @@ class TurnoList(ListView):
         """
         Chequeo los turnos a revisionar
         """
-        for turno in queryset:
+        for turno in queryset.exclude(revisionar=True):
             if turno._revisionar():
                 turno.revisionar = True
-            else:
-                turno.revisionar = False
             turno.save()
 
     def get_queryset(self):
@@ -268,15 +275,22 @@ class TurnoCreate(CreateView):
             self.get_context_data(form=form,
                                   ofertatec_linea_form=ofertatec_linea_form))
 
+    def get_context_data(self, **kwargs):
+        context = super(TurnoCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
 
 class LIACreate(TurnoCreate):
     template_name = 'lab/LIA_form.html'
-    success_url = reverse_lazy('lab:LIA-list')
 
     @method_decorator(permission_required('lab.add_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIACreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIA'}
@@ -284,12 +298,14 @@ class LIACreate(TurnoCreate):
 
 class LIM1Create(TurnoCreate):
     template_name = 'lab/LIM1_form.html'
-    success_url = reverse_lazy('lab:LIM1-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM1Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM1'}
@@ -297,12 +313,14 @@ class LIM1Create(TurnoCreate):
 
 class LIM2Create(TurnoCreate):
     template_name = 'lab/LIM2_form.html'
-    success_url = reverse_lazy('lab:LIM2-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM2Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM2'}
@@ -310,12 +328,14 @@ class LIM2Create(TurnoCreate):
 
 class LIM3Create(TurnoCreate):
     template_name = 'lab/LIM3_form.html'
-    success_url = reverse_lazy('lab:LIM3-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM3Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM3'}
@@ -323,12 +343,14 @@ class LIM3Create(TurnoCreate):
 
 class LIM6Create(TurnoCreate):
     template_name = 'lab/LIM6_form.html'
-    success_url = reverse_lazy('lab:LIM6-list')
 
     @method_decorator(permission_required('lab.add_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM6Create, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'LIM6'}
@@ -336,12 +358,14 @@ class LIM6Create(TurnoCreate):
 
 class EXTCreate(TurnoCreate):
     template_name = 'lab/EXT_form.html'
-    success_url = reverse_lazy('lab:EXT-list')
 
     @method_decorator(permission_required('lab.add_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(EXTCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'EXT'}
@@ -349,12 +373,14 @@ class EXTCreate(TurnoCreate):
 
 class SISCreate(TurnoCreate):
     template_name = 'lab/SIS_form.html'
-    success_url = reverse_lazy('lab:SIS-list')
 
     @method_decorator(permission_required('lab.add_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(SISCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'SIS'}
@@ -362,12 +388,14 @@ class SISCreate(TurnoCreate):
 
 class DESCreate(TurnoCreate):
     template_name = 'lab/DES_form.html'
-    success_url = reverse_lazy('lab:DES-list')
 
     @method_decorator(permission_required('lab.add_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
         return {'area': 'DES'}
@@ -377,7 +405,6 @@ class TurnoUpdate(UpdateView):
     model = Turno
     form_class = TurnoForm
     template_name_suffix = '_form'
-    success_url = reverse_lazy('lab:turnos-list')
 
     def get(self, request, *args, **kwargs):
         """
@@ -426,85 +453,170 @@ class TurnoUpdate(UpdateView):
             self.get_context_data(form=form,
                                   ofertatec_linea_form=ofertatec_linea_form))
 
+    def get_context_data(self, **kwargs):
+        context = super(TurnoUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        context['revision'] = self.request.GET.get('revision', False)
+        # Revisionado
+        turnoVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='P_')
+        presupVersByRevision = []
+        usuarioVersByRevision = []
+        otLineaVersByRevision = []
+        if turnoVers:
+            for tv in turnoVers:
+                revId = tv.revision.id
+                # Todos los objetos versionados en la revision revId
+                objectsVersiones = Version.objects.filter(revision=revId)
+                # Todos los presupuestos versionados en la revision revId
+                pv = objectsVersiones.filter(content_type__model='presupuesto')
+                presupVersByRevision.append(pv)
+                # Todos los usuarios versionados en la revision revId
+                uv = objectsVersiones.filter(content_type__model='usuario')
+                usuarioVersByRevision.append(uv)
+                # Todos las lineas de ot versionados en la revision revId
+                ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
+                otLineaVersByRevision.append(ot)
+
+        context['turnoVersions'] = zip(turnoVers, presupVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
+        return context
+
+
+def createRevision(request, *args, **kwargs):
+    try:
+        # Declare a revision block.
+        with reversion.create_revision():
+            # Save a new model instance.
+            obj_pk = kwargs.get('pk')
+            obj = Turno.objects.get(pk=obj_pk)
+            obj.save()
+
+            actualRevNumber = 'T_REV' + str(obj.nro_revision)
+
+            # Store some meta-information.
+            reversion.set_user(request.user)
+            reversion.set_comment(actualRevNumber)
+        # Actualizo el turno
+        obj.nro_revision += 1
+        obj.revisionar = False
+        obj.save()
+        # Aviso al presupuesto que hay que revisionar (si hay)
+        if obj.presupuesto:
+            obj.presupuesto.revisionar = True
+            obj.presupuesto.save()
+        return JsonResponse({'ok': 'ok'})
+    except:
+        return JsonResponse({'err': 'err'})
+
+
+def rollBackRevision(request, *args, **kwargs):
+    obj_pk = kwargs.get('pk')
+    obj = Turno.objects.get(pk=obj_pk)
+    redirect = reverse_lazy('lab:' + obj.area + '-update', kwargs={'pk': kwargs['pk']}).strip()
+    try:
+        turnoVers = Version.objects.get_for_object(obj)
+        if turnoVers:
+            ultRev = turnoVers.first()
+            ultRev.revision.revert(True)
+            ultRev.revision.delete()
+        return JsonResponse({'ok': 'ok', 'redirect': redirect})
+    except:
+        return JsonResponse({'err': 'err', 'redirect': redirect})
+
 
 class LIAUpdate(TurnoUpdate):
     template_name = 'lab/LIA_form.html'
-    success_url = reverse_lazy('lab:LIA-list')
 
     @method_decorator(permission_required('lab.change_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIAUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
+
 
 class LIM1Update(TurnoUpdate):
     template_name = 'lab/LIM1_form.html'
-    success_url = reverse_lazy('lab:LIM1-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM1Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
+
 
 class LIM2Update(TurnoUpdate):
     template_name = 'lab/LIM2_form.html'
-    success_url = reverse_lazy('lab:LIM2-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM2Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
+
 
 class LIM3Update(TurnoUpdate):
     template_name = 'lab/LIM3_form.html'
-    success_url = reverse_lazy('lab:LIM3-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM3Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
+
 
 class LIM6Update(TurnoUpdate):
     template_name = 'lab/LIM6_form.html'
-    success_url = reverse_lazy('lab:LIM6-list')
 
     @method_decorator(permission_required('lab.change_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM6Update, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
+
 
 class EXTUpdate(TurnoUpdate):
     template_name = 'lab/EXT_form.html'
-    success_url = reverse_lazy('lab:EXT-list')
 
     @method_decorator(permission_required('lab.change_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(EXTUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
+
 
 class SISUpdate(TurnoUpdate):
     template_name = 'lab/SIS_form.html'
-    success_url = reverse_lazy('lab:SIS-list')
 
     @method_decorator(permission_required('lab.change_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(SISUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
+
 
 class DESUpdate(TurnoUpdate):
     template_name = 'lab/DES_form.html'
-    success_url = reverse_lazy('lab:DES-list')
 
     @method_decorator(permission_required('lab.change_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
 
 
 class TurnoDelete(DeleteView):
@@ -529,6 +641,7 @@ def get_price(request, *args, **kwargs):
         ot_id = request.GET['ot_id']
         ot_obj = OfertaTec.objects.get(pk=ot_id)
         data = {'precio': ot_obj.precio,
+                'precio_total': ot_obj.precio,
                 'detalle': ot_obj.detalle,
                 'tipo_servicio': ot_obj.tipo_servicio}
     except:
@@ -629,3 +742,60 @@ class DESDelete(TurnoDelete):
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESDelete, self).dispatch(request, *args, **kwargs)
+
+
+class CalendarView(View):
+    template_name = 'lab/calendar.html'
+    lab = ''
+
+    def get(self, request, year=thisyear, month=thismonth):
+        if len(month) == 1:
+            month = '0' + str(month)
+        date = year + '-' + month
+        turnos = Turno.objects.order_by('fecha_inicio').filter(fecha_inicio__contains=date,
+                                                               estado__in=['borrador', 'activo'],
+                                                               area=self.lab)
+        cal = WorkoutCalendar(turnos, self.lab).formatmonth(int(year), int(month))
+        return render(request, self.template_name, {'user': request.user, 'calendar': mark_safe(cal)})
+        return HttpResponse('result')
+
+
+class LIACalendarView(CalendarView):
+    template_name = 'lab/LIA_calendar.html'
+    lab = 'LIA'
+
+
+class LIM1CalendarView(CalendarView):
+    template_name = 'lab/LIM1_calendar.html'
+    lab = 'LIM1'
+
+
+class LIM2CalendarView(CalendarView):
+    template_name = 'lab/LIM2_calendar.html'
+    lab = 'LIM2'
+
+
+class LIM3CalendarView(CalendarView):
+    template_name = 'lab/LIM3_calendar.html'
+    lab = 'LIM3'
+
+
+class LIM6CalendarView(CalendarView):
+    template_name = 'lab/LIM6_calendar.html'
+    lab = 'LIM6'
+
+
+class EXTCalendarView(CalendarView):
+    template_name = 'lab/EXT_calendar.html'
+    lab = 'EXT'
+
+
+class SISCalendarView(CalendarView):
+    template_name = 'lab/SIS_calendar.html'
+    lab = 'SIS'
+
+
+class DESCalendarView(CalendarView):
+    template_name = 'lab/DES_calendar.html'
+    lab = 'DES'
+

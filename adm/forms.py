@@ -5,7 +5,7 @@ from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
 
-editable_fields = ['fecha_instrumento', 'fecha_realizado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
+editable_fields = ['fecha_instrumento', 'fecha_realizado', 'fecha_aceptado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
 
 def bootstrap_format(f, **kwargs):
@@ -396,8 +396,6 @@ class PresupuestoForm(forms.ModelForm):
         self.fields['lia'].widget.attrs['class'] = ''
         if self.instance and self.instance.estado != 'borrador':
             for f in self.fields:
-                # fecha_instrumento' debe ser el unico campo editable en estado
-                # 'aceptado'
                 if (f not in editable_fields) or\
                    (self.instance.estado != 'aceptado'):
                     self.fields[f].widget.attrs['disabled'] = True
@@ -439,7 +437,8 @@ class PresupuestoForm(forms.ModelForm):
             return self.cleaned_data['usuario']
 
     def clean_fecha_aceptado(self):
-        if self.instance and self.instance.estado != 'borrador':
+        if self.instance and self.instance.estado in \
+                           ('finalizado', 'cancelado'):
             return self.instance.fecha_aceptado
         else:
             return self.cleaned_data['fecha_aceptado']
@@ -482,18 +481,13 @@ class PresupuestoForm(forms.ModelForm):
             #return self.cleaned_data['lia']
 
     def clean(self):
-        #cleaned_data = self.cleaned_data
         cleaned_data = super(PresupuestoForm, self).clean()
         fecha_aceptado = cleaned_data.get('fecha_aceptado')
         fecha_realizado = cleaned_data.get('fecha_realizado')
-        if fecha_aceptado:
-            if fecha_realizado:
-                self.instance._toState_aceptado()
-                cleaned_data['estado'] = 'aceptado'
-            else:
-                msg = "El campo no puede ser vacio."
-                self._errors['fecha_realizado'] = self.error_class([msg])
-                del cleaned_data['fecha_aceptado']
+        if fecha_aceptado and not fecha_realizado:
+            msg = "El campo no puede ser vacio."
+            self._errors['fecha_realizado'] = self.error_class([msg])
+            del cleaned_data['fecha_aceptado']
         return cleaned_data
 
     class Meta:

@@ -8,6 +8,7 @@ from django.db.models.signals import pre_save, post_save, m2m_changed
 from django.dispatch import receiver
 from lab.signals import *
 from intiSoft.exception import StateError
+import reversion
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -27,6 +28,7 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
     return res
 
 
+@reversion.register(follow=["ofertatec_linea_set", "presupuesto"])
 class Turno(TimeStampedModel, AuthStampedModel):
 
     #_fecha_inicio_orig = None
@@ -175,11 +177,13 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        )
 
 
+@reversion.register(follow=["ofertatec"])
 class OfertaTec_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica del Presupuesto """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
     precio = models.FloatField(verbose_name='Precio')
+    precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)
     cant_horas = models.FloatField(verbose_name='Horas', blank=True, null=True)
     turno = models.ForeignKey(Turno, verbose_name='Turno')
@@ -189,10 +193,5 @@ class OfertaTec_Linea(TimeStampedModel, AuthStampedModel):
 
     class Meta:
         ordering = ['id']
-
-# Signals
-#m2m_changed.connect(actualizar_lineas, sender=Turno.ofertatec.through)
-pre_save.connect(pre_save_turno, sender=Turno)
-post_save.connect(chequear_revisionado, sender=Turno)
 
 

@@ -21,7 +21,97 @@ function deseleccionar_todo(f_name){
    close = false;
 }
 
+function revisionarTurno() {
+    $.ajax({
+        url: 'revision/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = '?edit=1&revision=1';
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.reload();
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function rollBackTurno() {
+    $.ajax({
+        url: 'rollback/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = data.redirect;
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.href = data.redirect;
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function revisionarPresupuesto() {
+    $.ajax({
+        url: 'revision/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = '?edit=1&revision=1';
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.reload();
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function rollBackPresupuesto() {
+    $.ajax({
+        url: 'rollback/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = data.redirect;
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.href = data.redirect;
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
 $(document).ready(function() {
+
+    // Reseteo las fechas cuando hago una nueva revision
+    if (window.location.href.indexOf('revision') != -1) {
+        $('#id_fecha_realizado').val('');
+        $('#id_fecha_aceptado').val('');
+    };
     //$(".chosen-select").chosen();
     $.datepicker._gotoToday = function(id) {
         var target = $(id);
@@ -150,22 +240,22 @@ $(document).ready(function() {
     });
 
 
-    postForm = function() {
-        var form = $("#presupForm");
-        var id = $("#viewWord").data('id');
-        $.ajax({
-            url: domain + '/adm/presup/update/' + id + '/',
-            method: 'post',
-            data: form.serialize(),
-        });
-    };
+    //postForm = function() {
+    //    var form = $("#presupForm");
+    //    var id = $("#viewWord").data('id');
+    //    $.ajax({
+    //        url: domain + '/adm/presup/update/' + id + '/',
+    //        method: 'post',
+    //        data: form.serialize(),
+    //    });
+    //};
 
     $("#id_asistencia").click(function() {
         var id = $("#viewWord").data('id');
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_calibracion").click(function() {
@@ -173,7 +263,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_in_situ").click(function() {
@@ -181,7 +271,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_lia").click(function() {
@@ -189,7 +279,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#viewWord").click(function(e) {

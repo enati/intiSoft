@@ -1,2 +1,3 @@
-{% url 'lab:DES-list' as action_url %}
-{% include "lab/turno_form.html" with add_perm='lab.add_turno_DES' change_perm='lab.change_turno_DES' delete_perm='lab.delete_turno_DES' finish_perm='lab.finish_turno_DES' cancel_perm='lab.cancel_turno_DES' postUrl=action_url %}
+{% url 'lab:DES-list' as list_url %}
+{% url 'lab:DES-update' object.id as update_url %}
+{% include "lab/turno_form.html" with add_perm='lab.add_turno_DES' change_perm='lab.change_turno_DES' delete_perm='lab.delete_turno_DES' finish_perm='lab.finish_turno_DES' cancel_perm='lab.cancel_turno_DES' updateUrl=update_url listUrl=list_url %}

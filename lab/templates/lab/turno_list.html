@@ -14,6 +14,20 @@
             {% endif %}>Crear</button>
         </a>
     </div>
+    <div class="col-md-2 col-md-offset-10 col-xs-2 col-xs-offset-10" >
+        <a href={% url calendarUrl %}>
+            <button type="button" class="btn btn-default btn-calendar" aria-label="Left Align">
+              <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+            </button>
+        </a>
+        <a href={% url listUrl %}>
+            <button type="button" class="btn btn-default btn-list" aria-label="Left Align">
+              <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+            </button>
+        </a>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12">
         <table class="table table-hover table-pointer row-eq-height">
             <col style="width:5%">
@@ -46,7 +60,7 @@
                                 <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
                                 <li role="separator" class="divider"></li>
                                 <input type="text" class="form-control cbSearch" id="{{name}}-search">
-                                <form name="form_{{ name }}" class="form-contact" action="{% url actionUrl %}" method="GET">
+                                <form name="form_{{ name }}" class="form-contact" action="{% url listUrl %}" method="GET">
                                     <div style="max-height:110px; overflow-y:auto">
                                         {% for option in options %}
                                              <div class="checkbox" style="padding-left:5%">

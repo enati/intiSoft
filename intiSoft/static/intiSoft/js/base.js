@@ -21,7 +21,97 @@ function deseleccionar_todo(f_name){
    close = false;
 }
 
+function revisionarTurno() {
+    $.ajax({
+        url: 'revision/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = '?edit=1&revision=1';
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.reload();
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function rollBackTurno() {
+    $.ajax({
+        url: 'rollback/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = data.redirect;
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.href = data.redirect;
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function revisionarPresupuesto() {
+    $.ajax({
+        url: 'revision/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = '?edit=1&revision=1';
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.reload();
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
+function rollBackPresupuesto() {
+    $.ajax({
+        url: 'rollback/',
+        method: 'get',
+        data: {},
+        success: function(data){
+                    if (data.ok) {
+                        location.href = data.redirect;
+                    }
+                    else if (data.err) {
+                        alert("ERROR!");
+                        location.href = data.redirect;
+                    }
+                },
+        error  : function( json ) {
+                    alert("ERROR!");
+                    location.reload();
+            }
+     });
+}
+
 $(document).ready(function() {
+
+    // Reseteo las fechas cuando hago una nueva revision
+    if (window.location.href.indexOf('revision') != -1) {
+        $('#id_fecha_realizado').val('');
+        $('#id_fecha_aceptado').val('');
+    };
     //$(".chosen-select").chosen();
     $.datepicker._gotoToday = function(id) {
         var target = $(id);
@@ -99,6 +189,9 @@ $(document).ready(function() {
             splitted_id[splitted_id.length-1] = 'tipo_servicio';
             tipo_servicio_id = '#'.concat(splitted_id.join("-"));
             tipo_servicio = $(tipo_servicio_id);
+            splitted_id[splitted_id.length-1] = 'precio_total';
+            precio_total_id = '#'.concat(splitted_id.join("-"));
+            precio_total= $(precio_total_id);
             $.ajax({
                 url: domain + '/lab/turnos/get_price/',
                 method: 'get',
@@ -107,6 +200,7 @@ $(document).ready(function() {
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
+                    precio_total.val(data['precio_total']);
                     $('#ofertatecform_table').load('#ofertatecform_table');
                 }
              });
@@ -164,6 +258,19 @@ $(document).ready(function() {
         }
     });
 
+    $("[id$=cant_horas]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id')
+        formset_number = cant_horas_id.split("-")[1];
+        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
+        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
+        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
+        if (isNaN(cant_horas)) {
+            precio_total.val(precio);
+        }
+        else {
+            precio_total.val(cant_horas*precio);
+        }
+    });
 
     $("#id_codigo").on('change keyup', function (e) {
         var presup_id = $(this).val()
@@ -185,23 +292,22 @@ $(document).ready(function() {
         }
     });
 
-
-    postForm = function() {
-        var form = $("#presupForm");
-        var id = $("#viewWord").data('id');
-        $.ajax({
-            url: domain + '/adm/presup/update/' + id + '/',
-            method: 'post',
-            data: form.serialize(),
-        });
-    };
+    //postForm = function() {
+    //    var form = $("#presupForm");
+    //    var id = $("#viewWord").data('id');
+    //    $.ajax({
+    //        url: domain + '/adm/presup/update/' + id + '/',
+    //        method: 'post',
+    //        data: form.serialize(),
+    //    });
+    //};
 
     $("#id_asistencia").click(function() {
         var id = $("#viewWord").data('id');
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_calibracion").click(function() {
@@ -209,7 +315,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_in_situ").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_in_situ").click(function() {
@@ -217,7 +323,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_lia").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#id_lia").click(function() {
@@ -225,7 +331,7 @@ $(document).ready(function() {
         document.getElementById("id_asistencia").checked = false;
         document.getElementById("id_calibracion").checked = false;
         document.getElementById("id_in_situ").checked = false;
-        postForm();
+        //postForm();
     });
 
     $("#viewWord").click(function(e) {

@@ -166,6 +166,7 @@ class OfertaTec_LineaForm(forms.ModelForm):
         model = OfertaTec_Linea
         fields = ['ofertatec',
                   'precio',
+                  'precio_total',
                   'cantidad',
                   'cant_horas',
                   'observaciones',
@@ -187,7 +188,8 @@ class OfertaTec_LineaForm(forms.ModelForm):
 
 OfertaTec_LineaFormSet = inlineformset_factory(Turno,
                                                OfertaTec_Linea,
-                                               extra=1,
+                                               min_num=1,
+                                               extra=0,
                                                formfield_callback=bootstrap_format,
                                                form=OfertaTec_LineaForm,
                                                formset=CustomInlineFormset,
