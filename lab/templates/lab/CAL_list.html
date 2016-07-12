@@ -1,0 +1,2 @@
+{% url 'lab:CAL-list' as action_url %}
+{% include "lab/turno_list.html" with listUrl='lab:CAL-list' calendarUrl='lab:CAL-calendar' createUrl='lab:CAL-create' updateUrl='lab:CAL-update' area_value='CAL' add_perm='lab.add_turno_CAL' change_perm='lab.change_turno_CAL' delete_perm='lab.delete_turno_CAL' finish_perm='lab.finish_turno_CAL' cancel_perm='lab.cancel_turno_CAL' postUrl=action_url %}
