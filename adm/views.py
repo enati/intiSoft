@@ -69,7 +69,7 @@ def viewWord(request, *args, **kwargs):
 
     if turno_activo:
         for o in turno_activo.ofertatec_linea_set.get_queryset():
-            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio))
+            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio_total))
         #vals['ofertatec'] += turno_activo.ofertatec.codigo if turno_activo else ''
         #vals['detalle'] = turno_activo.ofertatec.detalle if turno_activo else ''
         #vals['precio'] = str(turno_activo.ofertatec.precio) if turno_activo else ''
