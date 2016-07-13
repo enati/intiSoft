@@ -501,6 +501,7 @@
                                         <td>Observaciones</td>
                                         <td>Horas</td>
                                         <td>Precio Unitario</td>
+                                        <td>Precio Total</td>
                                     </thead>
                                     <tbody>
                                         {% for t in turno_activo.ofertatec_linea_set.all %}
@@ -512,6 +513,7 @@
                                                 <td>{{ t.observaciones }}</td>
                                                 <td>{{ t.cant_horas | default_if_none:""}}</td>
                                                 <td>{{ t.precio }}</td>
+                                                <td>{{ t.precio_total }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
