@@ -223,6 +223,11 @@ class DESList(TurnoList):
     lab = 'DES'
 
 
+class CALList(TurnoList):
+    template_name = 'lab/CAL_list.html'
+    lab = 'CAL'
+
+
 class TurnoCreate(CreateView):
     model = Turno
     form_class = TurnoForm
@@ -399,6 +404,21 @@ class DESCreate(TurnoCreate):
 
     def get_initial(self):
         return {'area': 'DES'}
+
+
+class CALCreate(TurnoCreate):
+    template_name = 'lab/CAL_form.html'
+
+    @method_decorator(permission_required('lab.add_turno_CAL',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CALCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:CAL-update', kwargs={'pk': self.object.id})
+
+    def get_initial(self):
+        return {'area': 'CAL'}
 
 
 class TurnoUpdate(UpdateView):
@@ -619,6 +639,18 @@ class DESUpdate(TurnoUpdate):
         return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
 
 
+class CALUpdate(TurnoUpdate):
+    template_name = 'lab/CAL_form.html'
+
+    @method_decorator(permission_required('lab.change_turno_CAL',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CALUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('lab:CAL-update', kwargs={'pk': self.object.id})
+
+
 class TurnoDelete(DeleteView):
     model = Turno
     success_url = reverse_lazy('lab:turnos-list')
@@ -744,6 +776,15 @@ class DESDelete(TurnoDelete):
         return super(DESDelete, self).dispatch(request, *args, **kwargs)
 
 
+class CALDelete(TurnoDelete):
+    success_url = reverse_lazy('lab:turnos-list')
+
+    @method_decorator(permission_required('lab.delete_turno_CAL',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(CALDelete, self).dispatch(request, *args, **kwargs)
+
+
 class CalendarView(View):
     template_name = 'lab/calendar.html'
     lab = ''
@@ -798,4 +839,9 @@ class SISCalendarView(CalendarView):
 class DESCalendarView(CalendarView):
     template_name = 'lab/DES_calendar.html'
     lab = 'DES'
+
+
+class CALCalendarView(CalendarView):
+    template_name = 'lab/CAL_calendar.html'
+    lab = 'CAL'
 

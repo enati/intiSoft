@@ -129,11 +129,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
     ESTADOS = (
         ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
         ('aceptado', 'Aceptado'),
+        ('en_proceso_de_facturacion', 'En Proceso de Facturacion'),
         ('finalizado', 'Finalizado'),
         ('cancelado', 'Cancelado'),
     )
 
-    estado = models.CharField(max_length=10, choices=ESTADOS,
+    estado = models.CharField(max_length=25, choices=ESTADOS,
                               default='borrador', verbose_name='Estado')
     codigo = models.CharField(max_length=15, verbose_name='Nro. Presupuesto',
                               unique=True, default=nextCode,
@@ -188,9 +189,14 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
             turno.save()
         return True
 
+    def _toState_en_proceso_de_facturacion(self):
+        self.estado = 'en_proceso_de_facturacion'
+        self.save()
+        return True
+
     def _toState_finalizado(self):
-        if self.estado != 'aceptado':
-            raise StateError('El presupuesto debe estar activo antes de poder finalizarlo', '')
+        if self.estado != 'en_proceso_de_facturacion':
+            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'finalizado'
         self.save()
         return True

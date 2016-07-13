@@ -48,6 +48,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
         ('EXT', 'EXT'),
         ('SIS', 'SIS'),
         ('DES', 'DES'),
+        ('CAL', 'CAL'),
     )
 
     estado = models.CharField(max_length=10, choices=ESTADOS,
@@ -111,8 +112,8 @@ class Turno(TimeStampedModel, AuthStampedModel):
         self.estado = 'finalizado'
         self.fecha_fin_real = datetime.now().date()
         self.save()
-        # Finalizo tambien el presupuesto asociado
-        self.presupuesto.estado = 'finalizado'
+        # Cambio de estado el presupuesto asociado
+        self.presupuesto.estado = 'en_proceso_de_facturacion'
         self.presupuesto.save()
         return True
 
@@ -124,8 +125,9 @@ class Turno(TimeStampedModel, AuthStampedModel):
 
     def _delete(self):
         """Faltarian las validaciones"""
-        # Si tiene un presupuesto asociado en estado finalizado o cancelado, no lo elimino
-        if self.presupuesto and self.presupuesto.estado in ['finalizado', 'cancelado']:
+        # Si tiene un presupuesto asociado en estado en proceso de facturacion,
+        # finalizado o cancelado, no lo elimino
+        if self.presupuesto and self.presupuesto.estado in ['en_proceso_de_facturacion', 'finalizado', 'cancelado']:
             return False
         else:
             self.delete()
@@ -142,6 +144,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("add_turno_EXT", "Can add turno EXT"),
                        ("add_turno_SIS", "Can add turno SIS"),
                        ("add_turno_DES", "Can add turno DES"),
+                       ("add_turno_CAL", "Can add turno CAL"),
                        ("change_turno_LIM1", "Can change turno LIM1"),
                        ("change_turno_LIM2", "Can change turno LIM2"),
                        ("change_turno_LIM3", "Can change turno LIM3"),
@@ -150,6 +153,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("change_turno_EXT", "Can change turno EXT"),
                        ("change_turno_SIS", "Can change turno SIS"),
                        ("change_turno_DES", "Can change turno DES"),
+                       ("change_turno_CAL", "Can change turno CAL"),
                        ("delete_turno_LIM1", "Can delete turno LIM1"),
                        ("delete_turno_LIM2", "Can delete turno LIM2"),
                        ("delete_turno_LIM3", "Can delete turno LIM3"),
@@ -158,6 +162,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("delete_turno_EXT", "Can delete turno EXT"),
                        ("delete_turno_SIS", "Can delete turno SIS"),
                        ("delete_turno_DES", "Can delete turno DES"),
+                       ("delete_turno_CAL", "Can delete turno CAL"),
                        ("finish_turno_LIM1", "Can finish turno LIM1"),
                        ("finish_turno_LIM2", "Can finish turno LIM2"),
                        ("finish_turno_LIM3", "Can finish turno LIM3"),
@@ -166,6 +171,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("finish_turno_EXT", "Can finish turno EXT"),
                        ("finish_turno_SIS", "Can finish turno SIS"),
                        ("finish_turno_DES", "Can finish turno DES"),
+                       ("finish_turno_CAL", "Can finish turno CAL"),
                        ("cancel_turno_LIM1", "Can cancel turno LIM1"),
                        ("cancel_turno_LIM2", "Can cancel turno LIM2"),
                        ("cancel_turno_LIM3", "Can cancel turno LIM3"),
@@ -174,6 +180,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("cancel_turno_EXT", "Can cancel turno EXT"),
                        ("cancel_turno_SIS", "Can cancel turno SIS"),
                        ("cancel_turno_DES", "Can cancel turno DES"),
+                       ("cancel_turno_CAL", "Can cancel turno CAL"),
                        )
 
 

@@ -75,6 +75,7 @@
                             {% endif %}
                             class = {% if presup.estado == 'borrador' %} "neutral {% if presup.revisionar %} overlay {% endif %}"
                                       {% elif presup.estado == 'aceptado' %} "warning {% if presup.revisionar %} overlay {% endif %}"
+                                      {% elif presup.estado == 'en_proceso_de_facturacion' %} "muted"
                                       {% elif presup.estado == 'finalizado' %} "success"
                                       {% elif presup.estado == 'cancelado' %} "danger"
                                     {% endif %}
@@ -97,7 +98,7 @@
                             <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
                                 data-model="presupuesto" type="button" class="btn btn-default"
                                 data-id={{presup.id}} data-toggle="modal" data-target="#myModal"
-                                {% if presup.estado != 'aceptado' or not turno_activo or 'adm.finish_presupuesto' not in user.get_all_permissions %}
+                                {% if presup.estado != 'en_proceso_de_facturacion' or not turno_activo or 'adm.finish_presupuesto' not in user.get_all_permissions %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
@@ -107,7 +108,7 @@
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="presupuesto" type="button" class="btn btn-default"
                                 data-id={{presup.id}} data-toggle="modal" data-target="#myModal"
-                                {% if presup.estado == 'finalizado' or presup.estado == 'cancelado' or 'adm.cancel_presupuesto' not in user.get_all_permissions  %}
+                                {% if presup.estado in "['finalizado', 'cancelado']" or 'adm.cancel_presupuesto' not in user.get_all_permissions  %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -130,6 +131,7 @@
         <table style="margin: 0 auto">
             <td><div id="ref" class="alert-neutral">&nbsp;</div>Borrador</td>
             <td><div id="ref" class="alert-warning">&nbsp;</div>Aceptado</td>
+            <td><div id="ref" class="alert-muted">&nbsp;</div>En Proceso de Facturacion</td>
             <td><div id="ref" class="alert-success">&nbsp;</div>Finalizado</td>
             <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelado</td>
         <table>
