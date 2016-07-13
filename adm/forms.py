@@ -32,8 +32,9 @@ class OTForm(forms.ModelForm):
                 self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado='finalizado')
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
-                    self.fields[f].widget.attrs['disabled'] = True
-                    self.fields[f].required = False
+                    if f != 'fecha_aviso':
+                        self.fields[f].widget.attrs['disabled'] = True
+                        self.fields[f].required = False
 
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -100,7 +101,6 @@ class NestedInlineFormset(BaseInlineFormSet):
 
     def __init__(self, *args, **kwargs):
         super(NestedInlineFormset, self).__init__(*args, **kwargs)
-        #import pdb; pdb.set_trace()
         for form in self.forms:
             if form.instance:
                 form.fields['estado'].widget.attrs.update({'style': 'display: none'})
@@ -332,8 +332,7 @@ class CustomInlineFormset(BaseInlineFormSet):
             ## Label del select de oferta tecnologica
             form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
                                                         % (obj.codigo, obj.detalle)
-        if self.instance and self.instance.estado in \
-                 ('pagado', 'cancelado'):
+        if self.instance and self.instance.estado != 'sin_facturar':
             for form in self.forms:
                 for field in form.fields:
                     if field != 'id':

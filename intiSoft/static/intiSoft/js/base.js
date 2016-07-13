@@ -105,6 +105,28 @@ function rollBackPresupuesto() {
      });
 }
 
+//function cancelarFactura(event) {
+//    btn = $(event.target);
+//    form_prefix = btn.data('f_prefix') + '-' + btn.data('f_id');
+//    alert(form_prefix);
+//    field_estado = $('#id_' + form_prefix + '-estado');
+//    field_estado.val('cancelada');
+
+//    fields = $("input[id^=id_" + form_prefix + "], select[id^=id_" + form_prefix + "]")
+//                    .not("[id$=-id]\
+//                         ,[id$=-estado]\
+//                         ,[id$=-MIN_NUM_FORMS]\
+//                         ,[id$=-MAX_NUM_FORMS]\
+//                         ,[id$=-INITIAL_FORMS]\
+//                         ,[id$=-TOTAL_FORMS]\
+//                         ,[id$=-DELETE]");
+    //btn.prop("disabled", true);
+//    for (i=0; i<fields.length; i++) {
+//        $(fields[i]).prop("readonly", true);
+
+//    }
+//}
+
 $(document).ready(function() {
 
     // Reseteo las fechas cuando hago una nueva revision
@@ -174,6 +196,7 @@ $(document).ready(function() {
             $('#total').load(' #total')
         }
     });
+
 
     $("#ofertatec_formtable select").on('change keyup', function (e) {
         var ot_id = $(this).val()

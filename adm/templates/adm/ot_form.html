@@ -347,205 +347,204 @@
                             </thead>
                             <tbody>
                                 {% for f_form in factura_form %}
-                                    {% if edit %}
-                                        {{ f_form.id }}
-                                    {% endif %}
-                                    {% if edit %}
-                                        {{ f_form.estado }}
-                                    {% else %}
-                                        {{ f_form.estado.value.as_hidden }}
-                                    {% endif %}
-                                <tr class="inline {{ factura_form.prefix }}">
-                                    <td>
-                                        <table id="factura_formtable" class="table">
-                                            <col style="width:1%">
-                                            <col style="width:4%">
-                                            <col style="width:8%">
-                                            <col style="width:12%">
-                                            <thead>
-                                                <td></td>
-                                                <td>Numero</td>
-                                                <td>Fecha</td>
-                                                <td>Importe</td>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                        {% if f_form.instance.pk %}
-                                                            <button class="form-control" title="Cancelar"
-                                                                data-action="CancelarF"
-                                                                data-model="factura" type="button" class="btn btn-default"
-                                                                data-id={{ f_form.instance.id }} data-toggle="modal" data-target="#myModal"
-                                                                {% if f_form.instance.estado == 'cancelada' %}
-                                                                    disabled>
-                                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true">
-                                                                {% endif %}
-                                                                {% if f_form.instance.estado == 'activa' %}
-                                                                    >
-                                                                    <span class="glyphicon glyphicon-ok" aria-hidden="true">
-                                                                {% endif %}
-                                                            </button>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if edit %}
-                                                            {{ f_form.numero }} {{ f_form.numero.errors }}
-                                                        {% else %}
-                                                            {{ f_form.numero.value | default_if_none:"" }}
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if edit %}
-                                                            {{ f_form.fecha }} {{ f_form.fecha.errors }}
-                                                        {% else %}
-                                                            {{ f_form.fecha.value | default_if_none:""}}
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <div class="input-group" style="z-index:0">
-                                                            {% if edit %}
-                                                                <div class="input-group-addon">$</div>
-                                                                {{ f_form.importe }} {{ f_form.importe.errors }}
-                                                            {% else %}
-                                                                $
-                                                                {{ f_form.importe.value }}
-                                                            {% endif %}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                {% if edit %}
-                                                    {% if f_form.errors %}
-                                                        {% for error in f_form.non_field_errors %}
-                                                            <div class="alert alert-error">
-                                                                <strong>{{ error|escape }}</strong>
-                                                            </div>
-                                                        {% endfor %}
-                                                    {% endif %}
-                                                {% endif %}
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table id="recibo_formtable" class="table">
-                                            {% if edit %}
-                                                {{ f_form.nested.0.management_form }}
-                                                {{ f_form.nested.0.non_form_errors }}
-                                            {% endif %}
-                                            <col style="width:1%">
-                                            <col style="width:13%">
-                                            <col style="width:19%">
-                                            <col style="width:19%">
-                                            <thead>
-                                                <td>Comprobante</td>
-                                                <td>Numero</td>
-                                                <td>Fecha</td>
-                                                <td>Importe</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for r_form in f_form.nested.0 %}
-                                                    {% if edit %}
-                                                        {{ r_form.id }}
-                                                    {% endif %}
-                                                    <tr class="inline {{ f_form.nested.0.prefix }}">
+                                    <tr class="inline {{ factura_form.prefix }}">
+                                        {% if edit %}
+                                            {{ f_form.id }}
+                                        {% else %}
+                                            {{ f_form.id.value.as_hidden }}
+                                        {% endif %}
+                                        {% if edit %}
+                                            {{ f_form.estado }}
+                                        {% else %}
+                                            {{ f_form.estado.value.as_hidden }}
+                                        {% endif %}
+                                        <td>
+                                            <table id="factura_formtable" class="table">
+                                                <col style="width:1%">
+                                                <col style="width:4%">
+                                                <col style="width:8%">
+                                                <col style="width:12%">
+                                                <thead>
+                                                    <td></td>
+                                                    <td>Numero</td>
+                                                    <td>Fecha</td>
+                                                    <td>Importe</td>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
                                                         <td>
-                                                            {% if edit %}
-                                                                {{ r_form.comprobante_cobro }} {{ r_form.comprobante_cobro.errors }}
-                                                            {% else %}
-                                                                {{ r_form.comprobante_cobro.value | default_if_none:"" }}
+                                                            {% if f_form.instance.pk %}
+                                                                <button class="form-control" title="Cancelar"
+                                                                    data-action="CancelarF"
+                                                                    data-model="factura" type="button" class="btn btn-default"
+                                                                    data-id={{ f_form.instance.id }} data-toggle="modal" data-target="#myModal"
+                                                                    {% if f_form.instance.estado == 'cancelada' or not edit %}
+                                                                        disabled
+                                                                    {% endif %}
+                                                                        >
+                                                                        <span class="glyphicon glyphicon-remove" aria-hidden="true">
+                                                                </button>
                                                             {% endif %}
                                                         </td>
                                                         <td>
                                                             {% if edit %}
-                                                                {{ r_form.numero }} {{ r_form.numero.errors }}
+                                                                {{ f_form.numero }} {{ f_form.numero.errors }}
                                                             {% else %}
-                                                                {{ r_form.numero.value | default_if_none:"" }}
+                                                                {{ f_form.numero.value | default_if_none:"" }}
                                                             {% endif %}
                                                         </td>
                                                         <td>
                                                             {% if edit %}
-                                                                {{ r_form.fecha }} {{ r_form.fecha.errors }}
+                                                                {{ f_form.fecha }} {{ f_form.fecha.errors }}
                                                             {% else %}
-                                                                {{ r_form.fecha.value | default_if_none:"" }}
+                                                                {{ f_form.fecha.value | default_if_none:""}}
                                                             {% endif %}
                                                         </td>
                                                         <td>
                                                             <div class="input-group" style="z-index:0">
                                                                 {% if edit %}
                                                                     <div class="input-group-addon">$</div>
-                                                                    {{ r_form.importe }} {{ r_form.importe.errors }}
+                                                                    {{ f_form.importe }} {{ f_form.importe.errors }}
                                                                 {% else %}
                                                                     $
-                                                                    {{ r_form.importe.value }}
+                                                                    {{ f_form.importe.value }}
                                                                 {% endif %}
                                                             </div>
-                                                            {% if edit %}
-                                                                {% if r_form.instance.pk %}
-                                                                    {{ r_form.DELETE }}
-                                                                {% endif %}
-                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                     {% if edit %}
-                                                        {% if r_form.errors %}
-                                                            {% for error in r_form.non_field_errors %}
+                                                        {% if f_form.errors %}
+                                                            {% for error in f_form.non_field_errors %}
                                                                 <div class="alert alert-error">
                                                                     <strong>{{ error|escape }}</strong>
                                                                 </div>
                                                             {% endfor %}
                                                         {% endif %}
                                                     {% endif %}
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table id="remito_formtable" class="table">
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table id="recibo_formtable" class="table">
+                                                {% if edit %}
+                                                    {{ f_form.nested.0.management_form }}
+                                                    {{ f_form.nested.0.non_form_errors }}
+                                                {% endif %}
+                                                <col style="width:1%">
+                                                <col style="width:13%">
+                                                <col style="width:19%">
+                                                <col style="width:19%">
+                                                <thead>
+                                                    <td>Comprobante</td>
+                                                    <td>Numero</td>
+                                                    <td>Fecha</td>
+                                                    <td>Importe</td>
+                                                </thead>
+                                                <tbody>
+                                                    {% for r_form in f_form.nested.0 %}
+                                                        {% if edit %}
+                                                            {{ r_form.id }}
+                                                        {% endif %}
+                                                        <tr class="inline {{ f_form.nested.0.prefix }}">
+                                                            <td>
+                                                                {% if edit %}
+                                                                    {{ r_form.comprobante_cobro }} {{ r_form.comprobante_cobro.errors }}
+                                                                {% else %}
+                                                                    {{ r_form.comprobante_cobro.value | default_if_none:"" }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                {% if edit %}
+                                                                    {{ r_form.numero }} {{ r_form.numero.errors }}
+                                                                {% else %}
+                                                                    {{ r_form.numero.value | default_if_none:"" }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                {% if edit %}
+                                                                    {{ r_form.fecha }} {{ r_form.fecha.errors }}
+                                                                {% else %}
+                                                                    {{ r_form.fecha.value | default_if_none:"" }}
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <div class="input-group" style="z-index:0">
+                                                                    {% if edit %}
+                                                                        <div class="input-group-addon">$</div>
+                                                                        {{ r_form.importe }} {{ r_form.importe.errors }}
+                                                                    {% else %}
+                                                                        $
+                                                                        {{ r_form.importe.value }}
+                                                                    {% endif %}
+                                                                </div>
+                                                                {% if edit %}
+                                                                    {% if r_form.instance.pk %}
+                                                                        {{ r_form.DELETE }}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% if edit %}
+                                                            {% if r_form.errors %}
+                                                                {% for error in r_form.non_field_errors %}
+                                                                    <div class="alert alert-error">
+                                                                        <strong>{{ error|escape }}</strong>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table id="remito_formtable" class="table">
+                                                {% if edit %}
+                                                    {{ f_form.nested.1.management_form }}
+                                                    {{ f_form.nested.1.non_form_errors }}
+                                                {% endif %}
+                                                <col style="width:10%">
+                                                <thead>
+                                                    <td>Numero</td>
+                                                </thead>
+                                                <tbody>
+                                                    {% for r_form in f_form.nested.1 %}
+                                                        {% if edit %}
+                                                            {{ r_form.id }}
+                                                        {% endif %}
+                                                        <tr class="inline {{ f_form.nested.1.prefix }}">
+                                                            <td>
+                                                                {% if edit %}
+                                                                    {{ r_form.numero }} {{ r_form.numero.errors }}
+                                                                {% else %}
+                                                                    {{ r_form.numero.value | default_if_none:"" }}
+                                                                {% endif %}
+                                                                {% if edit %}
+                                                                    {% if r_form.instance.pk %}
+                                                                        {{ r_form.DELETE }}
+                                                                    {% endif %}
+                                                                    {% if r_form.errors %}
+                                                                        {% for error in r_form.non_field_errors %}
+                                                                            <div class="alert alert-error">
+                                                                                <strong>{{ error|escape }}</strong>
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>
                                             {% if edit %}
-                                                {{ f_form.nested.1.management_form }}
-                                                {{ f_form.nested.1.non_form_errors }}
+                                                {% if f_form.instance.pk %}
+                                                    {{ f_form.DELETE }}
+                                                {% endif %}
                                             {% endif %}
-                                            <col style="width:10%">
-                                            <thead>
-                                                <td>Numero</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for r_form in f_form.nested.1 %}
-                                                    {% if edit %}
-                                                        {{ r_form.id }}
-                                                    {% endif %}
-                                                    <tr class="inline {{ f_form.nested.1.prefix }}">
-                                                        <td>
-                                                            {% if edit %}
-                                                                {{ r_form.numero }} {{ r_form.numero.errors }}
-                                                            {% else %}
-                                                                {{ r_form.numero.value | default_if_none:"" }}
-                                                            {% endif %}
-                                                            {% if edit %}
-                                                                {% if r_form.instance.pk %}
-                                                                    {{ r_form.DELETE }}
-                                                                {% endif %}
-                                                                {% if r_form.errors %}
-                                                                    {% for error in r_form.non_field_errors %}
-                                                                        <div class="alert alert-error">
-                                                                            <strong>{{ error|escape }}</strong>
-                                                                        </div>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        {% if edit %}
-                                            {% if f_form.instance.pk %}
-                                                {{ f_form.DELETE }}
-                                            {% endif %}
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
