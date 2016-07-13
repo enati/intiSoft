@@ -451,6 +451,24 @@ class OTList(ListView):
                     response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
+        if 'Finalizar' in request.POST:
+            if request.user.has_perm('adm.finish_ot'):
+                ot_id = request.POST.get('Finalizar')
+                ot_obj = OT.objects.get(pk=ot_id)
+                try:
+                    num_recibos_factura = [f.recibo_set.count() for f in ot_obj.factura_set.all()]
+                    num_recibos_total = reduce(lambda x, y: x + y, num_recibos_factura, 0)
+                    if not num_recibos_total:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = "La OT no tiene recibos registrados.\
+                                                Para poder finalizarla debe estar pagada."
+                    else:
+                        ot_obj._toState_pagado()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
         if 'Eliminar' in request.POST:
             if request.user.has_perm('adm.delete_ot'):
                 ot_id = request.POST.get('Eliminar')

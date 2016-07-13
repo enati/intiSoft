@@ -293,6 +293,9 @@ class OT(TimeStampedModel, AuthStampedModel):
     def _toState_pagado(self):
         self.estado = 'pagado'
         self.save()
+        # Finalizo el presupuesto asociado
+        self.presupuesto.estado = 'finalizado'
+        self.presupuesto.save()
         return True
 
     def _toState_cancelado(self):
@@ -313,7 +316,8 @@ class OT(TimeStampedModel, AuthStampedModel):
         return True
 
     class Meta:
-        permissions = (("cancel_ot", "Can cancel OT"),)
+        permissions = (("cancel_ot", "Can cancel OT"),
+                       ("finish_ot", "Can finish OT"),)
 
 
 class OT_Linea(TimeStampedModel, AuthStampedModel):
@@ -321,6 +325,7 @@ class OT_Linea(TimeStampedModel, AuthStampedModel):
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
     precio = models.FloatField(verbose_name='Precio')
+    precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)
     cant_horas = models.FloatField(verbose_name='Horas', blank=True, null=True)
     ot = models.ForeignKey(OT, verbose_name='OT')
@@ -392,28 +397,28 @@ class Recibo(TimeStampedModel, AuthStampedModel):
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            #This code only happens if the objects is
-            #not in the database yet. Otherwise it would
-            #have pk
-            factura_obj = Factura.objects.get(pk=self.factura_id)
-            ot_obj = OT.objects.get(pk=factura_obj.ot_id)
-            if ot_obj.estado == 'no_pago':
-                ot_obj._toState_pagado()
-        super(Recibo, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+        #if not self.pk:
+            ##This code only happens if the objects is
+            ##not in the database yet. Otherwise it would
+            ##have pk
+            #factura_obj = Factura.objects.get(pk=self.factura_id)
+            #ot_obj = OT.objects.get(pk=factura_obj.ot_id)
+            #if ot_obj.estado == 'no_pago':
+                #ot_obj._toState_pagado()
+        #super(Recibo, self).save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        res = super(Recibo, self).delete(*args, **kwargs)
-        # Si borre el ultimo recibo asociado a una OT,
-        # vuelvo la OT a estado no_pago
-        factura_obj = Factura.objects.get(pk=self.factura_id)
-        ot_obj = OT.objects.get(pk=factura_obj.ot_id)
-        for factura in ot_obj.factura_set.all():
-            if (factura.recibo_set.all()):
-                return res
-        ot_obj._toState_no_pago()
-        return res
+    #def delete(self, *args, **kwargs):
+        #res = super(Recibo, self).delete(*args, **kwargs)
+        ## Si borre el ultimo recibo asociado a una OT,
+        ## vuelvo la OT a estado no_pago
+        #factura_obj = Factura.objects.get(pk=self.factura_id)
+        #ot_obj = OT.objects.get(pk=factura_obj.ot_id)
+        #for factura in ot_obj.factura_set.all():
+            #if (factura.recibo_set.all()):
+                #return res
+        #ot_obj._toState_no_pago()
+        #return res
 
     class Meta:
         ordering = ['id']

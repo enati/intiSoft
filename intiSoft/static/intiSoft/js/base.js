@@ -259,6 +259,7 @@ $(document).ready(function() {
                         $('#ot_formtable tr:last>td>input')[2].value = data['ofertatec'][i].cantidad;
                         $('#ot_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cant_horas;
                         $('#ot_formtable tr:last>td>input')[4].value = data['ofertatec'][i].precio;
+                        $('#ot_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio_total;
                     }
                 },
             });
@@ -401,7 +402,7 @@ $(document).ready(function() {
                                 location.href = json.redirect
                             }
                             else {
-                                location.reload();
+                                window.location = window.location.href.split("?")[0];
                             }
                         }
                         else {
@@ -429,11 +430,16 @@ $(document).ready(function() {
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
         var art = ' el ';
-        if ((model=='OT') || (model=='factura'))
+        //if ((model=='OT') || (model=='factura'))
+        if (model=='OT')
             art = ' la ';
         if (action.localeCompare('Finalizar')==0) {
-            var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
-            Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
+            if (model=='OT')
+                var msg = "Las OT deben ser finalizadas solo en caso que ya hayan sido pagadas.\
+                    Tenga en cuenta que una vez finalizada ya no podrá modificarse."
+            else
+                var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
+                    Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
             modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }

@@ -64,21 +64,29 @@
                 {% endif %}
             {% endif %}
             <div class="btn-group col-md-2"">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn btn-default dropdown-toggle
+                                            {% if not edit %} disabled {% endif %}"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Acciones
                     <span class="caret" />
                 </button>
                 <ul class="dropdown-menu">
                     {% if 'adm.delete_ot' in user.get_all_permissions %}
                     <li>
-                        <a href="#" data-action="Eliminar" data-model="ot" data-id={{object.id}}
+                        <a href="#" data-action="Eliminar" data-model="OT" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Borrar OT</a>
                     </li>
                     {% endif %}
                     <li role="separator" class="divider" />
+                    {% if 'adm.finish_ot' in user.get_all_permissions and object.estado = 'no_pago' %}
+                    <li>
+                        <a href="#" data-action="Finalizar" data-model="OT" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Finalizar OT</a>
+                    </li>
+                    {% endif %}
                     {% if 'adm.cancel_ot' in user.get_all_permissions and object.estado not in "['pagado', 'cancelado']" %}
                     <li>
-                        <a href="#" data-action="Cancelar" data-model="ot" data-id={{object.id}}
+                        <a href="#" data-action="Cancelar" data-model="OT" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Cancelar OT</a>
                     </li>
                     {% endif %}
@@ -244,6 +252,7 @@
                             <td>Cantidad</td>
                             <td>Horas</td>
                             <td>Precio Unitario</td>
+                            <td>Precio Total</td>
                         </thead>
                         <tbody>
                             {% for form in ot_linea_form %}
@@ -291,6 +300,13 @@
                                             {{ form.precio }} {{ form.precio.errors }}
                                         {% else %}
                                             {{ form.instance.precio | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ form.precio_total }} {{ form.precio_total.errors }}
+                                        {% else %}
+                                            {{ form.instance.precio_total | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td>
@@ -360,18 +376,23 @@
                                         {% endif %}
                                         <td>
                                             <table id="factura_formtable" class="table">
+<!--
                                                 <col style="width:1%">
+-->
                                                 <col style="width:4%">
                                                 <col style="width:8%">
                                                 <col style="width:12%">
                                                 <thead>
+<!--
                                                     <td></td>
+-->
                                                     <td>Numero</td>
                                                     <td>Fecha</td>
                                                     <td>Importe</td>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
+<!--
                                                         <td>
                                                             {% if f_form.instance.pk %}
                                                                 <button class="form-control" title="Cancelar"
@@ -386,6 +407,7 @@
                                                                 </button>
                                                             {% endif %}
                                                         </td>
+-->
                                                         <td>
                                                             {% if edit %}
                                                                 {{ f_form.numero }} {{ f_form.numero.errors }}

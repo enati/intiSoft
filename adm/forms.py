@@ -28,8 +28,9 @@ class OTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['form'] = 'OTForm'
         if self.instance:
             if self.instance.estado in ['sin_facturar']:
-                # Filtro los presupuestos que no estan finalizados
-                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado='finalizado')
+                # Solo se deben poder crear OTS a presupuestos aceptados
+                self.fields['presupuesto'].queryset = \
+                    Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
                     if f != 'fecha_aviso':
@@ -351,6 +352,7 @@ class OT_LineaForm(forms.ModelForm):
         model = OT_Linea
         fields = ['ofertatec',
                   'precio',
+                  'precio_total',
                   'cantidad',
                   'cant_horas',
                   'ot',
