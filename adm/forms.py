@@ -46,15 +46,15 @@ class PresupuestoForm(forms.ModelForm):
             return self.cleaned_data['codigo']
 
     def clean_fecha_realizado(self):
-        if self.instance and self.instance.estado in \
-                           ('finalizado', 'cancelado'):
+        if self.instance and self.instance.estado not in \
+                           ('borrador', 'aceptado'):
             return self.instance.fecha_realizado
         else:
             return self.cleaned_data['fecha_realizado']
 
     def clean_fecha_instrumento(self):
-        if self.instance and self.instance.estado in \
-                           ('finalizado', 'cancelado'):
+        if self.instance and self.instance.estado not in \
+                           ('borrador', 'aceptado'):
             return self.instance.fecha_instrumento
         else:
             return self.cleaned_data['fecha_instrumento']
@@ -72,8 +72,8 @@ class PresupuestoForm(forms.ModelForm):
             return self.cleaned_data['usuario']
 
     def clean_fecha_aceptado(self):
-        if self.instance and self.instance.estado in \
-                           ('finalizado', 'cancelado'):
+        if self.instance and self.instance.estado not in \
+                           ('borrador', 'aceptado'):
             return self.instance.fecha_aceptado
         else:
             return self.cleaned_data['fecha_aceptado']
@@ -85,8 +85,8 @@ class PresupuestoForm(forms.ModelForm):
             return self.cleaned_data['estado']
 
     def clean_nro_recepcion(self):
-        if self.instance and self.instance.estado in \
-                           ('finalizado', 'cancelado'):
+        if self.instance and self.instance.estado not in \
+                           ('borrador', 'aceptado'):
             return self.instance.nro_recepcion
         else:
             return self.cleaned_data['nro_recepcion']

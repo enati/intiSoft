@@ -234,10 +234,12 @@ class PresupuestoList(ListView):
         acepCount = len(presupuestos.filter(estado='aceptado'))
         # Presup finalizados
         finCount = len(presupuestos.filter(estado='finalizado'))
+        # Presup finalizados
+        facCount = len(presupuestos.filter(estado='en_proceso_de_facturacion'))
         # Presup cancelados
         canCount = len(presupuestos.filter(estado='cancelado'))
         options = []
-        estado_vals = ['borrador('+str(borrCount)+')', 'aceptado('+str(acepCount)+')', 'finalizado('+str(finCount)+')', 'cancelado('+str(canCount)+')']
+        estado_vals = ['borrador('+str(borrCount)+')', 'aceptado('+str(acepCount)+')', 'en_proceso_de_facturacion('+str(facCount)+')', 'finalizado('+str(finCount)+')', 'cancelado('+str(canCount)+')']
         options.append(estado_vals)
         cod_vals = sorted(set([p.codigo for p in presupuestos]))
         options.append(cod_vals)

@@ -112,8 +112,8 @@ class Turno(TimeStampedModel, AuthStampedModel):
         self.estado = 'finalizado'
         self.fecha_fin_real = datetime.now().date()
         self.save()
-        # Finalizo tambien el presupuesto asociado
-        self.presupuesto.estado = 'finalizado'
+        # Cambio de estado el presupuesto asociado
+        self.presupuesto.estado = 'en_proceso_de_facturacion'
         self.presupuesto.save()
         return True
 
@@ -125,8 +125,9 @@ class Turno(TimeStampedModel, AuthStampedModel):
 
     def _delete(self):
         """Faltarian las validaciones"""
-        # Si tiene un presupuesto asociado en estado finalizado o cancelado, no lo elimino
-        if self.presupuesto and self.presupuesto.estado in ['finalizado', 'cancelado']:
+        # Si tiene un presupuesto asociado en estado en proceso de facturacion,
+        # finalizado o cancelado, no lo elimino
+        if self.presupuesto and self.presupuesto.estado in ['en_proceso_de_facturacion', 'finalizado', 'cancelado']:
             return False
         else:
             self.delete()

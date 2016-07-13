@@ -47,7 +47,7 @@
     <div class="col-md-offset-1 col-md-6">
         <!-- Solo muestro las acciones disponibles si el presupuesto ya fue guardado -->
         {% if object %}
-            {% if form.instance.estado not in "['finalizado', 'cancelado']" %}
+            {% if form.instance.estado in "['borrador', 'aceptado']" %}
                 {% if revision %}
                     <div class="col-md-2">
                         <input type="submit" value="Guardar" class="btn btn-danger" form="presupForm">
@@ -92,13 +92,13 @@
                     </li>
                     {% endif %}
                     <li role="separator" class="divider" />
-                    {% if 'adm.finish_presupuesto' in user.get_all_permissions and object.estado == 'aceptado'%}
+                    {% if 'adm.finish_presupuesto' in user.get_all_permissions and object.estado == 'en_proceso_de_facturacion'%}
                     <li>
                         <a href="#" data-action="Finalizar" data-model="presupuesto" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Finalizar Presupuesto</a>
                     </li>
                     {% endif %}
-                    {% if 'adm.cancel_presupuesto' in user.get_all_permissions and object.estado != 'finalizado' and object.estado != 'cancelado'%}
+                    {% if 'adm.cancel_presupuesto' in user.get_all_permissions and object.estado in "['borrador', 'aceptado', 'en_proces_de_facturacion']" %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="presupuesto" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Cancelar Presupuesto</a>
@@ -110,10 +110,12 @@
                         <a id="viewWord" href="{% url 'adm:presup-viewWord' object.id %}" data-id="{{object.id}}">Generar Presupuesto</a>
                     </li>
                     {% endif %}
+                    {% if object.estado in "['borrador', 'aceptado']" %}
                     <li>
                         <a href="#" data-action="Revisionar" data-model="presupuesto" data-id={{object.id}}
                            data-toggle="modal" data-target="#revWarning">Revisionar</a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         {% else %}
@@ -481,7 +483,7 @@
                         <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
                             <h3 class="text-danger">Oferta Tecnológica</h3>
                                 <a class="btn btn-default
-                                    {% if not edit or form.instance.estado == 'finalizado' or form.instance.estado == 'cancelado' %}
+                                    {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
                                         disabled
                                     {% endif %}"
                                     id="actBtn" data-action="Actualizar"
