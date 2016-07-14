@@ -660,17 +660,6 @@ class PresupuestoList(ListView):
 
     def post(self, request, *args, **kwargs):
         response_dict = {'ok': True, 'msg': None}
-        if 'Finalizar' in request.POST:
-            if request.user.has_perm('adm.finish_presupuesto'):
-                presup_id = request.POST.get('Finalizar')
-                presup_obj = Presupuesto.objects.get(pk=presup_id)
-                try:
-                    presup_obj._toState_finalizado()
-                except StateError as e:
-                    response_dict['ok'] = False
-                    response_dict['msg'] = e.message
-            else:
-                raise PermissionDenied
         if 'Cancelar' in request.POST:
             if request.user.has_perm('adm.cancel_presupuesto'):
                 presup_id = request.POST.get('Cancelar')

@@ -65,7 +65,6 @@
                 {% endfor %}
             <td></td>
             <td></td>
-            <td></td>
             </thead>
             <tbody>
                 {% for presup, turno_activo in tuple_paginated_list %}
@@ -94,16 +93,6 @@
                         <td>{{presup.fecha_aceptado | date | default_if_none:""}}</td>
                         <td>{{presup.fecha_instrumento | date | default_if_none:""}}</td>
                         <td>{{presup.nro_recepcion}}</td>
-                        <td>
-                            <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
-                                data-model="presupuesto" type="button" class="btn btn-default"
-                                data-id={{presup.id}} data-toggle="modal" data-target="#myModal"
-                                {% if presup.estado != 'en_proceso_de_facturacion' or not turno_activo or 'adm.finish_presupuesto' not in user.get_all_permissions %}
-                                    disabled
-                                {% endif %}>
-                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                            </button>
-                        </td>
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="presupuesto" type="button" class="btn btn-default"
