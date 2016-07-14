@@ -59,8 +59,9 @@
                     // last child element of the form's container:
                     row.append('<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>');
                 }
-                row.find('a.' + options.deleteCssClass).click(function() {
-                    var row = $(this).parents('.' + options.formCssClass),
+                //row.find('a.' + options.deleteCssClass).click(function() {
+                row.children('td').children('a.' + options.deleteCssClass).click(function() {     // FIX para que en el nested solo borre la linea del nested
+                    var row = $(this).parents('.' + options.formCssClass + '.' + options.prefix),
                         del = row.find('input:hidden[id $= "-DELETE"]'),
                         buttonRow = row.siblings("a." + options.addCssClass + ', .' + options.formCssClass + '-add'),
                         forms;
@@ -69,12 +70,13 @@
                         // Rather than remove this form from the DOM, we'll mark it as deleted
                         // and hide it, then let Django handle the deleting:
                         del.val('on');
-                        row.hide();
+                        row.hide()
                         forms = $('.' + options.formCssClass).not(':hidden');
                     } else {
                         row.remove();
                         // Update the TOTAL_FORMS count:
-                        forms = $('.' + options.formCssClass).not('.formset-custom-template');
+                        //forms = $('.' + options.formCssClass).not('.formset-custom-template'); // FIX para nested forms
+                        forms = $('.' + options.formCssClass + '.' + options.prefix).not('.formset-custom-template');
                         totalForms.val(forms.length);
                     }
                     for (var i=0, formCount=forms.length; i<formCount; i++) {
@@ -138,7 +140,7 @@
             } else {
                 // Otherwise, use the last form in the formset; this works much better if you've got
                 // extra (>= 1) forms (thnaks to justhamade for pointing this out):
-                template = $('.' + options.formCssClass + ':last').clone(true).removeAttr('id');
+                template = $('.' + options.formCssClass + '.' + options.prefix + ':last').clone(true).removeAttr('id');
                 template.find('input:hidden[id $= "-DELETE"]').remove();
                 // Clear all cloned fields, except those the user wants to keep (thanks to brunogola for the suggestion):
                 template.find(childElementSelector).not(options.keepFieldValues).each(function() {
@@ -195,14 +197,15 @@
     $.fn.formset.defaults = {
         prefix: 'form',                  // The form prefix for your django formset
         formTemplate: null,              // The jQuery selection cloned to generate new form instances
-        addText: 'Agregar otro',          // Text for the add link
-        deleteText: 'Eliminar',            // Text for the delete link
+        addText: 'Agregar',              // Text for the add link
+        deleteText: 'Eliminar',          // Text for the delete link
         addCssClass: 'add-row',          // CSS class applied to the add link
         deleteCssClass: 'delete-row',    // CSS class applied to the delete link
         formCssClass: 'dynamic-form',    // CSS class applied to each form in a formset
         extraClasses: [],                // Additional CSS classes, which will be applied to each form in turn
-        keepFieldValues: 'input',             // jQuery selector for fields whose values should be kept when the form is cloned
+        keepFieldValues: 'input',        // jQuery selector for fields whose values should be kept when the form is cloned
         added: null,                     // Function called each time a new form is added
         removed: null                    // Function called each time a form is deleted
     };
 })(jQuery)
+

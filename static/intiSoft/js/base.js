@@ -105,6 +105,28 @@ function rollBackPresupuesto() {
      });
 }
 
+//function cancelarFactura(event) {
+//    btn = $(event.target);
+//    form_prefix = btn.data('f_prefix') + '-' + btn.data('f_id');
+//    alert(form_prefix);
+//    field_estado = $('#id_' + form_prefix + '-estado');
+//    field_estado.val('cancelada');
+
+//    fields = $("input[id^=id_" + form_prefix + "], select[id^=id_" + form_prefix + "]")
+//                    .not("[id$=-id]\
+//                         ,[id$=-estado]\
+//                         ,[id$=-MIN_NUM_FORMS]\
+//                         ,[id$=-MAX_NUM_FORMS]\
+//                         ,[id$=-INITIAL_FORMS]\
+//                         ,[id$=-TOTAL_FORMS]\
+//                         ,[id$=-DELETE]");
+    //btn.prop("disabled", true);
+//    for (i=0; i<fields.length; i++) {
+//        $(fields[i]).prop("readonly", true);
+
+//    }
+//}
+
 $(document).ready(function() {
 
     // Reseteo las fechas cuando hago una nueva revision
@@ -175,6 +197,7 @@ $(document).ready(function() {
         }
     });
 
+
     $("#ofertatec_formtable select").on('change keyup', function (e) {
         var ot_id = $(this).val()
         if ( ot_id != "" ) {
@@ -189,6 +212,9 @@ $(document).ready(function() {
             splitted_id[splitted_id.length-1] = 'tipo_servicio';
             tipo_servicio_id = '#'.concat(splitted_id.join("-"));
             tipo_servicio = $(tipo_servicio_id);
+            splitted_id[splitted_id.length-1] = 'precio_total';
+            precio_total_id = '#'.concat(splitted_id.join("-"));
+            precio_total= $(precio_total_id);
             $.ajax({
                 url: domain + '/lab/turnos/get_price/',
                 method: 'get',
@@ -197,6 +223,7 @@ $(document).ready(function() {
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
+                    precio_total.val(data['precio_total']);
                     $('#ofertatecform_table').load('#ofertatecform_table');
                 }
              });
@@ -218,6 +245,22 @@ $(document).ready(function() {
                     $("#id_usuario").text(data['usuario']);
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_presupuesto__area").text(data['area']);
+                    $("#id_presupuesto__usuario__nombre").text(data['usuario']);
+
+                    var n = $('#id_ot_linea_set-TOTAL_FORMS').val()
+                    for (i=0; i<n; i++) {
+                        $('#ofertatec_formtable tr.inline:first a.delete-row').click()
+                    }
+                    for (i=0; i<data['ofertatec'].length; i++) {
+                        $('#ofertatec_formtable .add-row').click();
+                        $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
+                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].tipo_servicio;
+                        $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].cantidad;
+                        $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cant_horas;
+                        $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].precio;
+                        $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio_total;
+                    }
                 },
             });
         }
@@ -239,6 +282,47 @@ $(document).ready(function() {
         }
     });
 
+    $("[id$=cant_horas]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id')
+        formset_number = cant_horas_id.split("-")[1];
+        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
+        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
+        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
+        if (isNaN(cant_horas)) {
+            precio_total.val(precio);
+        }
+        else {
+            precio_total.val(cant_horas*precio);
+        }
+    });
+
+    $("[id^=id_factura_set][id$=numero]").on('change', function (e) {
+        importe = $('#id_importe').val();
+        field_id = $(this).attr('id')
+        importe_id = field_id.split("numero")[0] + 'importe'
+        $('#'+importe_id).val(importe);
+
+    });
+
+    $("#id_codigo").on('change keyup', function (e) {
+        var presup_id = $(this).val()
+        if (presup_id != "") {
+            $.ajax({
+                url: domain + '/lab/turnos/get_presup/',
+                method: 'get',
+                data: {'presup_id': presup_id},
+                success: function(data){
+                    $("#id_fecha_solicitado").text(data['fecha_solicitado']);
+                    $("#id_fecha_realizado").text(data['fecha_realizado']);
+                    $("#id_fecha_aceptado").text(data['fecha_aceptado']);
+                    $("#id_fecha_instrumento").text(data['fecha_instrumento']);
+                    $("#id_usuario").text(data['usuario']);
+                    $("#id_mail").text(data['mail']);
+                    $("#id_rubro").text(data['rubro']);
+                },
+            });
+        }
+    });
 
     //postForm = function() {
     //    var form = $("#presupForm");
@@ -326,7 +410,7 @@ $(document).ready(function() {
                                 location.href = json.redirect
                             }
                             else {
-                                location.reload();
+                                window.location = window.location.href.split("?")[0];
                             }
                         }
                         else {
@@ -353,18 +437,26 @@ $(document).ready(function() {
         var inputField = document.getElementById('inputField')
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
+        var art = ' el ';
+        //if ((model=='OT') || (model=='factura'))
+        if (model=='OT')
+            art = ' la ';
         if (action.localeCompare('Finalizar')==0) {
-            var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
-            Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
-            modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar el "+model+"?")
+            if (model=='OT')
+                var msg = "Las OT deben ser finalizadas solo en caso que ya hayan sido pagadas.\
+                    Tenga en cuenta que una vez finalizada ya no podrá modificarse."
+            else
+                var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
+                    Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
+            modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }
-        if (action.localeCompare('Cancelar')==0) {
-            modal.find('.modal-body h4').text("¿Está seguro que quiere cancelar el "+model+"?")
+        if (action.localeCompare('Cancelar')==0 || action.localeCompare('CancelarF')==0) {
+            modal.find('.modal-body h4').text("¿Está seguro que quiere cancelar"+art+model+"?")
             modal.find('.modal-body p').text("")
         }
         if (action.localeCompare('Eliminar')==0) {
-            modal.find('.modal-body h4').text("¿Está seguro que quiere eliminar el "+model+"?")
+            modal.find('.modal-body h4').text("¿Está seguro que quiere eliminar"+art+model+"?")
             modal.find('.modal-body p').text("")
         }
         if (action.localeCompare('Actualizar')==0) {
