@@ -53,6 +53,7 @@
                 {% endfor %}
             <td></td>
             <td></td>
+            <td></td>
             </thead>
             <tbody>
                 {% for ot in ot_list %}
@@ -71,7 +72,7 @@
                         <td>{{ ot.presupuesto.usuario.nombre }}</td>
                         <td>{{ ot.codigo }}</td>
                         <td>{{ ot.fecha_realizado | date | default_if_none:"" }}</td>
-                        <td>${{ ot.importe | default_if_none:"0.0" }}</td>
+                        <td>${{ ot.importe | floatformat }}</td>
                         <td>{{ ot.presupuesto.get_turno_activo.area }}</td>
                         <!-- FACTURAS -->
                         <td>
@@ -97,10 +98,10 @@
                         <td>
                             {% for f in ot.factura_set.all %}
                                 {% if not f.recibo_set.all %}
-                                    ${{ f.importe | default_if_none:"0.0" }}</br>
+                                    ${{ f.importe | floatformat }}</br>
                                 {% endif %}
                                 {% for r in f.recibo_set.all %}
-                                    ${{ f.importe | default_if_none:"0.0" }}</br>
+                                    ${{ f.importe | floatformat }}</br>
                                 {% endfor %}
                             {% endfor %}
                         </td>
@@ -147,7 +148,7 @@
                                     </br>
                                 {% endif %}
                                 {% for r in f.recibo_set.all %}
-                                    ${{ r.importe | default_if_none:"0.0" }}</br>
+                                    ${{ r.importe  | floatformat }}</br>
                                 {% endfor %}
                             {% endfor %}
                         </td>
@@ -162,16 +163,16 @@
                                 {% endfor %}
                             {% endfor %}
                         </td>
-<!--
-
-
-
-
-                        <td>{{ot.importe}}</td>
--->
-<!--
-                        <td>{{ot.fecha_aviso | date | default_if_none:""}}</td>
--->
+                        <td>
+                            <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
+                                data-model="OT" type="button" class="btn btn-default"
+                                data-id={{ot.id}} data-toggle="modal" data-target="#myModal"
+                                {% if ot.estado != "no_pago" or 'adm.finish_ot' not in user.get_all_permissions  %}
+                                    disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            </button>
+                        </td>
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="OT" type="button" class="btn btn-default"
@@ -192,6 +193,7 @@
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
+
                     </tr>
                 {% endfor %}
             </tbody>

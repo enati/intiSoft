@@ -180,7 +180,7 @@
                                            {% endfor %}
                                        {% else %}
                                            $
-                                           {{ form.importe.value }}
+                                           {{ form.importe.value | floatformat }}
                                        {% endif %}
                                     </div>
                                 </div>
@@ -429,7 +429,7 @@
                                                                     {{ f_form.importe }} {{ f_form.importe.errors }}
                                                                 {% else %}
                                                                     $
-                                                                    {{ f_form.importe.value }}
+                                                                    {{ f_form.importe.value | floatformat }}
                                                                 {% endif %}
                                                             </div>
                                                         </td>
@@ -496,7 +496,7 @@
                                                                         {{ r_form.importe }} {{ r_form.importe.errors }}
                                                                     {% else %}
                                                                         $
-                                                                        {{ r_form.importe.value }}
+                                                                        {{ r_form.importe.value | floatformat }}
                                                                     {% endif %}
                                                                 </div>
                                                                 {% if edit %}
