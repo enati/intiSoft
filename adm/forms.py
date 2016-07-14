@@ -299,8 +299,8 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
         parent_model,
         child_model,
         formset=NestedInlineFormset,
-        min_num=1,
-        extra=0,
+        #min_num=1,
+        extra=1,
         formfield_callback=bootstrap_format,
         form=Factura_LineaForm,
     )
