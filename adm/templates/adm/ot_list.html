@@ -67,7 +67,7 @@
                                       {% elif ot.estado == 'cancelado' %} "danger"
                                     {% endif %}
                         >
-                        <td></td>
+                        <td style="text-align: center">{% if ot.presupuesto.estado = 'en_proceso_de_facturacion' and ot.estado = 'sin_facturar' %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                         <td>{{ ot.presupuesto }}</td>
                         <td>{{ ot.presupuesto.usuario.nombre }}</td>
                         <td>{{ ot.codigo }}</td>
