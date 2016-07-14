@@ -294,8 +294,7 @@ class OT(TimeStampedModel, AuthStampedModel):
         self.estado = 'pagado'
         self.save()
         # Finalizo el presupuesto asociado
-        self.presupuesto.estado = 'finalizado'
-        self.presupuesto.save()
+        self.presupuesto._toState_finalizado()
         return True
 
     def _toState_cancelado(self):

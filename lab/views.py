@@ -38,7 +38,7 @@ class TurnoList(ListView):
             turno.save()
 
     def get_queryset(self):
-        queryset = Turno.objects.all()
+        queryset = Turno.objects.all().order_by('-fecha_inicio')
         if self.lab:
             queryset = queryset.filter(area=self.lab)
         kwargs = {}
