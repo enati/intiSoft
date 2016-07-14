@@ -97,12 +97,10 @@
                 </button>
                 <ul class="dropdown-menu">
                     {% if turno.estado == 'activo' and finish_perm in user.get_all_permissions %}
-                        {% if turno.presupuesto.fecha_instrumento or turno.presupuesto.in_situ %}
                         <li>
                             <a href="#" data-action="Finalizar" data-model="turno" data-id={{object.id}}
                                data-toggle="modal" data-target="#myModal">Finalizar Turno</a>
                         </li>
-                        {% endif %}
                     {% endif %}
                     {% if delete_perm in user.get_all_permissions %}
                     <li>
