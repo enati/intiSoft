@@ -296,6 +296,14 @@ $(document).ready(function() {
         }
     });
 
+    $("[id^=id_factura_set][id$=numero]").on('change', function (e) {
+        importe = $('#id_importe').val();
+        field_id = $(this).attr('id')
+        importe_id = field_id.split("numero")[0] + 'importe'
+        $('#'+importe_id).val(importe);
+
+    });
+
     $("#id_codigo").on('change keyup', function (e) {
         var presup_id = $(this).val()
         if (presup_id != "") {
