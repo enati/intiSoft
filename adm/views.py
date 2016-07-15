@@ -451,9 +451,10 @@ class OTList(ListView):
                     response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
-        if 'Finalizar' in request.POST:
+        #Finalizo solo la OT
+        if 'Finalizar1' in request.POST:
             if request.user.has_perm('adm.finish_ot'):
-                ot_id = request.POST.get('Finalizar')
+                ot_id = request.POST.get('Finalizar1')
                 ot_obj = OT.objects.get(pk=ot_id)
                 try:
                     num_recibos_factura = [f.recibo_set.count() for f in ot_obj.factura_set.all()]
@@ -463,7 +464,31 @@ class OTList(ListView):
                         response_dict['msg'] = "La OT no tiene recibos registrados.\
                                                 Para poder finalizarla debe estar pagada."
                     else:
-                        ot_obj._toState_pagado()
+                        ot_obj._toState_pagado(False)
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        #Finalizo la OT y el Presupuesto asociado
+        if 'Finalizar2' in request.POST:
+            if request.user.has_perm('adm.finish_ot'):
+                ot_id = request.POST.get('Finalizar2')
+                ot_obj = OT.objects.get(pk=ot_id)
+                presup_obj = ot_obj.presupuesto
+                try:
+                    num_recibos_factura = [f.recibo_set.count() for f in ot_obj.factura_set.all()]
+                    num_recibos_total = reduce(lambda x, y: x + y, num_recibos_factura, 0)
+                    if not num_recibos_total:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = "La OT no tiene recibos registrados.\
+                                                Para poder finalizarla debe estar pagada."
+                    elif presup_obj.ot_set.exclude(id=ot_id).exclude(estado='pagado'):
+                        response_dict['ok'] = False
+                        response_dict['msg'] = "El Presupuesto no se puede finalizar ya que tiene\
+                                                OTs no finalizadas."
+                    else:
+                        ot_obj._toState_pagado(True)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message

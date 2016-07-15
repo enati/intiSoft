@@ -442,9 +442,10 @@ $(document).ready(function() {
         if (model=='OT')
             art = ' la ';
         if (action.localeCompare('Finalizar')==0) {
-            if (model=='OT')
+            if (model=='OT') {
                 var msg = "Las OT deben ser finalizadas solo en caso que ya hayan sido pagadas.\
                     Tenga en cuenta que una vez finalizada ya no podrá modificarse."
+            }
             else
                 var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
                     Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
@@ -464,11 +465,32 @@ $(document).ready(function() {
             modal.find('.modal-body p').text("Tenga en cuenta que esto dará lugar a una nueva revisión.")
         }
 
-        submitButton.name = action
-        submitButton.value = id
+        //En OTs agrego opcion para finalizar solo OT u OT y presupuesto
+        if (model=='OT' && action=='Finalizar') {
+            $(submitButton).text('Finalizar OT');
+            submitButton.name = 'Finalizar1';
+            submitButton.value = id;
+            $(submitButton).attr('onclick', "$('#inputField').attr('name', 'Finalizar1').attr('value', " + id + ")");
+            $('#submitButton2').remove();
+            var btn = $("<button id='submitButton2' type='submit' class='btn btn-primary' name='name' value='value'></button>");
+            $("#myForm").append(btn);
+            submitButton2 = document.getElementById('submitButton2');
+            $(submitButton2).text('Finalizar OT y Presupuesto');
+            submitButton2.name = 'Finalizar1';
+            submitButton2.value = id;
+            $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
+        }
+        else {
+            $(submitButton).text('Aceptar');
+            $(submitButton).removeAttr('onclick');
+            $('#submitButton2').remove();
+            submitButton.name = action
+            submitButton.value = id
 
-        inputField.name = action
-        inputField.value = id
+
+            inputField.name = action
+            inputField.value = id
+        }
 
         trlink=true;
     })

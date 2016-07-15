@@ -290,12 +290,13 @@ class OT(TimeStampedModel, AuthStampedModel):
         self.save()
         return True
 
-    def _toState_pagado(self):
+    def _toState_pagado(self, flag):
         self.estado = 'pagado'
         self.save()
-        # Finalizo el presupuesto asociado
-        self.presupuesto._toState_finalizado()
-        return True
+        if flag:
+            # Finalizo el presupuesto asociado
+            self.presupuesto._toState_finalizado()
+            return True
 
     def _toState_cancelado(self):
         if self.estado == 'finalizado':
