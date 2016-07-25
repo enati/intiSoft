@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Permission, Group, User
 from django.test.utils import setup_test_environment
 
+
 def get_or_create_admin_group():
     group, created = Group.objects.get_or_create(name='Administracion')
     for p in Permission.objects.filter(content_type__app_label__in=
@@ -87,7 +88,7 @@ class PresupuestoTest(TestCase):
             'estado': 'borrador',
         }
         response = self.client.post(reverse('adm:presup-create'), vals)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         presup = Presupuesto.objects.get(codigo='0001')
         self.assertEqual(presup.estado, 'aceptado')
 
@@ -115,7 +116,7 @@ class PresupuestoTest(TestCase):
             'estado': 'borrador',
         }
         response = self.client.post(reverse('adm:presup-create'), vals)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         presup = Presupuesto.objects.get(codigo='0002')
         self.assertEqual(presup.estado, 'borrador')
 
