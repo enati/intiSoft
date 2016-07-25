@@ -181,25 +181,6 @@ class PresupuestoTest(TestCase):
                                             {'Eliminar': '1'})
         self.assertEqual(response.status_code, 403)
 
-    def test_perm_required_finish(self):
-        """
-        Solo los usuarios logueados y  con permisos de finalizacion en
-        presupuestos pueden finalizar presupuestos.
-        """
-        # Sin login (redirecciona a la pagina de login, por eso el 302)
-        response = self.client.get(reverse('adm:presup-list'))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Finalizar': '1'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        # Sin permisos
-        self.setUp_lab_env()
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Finalizar': '1'})
-        self.assertEqual(response.status_code, 403)
-
     def test_perm_required_cancel(self):
         """
         Solo los usuarios logueados y  con permisos de cancelacion en
