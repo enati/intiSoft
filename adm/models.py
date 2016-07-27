@@ -195,8 +195,6 @@ class Presupuesto(TimeStampedModel, AuthStampedModel):
         return True
 
     def _toState_finalizado(self):
-        if self.estado != 'en_proceso_de_facturacion':
-            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'finalizado'
         self.save()
         return True
@@ -291,6 +289,9 @@ class OT(TimeStampedModel, AuthStampedModel):
         return True
 
     def _toState_pagado(self, flag):
+        # Antes de finalizar la OT chequeo que el presupuesto pueda ser finalizado
+        if self.presupuesto.estado != 'en_proceso_de_facturacion':
+            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'pagado'
         self.save()
         if flag:
