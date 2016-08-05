@@ -381,7 +381,8 @@ class OTList(ListView):
         options.append(fec1_vals)
         importe_vals = sorted(set([o.importe for o in ots if o.importe]))
         options.append(importe_vals)
-        area_vals = sorted(set([o.presupuesto.get_turno_activo().area for o in ots]))
+        area_vals = sorted(set([o.presupuesto.get_turno_activo().area for o in ots
+                                if o.presupuesto.get_turno_activo() is not None]))
         options.append(area_vals)
         factura_list = [o.factura_set for o in ots]
         factura_plist = reduce(lambda x, y: x + y,
