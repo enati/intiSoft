@@ -540,7 +540,7 @@ class PresupuestoList(ListView):
         de la fecha de realizacion del mismo.
         """
         for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
-            if presup.fecha_realizado + timedelta(days=21) <= datetime.now().date():
+            if presup.fecha_realizado + timedelta(days=21) < datetime.now().date():
                 presup._toState_cancelado()
 
     def get_queryset(self):
