@@ -77,15 +77,20 @@ class Turno(TimeStampedModel, AuthStampedModel):
             fecha_limite = sumarDiasHabiles(self.fecha_inicio, 2)
             if self.estado in ['en_espera', 'activo'] and hoy > self.fecha_fin:
                 return True
-            elif (self.presupuesto and
-                ((not self.presupuesto.fecha_instrumento
-                   and
-                   hoy > fecha_limite)
-                or self.presupuesto.fecha_instrumento > fecha_limite)) and\
-                not (self.presupuesto.in_situ):
-                return True
-            else:
-                return False
+            elif self.presupuesto:
+                if self.presupuesto.fecha_instrumento:
+                    if self.presupuesto.fecha_instrumento > fecha_limite:
+                        # El instrumento llego pasados 2 dias habiles a la fecha de inicio
+                        return True
+                    else:
+                        return False
+                elif (hoy > fecha_limite):
+                    if (self.presupuesto.in_situ or self.presupuesto.asistencia):
+                        return False
+                    else:
+                        # El instrumento no haya llegado pasados 2 dias habiles a la fecha de inicio
+                        # y no es in_situ ni asistencia
+                        return True
         except:
             return False
 
@@ -99,7 +104,8 @@ class Turno(TimeStampedModel, AuthStampedModel):
                 if self.presupuesto and\
                     (not (self.presupuesto.fecha_instrumento and self.presupuesto.fecha_aceptado)
                     and pasado_manana >= self.fecha_inicio)\
-                    and not (self.presupuesto.in_situ):
+                    and not (self.presupuesto.in_situ)\
+                    and not (self.presupuesto.asistencia):
                         return True
             return False
         except:
