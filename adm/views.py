@@ -346,8 +346,9 @@ class OTList(ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        t_inicial = time()
         context = super(OTList, self).get_context_data(**kwargs)
-        ots = OT.objects.all()
+        ots = OT.objects.select_related()
 
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
                        'codigo', 'fecha_realizado', 'importe', 'area', 'factura', 'factura__fecha',
@@ -427,6 +428,7 @@ class OTList(ListView):
         # Para la paginacion
         if 'order_by' in self.request.GET:
             context['order_by'] = self.request.GET['order_by']
+        print "TIEMPO get_context_data: ", time() - t_inicial
         return context
 
     def post(self, request, *args, **kwargs):
