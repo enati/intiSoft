@@ -15,6 +15,7 @@ import json
 from intiSoft.exception import StateError
 from reversion.models import Version
 import reversion
+from time import time
 
 #===========================================
 #======== FUNCIONES AUXILIARES =============
@@ -544,8 +545,7 @@ class PresupuestoList(ListView):
                 presup._toState_cancelado()
 
     def get_queryset(self):
-        # Por defecto los ordeno por fecha de realizacion (desc)
-        queryset = Presupuesto.objects.all().order_by('-codigo')
+        queryset = Presupuesto.objects.select_related().order_by('-codigo')
         kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
@@ -575,29 +575,22 @@ class PresupuestoList(ListView):
     def get_context_data(self, **kwargs):
         context = super(PresupuestoList, self).get_context_data(**kwargs)
 
-        presupuestos = Presupuesto.objects.all()
+        presupuestos = Presupuesto.objects.select_related()
         turnos = [p.get_turno_activo() for p in presupuestos]
 
         presupuestos_by_page = context['object_list']
         turnos_by_page = [p.get_turno_activo() for p in presupuestos_by_page]
 
         context['tuple_paginated_list'] = list(zip(presupuestos_by_page, turnos_by_page))
-        context['tuple_all_list'] = list(zip(presupuestos, turnos))
 
         field_names = ['estado', 'codigo', 'usuario__nombre', 'usuario__nro_usuario',
-                        #'fecha_solicitado',
-                        #'ofertatec__tipo_servicio',
                        'ofertatec__area',
-                       #'usuario__rubro',
                        'fecha_realizado',
                        'fecha_aceptado',
                        'fecha_instrumento',
                        'nro_recepcion']
         field_labels = ['Estado', 'Nro.', 'Usuario', 'Nro Usuario',
-                        #'Fecha de Solicitud',
-                        #'Tipo de Servicio',
                         'Area',
-                        #'Rubro',
                         'Fecha de Realizacion',
                         'Fecha de Aceptacion',
                         'Llegada del Instrumento',
@@ -622,22 +615,8 @@ class PresupuestoList(ListView):
         options.append(usuario_vals)
         nro_usuario_vals = sorted(set([p.usuario.nro_usuario for p in presupuestos]))
         options.append(nro_usuario_vals)
-        #fec1_vals = set([p.fecha_solicitado.strftime("%d/%m/%Y")
-               #for p in presupuestos if p.fecha_solicitado if not None])
-        #options.append(fec1_vals)
-        # ofertatec_linea es un campo many2one
-        #ofertatec_list = [t.ofertatec_linea_set for p, t in context['presupuesto_list']
-                                           #if t is not None]
-        ofertatec_list = [t.ofertatec_linea_set for p, t in context['tuple_all_list']
-                                           if t is not None]
-        ofertatec_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in o.get_queryset()] for o in ofertatec_list], [])
-        #serv_vals = set([o.ofertatec.tipo_servicio for o in ofertatec_plist])
-        #options.append(serv_vals)
-        area_vals = sorted(set([o.ofertatec.area for o in ofertatec_plist]))
+        area_vals = sorted(set([t.area for t in turnos if t is not None]))
         options.append(area_vals)
-        #rubro_vals = set([p.usuario.rubro for p in presupuestos])
-        #options.append(rubro_vals)
         fec2_vals = sorted(set([p.fecha_realizado.strftime("%d/%m/%Y")
                         for p in presupuestos if p.fecha_realizado is not None]))
         options.append(fec2_vals)
