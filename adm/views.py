@@ -350,7 +350,7 @@ class OTList(ListView):
                     kwargs['id__in'] = ots
                 elif key == 'remito':
                     factura = Factura.objects.all()
-                    ots = [f.ot.id for f in factura if f.remito_set.get_queryset().filter(numero__in=vals)]
+                    ots = [o.id for o in queryset if o.remito_set.get_queryset().filter(numero__in=vals)]
                     kwargs['id__in'] = ots
                 else:
                     kwargs['%s__in' % key] = vals
