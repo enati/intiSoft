@@ -275,8 +275,6 @@ class OT(TimeStampedModel, AuthStampedModel):
     importe = models.FloatField(verbose_name='Importe', blank=False, null=True, default=0)
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
                                     on_delete=models.PROTECT)
-    fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
-                                       blank=True, null=True)
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -351,6 +349,8 @@ class Factura(TimeStampedModel, AuthStampedModel):
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
     ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+    fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
+                                       blank=True, null=True)
 
     def _toState_cancelado(self):
         if self.estado == 'activa':
@@ -429,7 +429,7 @@ class Remito(TimeStampedModel, AuthStampedModel):
 
     numero = models.CharField(max_length=15, verbose_name='Nro.')
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
-    factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
+    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['id']

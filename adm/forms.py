@@ -73,13 +73,10 @@ class OTForm(forms.ModelForm):
                   'codigo',
                   'presupuesto',
                   'fecha_realizado',
-                  'fecha_aviso',
                   'importe']
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
-            'fecha_aviso': forms.DateInput(attrs={'class': 'datepicker',
-                                                  'readonly': True},),
             'importe': forms.TextInput(),
             }
         error_messages = {
@@ -145,7 +142,9 @@ class NestedInlineFormset(BaseInlineFormSet):
             # look at any nested formsets, as well
             for form in self.forms:
                 if not self._should_delete_form(form):
-                    result = result and form.nested[0].is_valid() and form.nested[1].is_valid()
+                    result = True
+                    for nested in form.nested:
+                        result &= nested.is_valid()
         return result
 
     def save(self, commit=True):
@@ -154,9 +153,8 @@ class NestedInlineFormset(BaseInlineFormSet):
 
         for form in self.forms:
             if not self._should_delete_form(form):
-                form.nested[0].save(commit=commit)
-                form.nested[1].save(commit=commit)
-
+                for nested in form.nested:
+                    nested.save(commit=commit)
         return result
 
 
@@ -186,10 +184,13 @@ class Factura_LineaForm(forms.ModelForm):
         fields = ['numero',
                   'fecha',
                   'estado',
-                  'importe']
+                  'importe',
+                  'fecha_aviso']
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
+            'fecha_aviso': forms.DateInput(attrs={'class': 'datepicker',
+                                                           'readonly': True},),
             'importe': forms.TextInput(),
             }
         error_messages = {
@@ -206,30 +207,6 @@ class Factura_LineaForm(forms.ModelForm):
 
 
 class Recibo_LineaForm(forms.ModelForm):
-
-    #def clean_comprobante_cobro(self):
-        #if self.instance and self.instance.factura.estado != 'cancelada':
-            #return self.instance.comprobante_cobro
-        #else:
-            #return self.cleaned_data['comprobante_cobro']
-
-    #def clean_numero(self):
-        #if self.instance and self.instance.factura.estado != 'cancelada':
-            #return self.instance.numero
-        #else:
-            #return self.cleaned_data['numero']
-
-    #def clean_fecha(self):
-        #if self.instance and self.instance.factura.estado != 'cancelada':
-            #return self.instance.fecha
-        #else:
-            #return self.cleaned_data['fecha']
-
-    #def clean_importe(self):
-        #if self.instance and self.instance.factura.estado != 'cancelada':
-            #return self.instance.importe
-        #else:
-            #return self.cleaned_data['importe']
 
     def __init__(self, *args, **kwargs):
         super(Recibo_LineaForm, self).__init__(*args, **kwargs)
@@ -269,30 +246,6 @@ class Recibo_LineaForm(forms.ModelForm):
         }
 
 
-class Remito_LineaForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(Remito_LineaForm, self).__init__(*args, **kwargs)
-        ## El nro de presup no tiene que tener form-control
-        #if self.instance and self.instance.factura_id:
-            #if self.instance.factura.estado == 'cancelada':
-        for f in self.fields:
-            #self.fields[f].widget.attrs['disabled'] = True
-            self.fields[f].required = False
-
-    #def clean(self):
-        #cleaned_data = super(Remito_LineaForm, self).clean()
-        #if self.instance and self.instance.factura.estado == 'cancelada':
-            #msg = self.error_class(['No se pueden crear remitos ya que la factura esta cancelada'])
-            #self.add_error(NON_FIELD_ERRORS, msg)
-        #return cleaned_data
-
-    class Meta:
-
-        model = Recibo
-        fields = ['numero']
-
-
 def nested_formset_factory(parent_model, child_model, grandchilds):
 
     parent_child = inlineformset_factory(
@@ -319,7 +272,35 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
 
     return parent_child
 
-Factura_LineaFormSet = nested_formset_factory(OT, Factura, [(Recibo, Recibo_LineaForm), (Remito, Remito_LineaForm)])
+Factura_LineaFormSet = nested_formset_factory(OT, Factura, [(Recibo, Recibo_LineaForm)])
+
+
+class Remito_LineaForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(Remito_LineaForm, self).__init__(*args, **kwargs)
+        for f in self.fields:
+            self.fields[f].required = False
+
+    class Meta:
+
+        model = Recibo
+        fields = ['numero',
+                  'fecha']
+
+        widgets = {
+            'fecha': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            }
+
+Remito_LineaFormSet = inlineformset_factory(OT,
+                                            Remito,
+                                            min_num=1,
+                                            extra=0,
+                                            formfield_callback=bootstrap_format,
+                                            form=Remito_LineaForm,
+                                            formset=BaseInlineFormSet,
+                                           )
 
 
 class CustomInlineFormset(BaseInlineFormSet):

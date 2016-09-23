@@ -105,7 +105,11 @@
                                 {% endfor %}
                             {% endfor %}
                         </td>
-                        <td>{{ ot.fecha_aviso | date | default_if_none:"" }}</td>
+                        <td>
+                            {% for f in ot.factura_set.all %}
+                                {{ f.fecha_aviso | date | default_if_none:"" }}</br>
+                            {% endfor %}
+                        </td>
                         <!-- RECIBOS -->
                         <td>
                             {% for f in ot.factura_set.all %}
@@ -154,13 +158,8 @@
                         </td>
                         <!-- REMITO -->
                         <td>
-                            {% for f in ot.factura_set.all %}
-                                {% if not f.remito_set.all %}
-                                    </br>
-                                {% endif %}
-                                {% for r in f.remito_set.all %}
-                                    {{ r.numero }}</br>
-                                {% endfor %}
+                            {% for r in ot.remito_set.all %}
+                                {{ r.numero }}</br>
                             {% endfor %}
                         </td>
                         <td>
