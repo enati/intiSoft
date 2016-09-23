@@ -282,7 +282,7 @@ $(document).ready(function() {
         }
     });
 
-    $("[id$=cant_horas]").on('change', function (e) {
+    $("[id^=id_ofertatec][id$=cant_horas]").on('change', function (e) {
         cant_horas_id = $(this).attr('id')
         formset_number = cant_horas_id.split("-")[1];
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
@@ -293,6 +293,36 @@ $(document).ready(function() {
         }
         else {
             precio_total.val(cant_horas*precio);
+        }
+    });
+
+    $("[id^=id_ot][id$=cantidad]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id')
+        formset_number = cant_horas_id.split("-")[1];
+        cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
+        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
+        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
+        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
+        if (isNaN(cant_horas)) {
+            precio_total.val(precio);
+        }
+        else {
+            precio_total.val(cantidad*cant_horas*precio);
+        }
+    });
+
+    $("[id^=id_ot][id$=cant_horas]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id')
+        formset_number = cant_horas_id.split("-")[1];
+        cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
+        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
+        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
+        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
+        if (isNaN(cant_horas)) {
+            precio_total.val(precio);
+        }
+        else {
+            precio_total.val(cantidad*cant_horas*precio);
         }
     });
 
