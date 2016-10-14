@@ -45,7 +45,12 @@ class TurnoList(ListView):
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
-                    queryset = queryset.order_by(vals[0])
+                    if vals[0] == 'ot__codigo':
+                        queryset = queryset.order_by('presupuesto__ot__codigo')
+                    elif vals[0] == '-ot__codigo':
+                        queryset = queryset.order_by('-presupuesto__ot__codigo')
+                    else:
+                        queryset = queryset.order_by(vals[0])
                 elif key == 'estado':
                     kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
                 elif key == 'fecha_inicio' or\
