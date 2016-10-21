@@ -238,6 +238,20 @@ pre_save.connect(check_state, sender=Presupuesto)
 post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
+class Contrato(TimeStampedModel, AuthStampedModel):
+
+    presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
+                                    on_delete=models.PROTECT)
+    importe_neto = models.FloatField(verbose_name='Importe Neto', blank=False, null=True, default=0)
+    importe_bruto = models.FloatField(verbose_name='Importe Bruto', blank=False, null=True, default=0)
+    descuento = models.FloatField(verbose_name='Descuento', blank=False, null=True, default=0)
+    fecha_realizado = models.DateField(verbose_name='Fecha',
+                                       blank=False, null=True)
+
+    class Meta:
+        abstract = True
+
+
 def nextOTCode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
@@ -254,7 +268,7 @@ def nextOTCode():
         return '00001'
 
 
-class OT(TimeStampedModel, AuthStampedModel):
+class OT(Contrato):
 
     ESTADOS = (
         ('sin_facturar', 'Sin Facturar'),     # El primer valor es el que se guarda en la DB
@@ -270,11 +284,6 @@ class OT(TimeStampedModel, AuthStampedModel):
                               validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
-    fecha_realizado = models.DateField(verbose_name='Fecha',
-                                       blank=False, null=True)
-    importe = models.FloatField(verbose_name='Importe', blank=False, null=True, default=0)
-    presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
-                                    on_delete=models.PROTECT)
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'

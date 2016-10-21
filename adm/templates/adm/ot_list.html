@@ -72,7 +72,7 @@
                         <td>{{ ot.presupuesto.usuario.nombre }}</td>
                         <td>{{ ot.codigo }}</td>
                         <td>{{ ot.fecha_realizado | date | default_if_none:"" }}</td>
-                        <td>${{ ot.importe | floatformat }}</td>
+                        <td>${{ ot.importe_bruto | floatformat }}</td>
                         <td>{{ ot.presupuesto.get_turno_activo.area }}</td>
                         <!-- FACTURAS -->
                         <td>

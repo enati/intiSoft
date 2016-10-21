@@ -296,6 +296,7 @@ $(document).ready(function() {
         }
     });
 
+
     $("[id^=id_ot][id$=cantidad]").on('change', function (e) {
         cant_horas_id = $(this).attr('id')
         formset_number = cant_horas_id.split("-")[1];
@@ -310,6 +311,7 @@ $(document).ready(function() {
             precio_total.val(cantidad*cant_horas*precio);
         }
     });
+
 
     $("[id^=id_ot][id$=cant_horas]").on('change', function (e) {
         cant_horas_id = $(this).attr('id')
@@ -332,6 +334,21 @@ $(document).ready(function() {
         importe_id = field_id.split("numero")[0] + 'importe'
         $('#'+importe_id).val(importe);
 
+    });
+
+    $("#btnImporteNeto").on('click', function(e) {
+        var otLinePrice_list = $("[id^=id_ot][id$=precio_total]"),
+            total = 0,
+            importe_bruto = $("[id$=id_importe_bruto]"),
+            importe_neto = $("[id$=id_importe_neto]"),
+            descuento_val = parseFloat($("[id$=id_descuento]").val());
+        for (var i=0; i<otLinePrice_list.length; i++) {
+            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
+                total += parseFloat(otLinePrice_list[i].value);
+            }
+        }
+        importe_bruto.val(total);
+        importe_neto.val(total - descuento_val);
     });
 
     $("#id_codigo").on('change keyup', function (e) {

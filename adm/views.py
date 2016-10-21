@@ -364,10 +364,10 @@ class OTList(ListView):
         ots = OT.objects.select_related()
 
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
-                       'codigo', 'fecha_realizado', 'importe', 'area', 'factura', 'factura__fecha',
+                       'codigo', 'fecha_realizado', 'importe_bruto', 'area', 'factura', 'factura__fecha',
                        'factura__importe', 'fecha_aviso',
                        'recibo', 'recibo_tipo', 'recibo__fecha', 'recibo__importe', 'remito']
-        field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp.',
+        field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
 
@@ -394,8 +394,8 @@ class OTList(ListView):
         fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
                         for o in ots if o.fecha_realizado is not None]))
         options.append(fec1_vals)
-        importe_vals = sorted(set([o.importe for o in ots if o.importe]))
-        options.append(importe_vals)
+        importe_bruto_vals = sorted(set([o.importe_bruto for o in ots if o.importe_bruto]))
+        options.append(importe_bruto_vals)
         area_vals = sorted(set([o.presupuesto.get_turno_activo().area for o in ots
                                 if o.presupuesto.get_turno_activo() is not None]))
         options.append(area_vals)

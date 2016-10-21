@@ -55,11 +55,23 @@ class OTForm(forms.ModelForm):
         else:
             return self.cleaned_data['fecha_aviso']
 
-    def clean_importe(self):
+    def clean_importe_bruto(self):
         if self.instance and self.instance.estado != 'sin_facturar':
-            return self.instance.importe
+            return self.instance.importe_bruto
         else:
-            return self.cleaned_data['importe']
+            return self.cleaned_data['importe_bruto']
+
+    def clean_importe_neto(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.importe_neto
+        else:
+            return self.cleaned_data['importe_neto']
+
+    def clean_descuento(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.descuento
+        else:
+            return self.cleaned_data['descuento']
 
     def clean_presupuesto(self):
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -73,11 +85,13 @@ class OTForm(forms.ModelForm):
                   'codigo',
                   'presupuesto',
                   'fecha_realizado',
-                  'importe']
+                  'importe_bruto',
+                  'importe_neto',
+                  'descuento']
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
-            'importe': forms.TextInput(),
+            'importe_bruto': forms.TextInput(),
             }
         error_messages = {
             'presupuesto': {
@@ -86,7 +100,7 @@ class OTForm(forms.ModelForm):
             'fecha_realizado': {
                 'required': 'Campo obligatorio.',
             },
-            'importe': {
+            'importe_bruto': {
                 'required': 'Campo obligatorio.',
             },
         }
