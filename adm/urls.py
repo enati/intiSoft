@@ -4,9 +4,9 @@ from . import views
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
-    url(r'^OT/$', login_required(views.OTList.as_view()), name='ot-list'),
-    url(r'^OT/create/$', login_required(views.OTCreate.as_view()), name='ot-create'),
-    url(r'^OT/update/(?P<pk>\d+)/$', login_required(views.OTUpdate.as_view()), name='ot-update'),
+    url(r'^contratos/OT/$', login_required(views.OTList.as_view()), name='ot-list'),
+    url(r'^contratos/OT/create/$', login_required(views.OTCreate.as_view()), name='ot-create'),
+    url(r'^contratos/OT/update/(?P<pk>\d+)/$', login_required(views.OTUpdate.as_view()), name='ot-update'),
     url(r'^presup/$', login_required(views.PresupuestoList.as_view()), name='presup-list'),
     url(r'^presup/viewWord/(?P<pk>\d+)/$', 'adm.views.viewWord', name='presup-viewWord'),
     #url(r'^presup/actBtn/(?P<pk>\d+)/$', 'adm.views.actualizar_precios', name='presup-actBtn'),
