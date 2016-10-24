@@ -2,9 +2,9 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT, Factura
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, Factura
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -298,7 +298,7 @@ class OTUpdate(UpdateView):
 
 
 class OTList(ListView):
-    model = Presupuesto
+    model = OT
     template_name = 'adm/ot_list.html'
     paginate_by = 30
 
@@ -520,6 +520,97 @@ class OTList(ListView):
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
+
+#===========================================
+#================ OT ML ====================
+#===========================================
+
+
+class OTMLCreate(CreateView):
+    model = OTML
+    form_class = OTMLForm
+    success_url = reverse_lazy('adm:otml-list')
+
+    @method_decorator(permission_required('adm.add_otml',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(OTMLCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OTMLCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:otml-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        factura_form = Factura_LineaFormSet()
+        ot_linea_form = OT_LineaFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        factura_form = Factura_LineaFormSet(self.request.POST)
+        ot_linea_form = OT_LineaFormSet(self.request.POST)
+        if (form.is_valid() and factura_form.is_valid()
+            and ot_linea_form.is_valid()):
+            return self.form_valid(form, factura_form, ot_linea_form)
+        else:
+            return self.form_invalid(form, factura_form, ot_linea_form)
+
+    def form_valid(self, form, factura_form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Factuas and Recibos then redirects to a
+        success page.
+        """
+        self.object = form.save()
+        factura_form.instance = self.object
+        factura_form.save()
+        ot_linea_form.instance = self.object
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, factura_form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
+
+
+class OTMLUpdate(UpdateView):
+    model = OTML
+    form_class = OTMLForm
+    template_name_suffix = '_form'
+    success_url = reverse_lazy('adm:otml-list')
+
+
+class OTMLList(ListView):
+    model = OTML
+    template_name = 'adm/otml_list.html'
+    paginate_by = 30
 
 #===========================================
 #========== VISTAS PRESUPUESTO =============

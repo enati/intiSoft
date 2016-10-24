@@ -239,9 +239,8 @@ post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
 class Contrato(TimeStampedModel, AuthStampedModel):
-
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
-                                    on_delete=models.PROTECT)
+                                    null=True, blank=False, on_delete=models.PROTECT)
     importe_neto = models.FloatField(verbose_name='Importe Neto', blank=False, null=True, default=0)
     importe_bruto = models.FloatField(verbose_name='Importe Bruto', blank=False, null=True, default=0)
     descuento = models.FloatField(verbose_name='Descuento', blank=False, null=True, default=0)
@@ -326,6 +325,59 @@ class OT(Contrato):
     class Meta:
         permissions = (("cancel_ot", "Can cancel OT"),
                        ("finish_ot", "Can finish OT"),)
+
+
+class OTML(Contrato):
+
+    ESTADOS = (
+        ('sin_facturar', 'Sin Facturar'),     # El primer valor es el que se guarda en la DB
+        ('no_pago', 'No Pago'),
+        ('pagado', 'Pagado'),
+        ('cancelado', 'Cancelado')
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='sin_facturar', verbose_name='Estado')
+    codigo = models.CharField(max_length=15, verbose_name='Nro. OT',
+                              unique=True, default='00000',
+                              validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
+                                                         message="El código debe ser de la forma 00000 ó 00000/00")],
+                              error_messages={'unique': "Ya existe una OT con ese número."})
+
+    def _toState_no_pago(self):
+        self.estado = 'no_pago'
+        self.save()
+        return True
+
+    def _toState_sin_facturar(self):
+        self.estado = 'sin_facturar'
+        self.save()
+        return True
+
+    def _toState_pagado(self, flag):
+        self.estado = 'pagado'
+        self.save()
+
+    def _toState_cancelado(self):
+        if self.estado == 'finalizado':
+            raise StateError('No se pueden cancelar las OT pagadas.', '')
+        self.estado = 'cancelado'
+        self.save()
+        ## Cancelo las facturas asociadas, de haberlas
+        for factura in self.factura_set.all():
+            if factura.estado != 'cancelada':
+                factura.estado = 'cancelada'
+                factura.save()
+        return True
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        self.delete()
+        return True
+
+    class Meta:
+        permissions = (("cancel_otml", "Can cancel OT-ML"),
+                       ("finish_otml", "Can finish OT-ML"),)
 
 
 class OT_Linea(TimeStampedModel, AuthStampedModel):

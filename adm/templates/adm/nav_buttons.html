@@ -8,6 +8,9 @@
         <li style="{% if '/adm/contratos/OT/' in request.path %}background-color: #F5F5F5{% endif %}">
             <a href="{% url 'adm:ot-list' %}">OT</a>
         </li>
+        <li style="{% if '/adm/contratos/OT-ML/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:otml-list' %}">OT-ML</a>
+        </li>
     </ul>
 </li>
 

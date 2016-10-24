@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, OT, Factura, Recibo, Remito, OT_Linea
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
@@ -37,12 +37,6 @@ class OTForm(forms.ModelForm):
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
-    def clean_codigo(self):
-        if self.instance and self.instance.estado != 'sin_facturar':
-            return self.instance.codigo
-        else:
-            return self.cleaned_data['codigo']
-
     def clean_fecha_realizado(self):
         if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.fecha_realizado
@@ -73,6 +67,12 @@ class OTForm(forms.ModelForm):
         else:
             return self.cleaned_data['descuento']
 
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.codigo
+        else:
+            return self.cleaned_data['codigo']
+
     def clean_presupuesto(self):
         if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.presupuesto
@@ -88,11 +88,7 @@ class OTForm(forms.ModelForm):
                   'importe_bruto',
                   'importe_neto',
                   'descuento']
-        widgets = {
-            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-            'importe_bruto': forms.TextInput(),
-            }
+
         error_messages = {
             'presupuesto': {
                 'required': 'Campo obligatorio.',
@@ -103,6 +99,57 @@ class OTForm(forms.ModelForm):
             'importe_bruto': {
                 'required': 'Campo obligatorio.',
             },
+        }
+
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'importe_bruto': forms.TextInput(),
+        }
+
+
+class OTMLForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(OTMLForm, self).__init__(*args, **kwargs)
+        self.fields['codigo'].widget.attrs['class'] = 'OT_code'
+        self.fields['codigo'].widget.attrs['form'] = 'OTMLForm'
+        if self.instance:
+            if self.instance.estado != 'sin_facturar':
+                for f in self.fields:
+                    if f != 'fecha_aviso':
+                        self.fields[f].widget.attrs['disabled'] = True
+                        self.fields[f].required = False
+
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.codigo
+        else:
+            return self.cleaned_data['codigo']
+
+    class Meta:
+        model = OTML
+        fields = ['estado',
+                  'codigo',
+                  'fecha_realizado',
+                  'importe_bruto',
+                  'importe_neto',
+                  'descuento']
+
+        error_messages = {
+            'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'importe_bruto': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'importe_bruto': forms.TextInput(),
         }
 
 
