@@ -326,7 +326,7 @@ $(document).ready(function() {
         }
     });
 
-    $("[id^=id_factura_set][id$=numero]").on('change', function (e) {
+    $("[id^=id_adm-factura][id$=numero]").on('change', function (e) {
         importe = $('#id_importe').val();
         field_id = $(this).attr('id')
         importe_id = field_id.split("numero")[0] + 'importe'

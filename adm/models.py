@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from django.db import connection
 from intiSoft.exception import StateError
 import reversion
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -348,17 +350,21 @@ class Factura(TimeStampedModel, AuthStampedModel):
     numero = models.CharField(max_length=15, verbose_name='Nro. Factura')
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
-    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE, null=True, blank=True)
     fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
                                        blank=True, null=True)
+    # Campos para relacion generica
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     def _toState_cancelado(self):
         if self.estado == 'activa':
             self.estado = 'cancelada'
             self.save()
-            ot_obj = OT.objects.get(pk=self.ot_id)
-            if not(ot_obj.factura_set.exclude(estado__in=['cancelada'])) and ot_obj.estado != 'cancelado':
-                ot_obj._toState_sin_facturar()
+            contrato_obj = self.content_type.get_object_for_this_type(pk=self.object_id)
+            if not(contrato_obj.factura_set.exclude(estado__in=['cancelada'])) and contrato_obj.estado != 'cancelado':
+                contrato_obj._toState_sin_facturar()
         return True
 
     def save(self, *args, **kwargs):
@@ -366,18 +372,18 @@ class Factura(TimeStampedModel, AuthStampedModel):
             #This code only happens if the objects is
             #not in the database yet. Otherwise it would
             #have pk
-            ot_obj = OT.objects.get(pk=self.ot_id)
-            if ot_obj.estado == 'sin_facturar':
-                ot_obj._toState_no_pago()
+            contrato_obj = self.content_type.get_object_for_this_type(pk=self.object_id)
+            if contrato_obj.estado == 'sin_facturar':
+                contrato_obj._toState_no_pago()
         super(Factura, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         res = super(Factura, self).delete(*args, **kwargs)
         # Si borre la ultima factura asociada a una OT,
         # vuelvo la OT a estado sin_facturar
-        ot_obj = OT.objects.get(pk=self.ot_id)
-        if not(ot_obj.factura_set.exclude(estado__in=['cancelada'])):
-            ot_obj._toState_sin_facturar()
+        contrato_obj = self.content_type.get_object_for_this_type(pk=self.object_id)
+        if not(contrato_obj.factura_set.exclude(estado__in=['cancelada'])):
+            contrato_obj._toState_sin_facturar()
         return res
 
     class Meta:
