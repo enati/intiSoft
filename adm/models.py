@@ -352,7 +352,6 @@ class Factura(TimeStampedModel, AuthStampedModel):
     numero = models.CharField(max_length=15, verbose_name='Nro. Factura')
     fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
     importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
-    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE, null=True, blank=True)
     fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
                                        blank=True, null=True)
     # Campos para relacion generica
