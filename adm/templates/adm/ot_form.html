@@ -259,7 +259,9 @@
                                 {% if edit %}
                                     {{ formOt.id }}
                                 {% endif %}
-                                <tr class="inline {{ ot_linea_form.prefix }}">
+                                <tr {% if form.instance.estado == 'sin_facturar' %}
+                                    class="inline {{ ot_linea_form.prefix }}"
+                                    {% endif %}>
                                     <td>
                                         {% if edit %}
                                             {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.db import connection
 from intiSoft.exception import StateError
 import reversion
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 
 # Dias laborales
@@ -277,6 +277,8 @@ class OT(TimeStampedModel, AuthStampedModel):
     importe = models.FloatField(verbose_name='Importe', blank=False, null=True, default=0)
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
                                     on_delete=models.PROTECT)
+    # Campo para la relacion inversa
+    factura_set = GenericRelation('Factura')
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'

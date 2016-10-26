@@ -316,6 +316,7 @@ class CustomInlineFormset(BaseInlineFormSet):
                                                         % (obj.codigo, obj.detalle)
         if self.instance and self.instance.estado != 'sin_facturar':
             for form in self.forms:
+                form.fields['ofertatec'].widget.attrs['disabled'] = True
                 for field in form.fields:
                     if field != 'id':
                         form.fields[field].widget.attrs['readonly'] = True
