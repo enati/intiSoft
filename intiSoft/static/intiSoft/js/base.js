@@ -248,7 +248,7 @@ $(document).ready(function() {
                     $("#id_presupuesto__area").text(data['area']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
 
-                    var n = $('#id_ot_linea_set-TOTAL_FORMS').val()
+                    var n = $('#id_adm-ot_linea-content_type-object_id-TOTAL_FORMS').val()
                     for (i=0; i<n; i++) {
                         $('#ofertatec_formtable tr.inline:first a.delete-row').click()
                     }
@@ -283,7 +283,7 @@ $(document).ready(function() {
     });
 
     $("[id^=id_ofertatec][id$=cant_horas]").on('change', function (e) {
-        cant_horas_id = $(this).attr('id')
+        cant_horas_id = $(this).attr('id');
         formset_number = cant_horas_id.split("-")[1];
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
         precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
@@ -296,10 +296,9 @@ $(document).ready(function() {
         }
     });
 
-
-    $("[id^=id_ot][id$=cantidad]").on('change', function (e) {
-        cant_horas_id = $(this).attr('id')
-        formset_number = cant_horas_id.split("-")[1];
+    $("[id^=id_adm-ot][id$=cantidad]").on('change', function (e) {
+        cant_horas_id = $(this).attr('id');
+        formset_number = cant_horas_id.split("-")[4];
         cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
         precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
@@ -312,10 +311,9 @@ $(document).ready(function() {
         }
     });
 
-
-    $("[id^=id_ot][id$=cant_horas]").on('change', function (e) {
+    $("[id^=id_adm-ot][id$=cant_horas]").on('change', function (e) {
         cant_horas_id = $(this).attr('id')
-        formset_number = cant_horas_id.split("-")[1];
+        formset_number = cant_horas_id.split("-")[4];
         cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
         precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
@@ -328,7 +326,7 @@ $(document).ready(function() {
         }
     });
 
-    $("[id^=id_factura_set][id$=numero]").on('change', function (e) {
+    $("[id^=id_adm-factura][id$=numero]").on('change', function (e) {
         importe = $('#id_importe').val();
         field_id = $(this).attr('id')
         importe_id = field_id.split("numero")[0] + 'importe'

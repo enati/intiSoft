@@ -1,0 +1,3 @@
+{% url 'lab:ML-list' as list_url %}
+{% url 'lab:ML-update' object.id as update_url %}
+{% include "lab/turno_form.html" with add_perm='lab.add_turno_ML' change_perm='lab.change_turno_ML' delete_perm='lab.delete_turno_ML' finish_perm='lab.finish_turno_ML' cancel_perm='lab.cancel_turno_ML' updateUrl=update_url listUrl=list_url %}

@@ -50,6 +50,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
         ('DES', 'DES'),
         ('CAL', 'CAL'),
         ('MEC', 'MEC'),
+        ('ML', 'ML'),
     )
 
     estado = models.CharField(max_length=10, choices=ESTADOS,
@@ -153,6 +154,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("add_turno_DES", "Can add turno DES"),
                        ("add_turno_CAL", "Can add turno CAL"),
                        ("add_turno_MEC", "Can add turno MEC"),
+                       ("add_turno_ML", "Can add turno ML"),
                        ("change_turno_LIM1", "Can change turno LIM1"),
                        ("change_turno_LIM2", "Can change turno LIM2"),
                        ("change_turno_LIM3", "Can change turno LIM3"),
@@ -163,6 +165,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("change_turno_DES", "Can change turno DES"),
                        ("change_turno_CAL", "Can change turno CAL"),
                        ("change_turno_MEC", "Can change turno MEC"),
+                       ("change_turno_ML", "Can change turno ML"),
                        ("delete_turno_LIM1", "Can delete turno LIM1"),
                        ("delete_turno_LIM2", "Can delete turno LIM2"),
                        ("delete_turno_LIM3", "Can delete turno LIM3"),
@@ -173,6 +176,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("delete_turno_DES", "Can delete turno DES"),
                        ("delete_turno_CAL", "Can delete turno CAL"),
                        ("delete_turno_MEC", "Can delete turno MEC"),
+                       ("delete_turno_ML", "Can delete turno ML"),
                        ("finish_turno_LIM1", "Can finish turno LIM1"),
                        ("finish_turno_LIM2", "Can finish turno LIM2"),
                        ("finish_turno_LIM3", "Can finish turno LIM3"),
@@ -183,6 +187,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("finish_turno_DES", "Can finish turno DES"),
                        ("finish_turno_CAL", "Can finish turno CAL"),
                        ("finish_turno_MEC", "Can finish turno MEC"),
+                       ("finish_turno_ML", "Can finish turno ML"),
                        ("cancel_turno_LIM1", "Can cancel turno LIM1"),
                        ("cancel_turno_LIM2", "Can cancel turno LIM2"),
                        ("cancel_turno_LIM3", "Can cancel turno LIM3"),
@@ -193,6 +198,7 @@ class Turno(TimeStampedModel, AuthStampedModel):
                        ("cancel_turno_DES", "Can cancel turno DES"),
                        ("cancel_turno_CAL", "Can cancel turno CAL"),
                        ("cancel_turno_MEC", "Can cancel turno MEC"),
+                       ("cancel_turno_ML", "Can cancel turno ML"),
                        )
 
 

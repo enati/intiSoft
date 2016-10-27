@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea
+from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
@@ -153,13 +154,13 @@ class OTMLForm(forms.ModelForm):
         }
 
 
-class NestedInlineFormset(BaseInlineFormSet):
+class NestedGenericInlineFormset(BaseGenericInlineFormSet):
     """
     Custom formset that support initial data
     """
 
     def __init__(self, *args, **kwargs):
-        super(NestedInlineFormset, self).__init__(*args, **kwargs)
+        super(NestedGenericInlineFormset, self).__init__(*args, **kwargs)
         for form in self.forms:
             if form.instance:
                 form.fields['estado'].widget.attrs.update({'style': 'display: none'})
@@ -182,7 +183,7 @@ class NestedInlineFormset(BaseInlineFormSet):
     def add_fields(self, form, index):
 
         # allow the super class to create the fields as usual
-        super(NestedInlineFormset, self).add_fields(form, index)
+        super(NestedGenericInlineFormset, self).add_fields(form, index)
         form.nested = []
         for i, nested_formset in enumerate(self.nested_formset_class):
             form.nested.append(nested_formset(
@@ -196,7 +197,7 @@ class NestedInlineFormset(BaseInlineFormSet):
 
     def is_valid(self):
 
-        result = super(NestedInlineFormset, self).is_valid()
+        result = super(NestedGenericInlineFormset, self).is_valid()
 
         if self.is_bound:
             #import pdb; pdb.set_trace()
@@ -210,7 +211,7 @@ class NestedInlineFormset(BaseInlineFormSet):
 
     def save(self, commit=True):
 
-        result = super(NestedInlineFormset, self).save(commit=commit)
+        result = super(NestedGenericInlineFormset, self).save(commit=commit)
 
         for form in self.forms:
             if not self._should_delete_form(form):
@@ -307,12 +308,11 @@ class Recibo_LineaForm(forms.ModelForm):
         }
 
 
-def nested_formset_factory(parent_model, child_model, grandchilds):
+def nested_formset_factory(child_model, grandchilds):
 
-    parent_child = inlineformset_factory(
-        parent_model,
+    parent_child = generic_inlineformset_factory(
         child_model,
-        formset=NestedInlineFormset,
+        formset=NestedGenericInlineFormset,
         #min_num=1,
         extra=1,
         formfield_callback=bootstrap_format,
@@ -333,7 +333,7 @@ def nested_formset_factory(parent_model, child_model, grandchilds):
 
     return parent_child
 
-Factura_LineaFormSet = nested_formset_factory(OT, Factura, [(Recibo, Recibo_LineaForm)])
+Factura_LineaFormSet = nested_formset_factory(Factura, [(Recibo, Recibo_LineaForm)])
 
 
 class Remito_LineaForm(forms.ModelForm):
@@ -364,7 +364,7 @@ Remito_LineaFormSet = inlineformset_factory(OT,
                                            )
 
 
-class CustomInlineFormset(BaseInlineFormSet):
+class CustomInlineFormset(BaseGenericInlineFormSet):
     """
     Custom formset that support initial data
     """
@@ -377,6 +377,7 @@ class CustomInlineFormset(BaseInlineFormSet):
                                                         % (obj.codigo, obj.detalle)
         if self.instance and self.instance.estado != 'sin_facturar':
             for form in self.forms:
+                form.fields['ofertatec'].widget.attrs['disabled'] = True
                 for field in form.fields:
                     if field != 'id':
                         form.fields[field].widget.attrs['readonly'] = True
@@ -397,7 +398,6 @@ class OT_LineaForm(forms.ModelForm):
                   'precio_total',
                   'cantidad',
                   'cant_horas',
-                  'ot',
                   'detalle',
                   'tipo_servicio']
         error_messages = {
@@ -413,14 +413,13 @@ class OT_LineaForm(forms.ModelForm):
         }
 
 
-OT_LineaFormSet = inlineformset_factory(OT,
-                                        OT_Linea,
-                                        min_num=1,
-                                        extra=0,
-                                        formfield_callback=bootstrap_format,
-                                        form=OT_LineaForm,
-                                        formset=CustomInlineFormset,
-                                       )
+OT_LineaFormSet = generic_inlineformset_factory(OT_Linea,
+                                                min_num=1,
+                                                extra=0,
+                                                formfield_callback=bootstrap_format,
+                                                form=OT_LineaForm,
+                                                formset=CustomInlineFormset,
+                                               )
 
 
 class PresupuestoForm(forms.ModelForm):
