@@ -52,6 +52,11 @@
                         style="background-color: #F5F5F5"
                     {% endifequal %}
                 >MEC</a>
+                <a href="{% url 'lab:ML-list' %}"
+                    {% ifequal  area_value 'ML' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >ML</a>
             <li>
         </ul>
     </a>
