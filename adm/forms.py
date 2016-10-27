@@ -303,7 +303,7 @@ Remito_LineaFormSet = inlineformset_factory(OT,
                                            )
 
 
-class CustomInlineFormset(BaseInlineFormSet):
+class CustomInlineFormset(BaseGenericInlineFormSet):
     """
     Custom formset that support initial data
     """
@@ -337,7 +337,6 @@ class OT_LineaForm(forms.ModelForm):
                   'precio_total',
                   'cantidad',
                   'cant_horas',
-                  'ot',
                   'detalle',
                   'tipo_servicio']
         error_messages = {
@@ -353,14 +352,13 @@ class OT_LineaForm(forms.ModelForm):
         }
 
 
-OT_LineaFormSet = inlineformset_factory(OT,
-                                        OT_Linea,
-                                        min_num=1,
-                                        extra=0,
-                                        formfield_callback=bootstrap_format,
-                                        form=OT_LineaForm,
-                                        formset=CustomInlineFormset,
-                                       )
+OT_LineaFormSet = generic_inlineformset_factory(OT_Linea,
+                                                min_num=1,
+                                                extra=0,
+                                                formfield_callback=bootstrap_format,
+                                                form=OT_LineaForm,
+                                                formset=CustomInlineFormset,
+                                               )
 
 
 class PresupuestoForm(forms.ModelForm):
