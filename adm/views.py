@@ -325,28 +325,44 @@ class OTList(ListView):
                 elif key == 'factura__fecha':
                     factura = Factura.objects.all().filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
                                                                          for v in vals])
-                    ots = [f.ot.id for f in factura]
+                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
                     kwargs['id__in'] = ots
                 elif key == 'factura__importe':
-                    factura = Factura.objects.filter.all().filter(importe__in=vals)
-                    ots = [f.ot.id for f in factura]
+                    factura = Factura.objects.all().filter(importe__in=vals)
+                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
+                    kwargs['id__in'] = ots
+                elif key == 'factura__fecha_aviso':
+                    factura = Factura.objects.all().filter(fecha_aviso__in=[datetime.strptime(v, "%d/%m/%Y")
+                                                                         for v in vals])
+                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
                     kwargs['id__in'] = ots
                 elif key == 'recibo':
                     factura = Factura.objects.all()
-                    ots = [f.ot.id for f in factura if f.recibo_set.get_queryset().filter(numero__in=vals)]
+                    ots = [f.object_id for f in factura
+                            if f.recibo_set.get_queryset().filter(numero__in=vals)
+                                and f.content_type.model == 'ot']
                     kwargs['id__in'] = ots
                 elif key == 'recibo__fecha':
                     factura = Factura.objects.all()
-                    ots = [f.ot.id for f in factura
-                        if f.recibo_set.get_queryset().filter(
-                                        fecha__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                   for v in vals])]
+                    ots = [f.object_id for f in factura
+                            if f.recibo_set.get_queryset().filter(
+                                            fecha__in=[datetime.strptime(v, "%d/%m/%Y")
+                                                   for v in vals])
+                                and f.content_type.model == 'ot']
                     kwargs['id__in'] = ots
                 elif key == 'recibo__tipo':
                     factura = Factura.objects.all()
-                    ots = [f.ot.id for f in factura
-                        if f.recibo_set.get_queryset().filter(
-                                        comprobante_cobro__in=vals)]
+                    ots = [f.object_id for f in factura
+                            if f.recibo_set.get_queryset().filter(
+                                            comprobante_cobro__in=vals)
+                                and f.content_type.model == 'ot']
+                    kwargs['id__in'] = ots
+                elif key == 'recibo__importe':
+                    factura = Factura.objects.all()
+                    ots = [f.object_id for f in factura
+                            if f.recibo_set.get_queryset().filter(
+                                            importe__in=vals)
+                                and f.content_type.model == 'ot']
                     kwargs['id__in'] = ots
                 elif key == 'remito':
                     factura = Factura.objects.all()
@@ -365,8 +381,8 @@ class OTList(ListView):
 
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
                        'codigo', 'fecha_realizado', 'importe_bruto', 'area', 'factura', 'factura__fecha',
-                       'factura__importe', 'fecha_aviso',
-                       'recibo', 'recibo_tipo', 'recibo__fecha', 'recibo__importe', 'remito']
+                       'factura__importe', 'factura__fecha_aviso',
+                       'recibo', 'recibo__tipo', 'recibo__fecha', 'recibo__importe', 'remito']
         field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
@@ -421,7 +437,7 @@ class OTList(ListView):
         options.append(recibo_tipo_vals)
         recibo_fecha_vals = sorted(set([r.fecha.strftime("%d/%m/%Y") for f in recibo_plist if r.fecha is not None]))
         options.append(recibo_fecha_vals)
-        recibo_importe_vals = sorted(set([r.importe for f in recibo_plist]))
+        recibo_importe_vals = sorted(set([r.importe for r in recibo_plist]))
         options.append(recibo_importe_vals)
         remito_list = [o.remito_set for o in ots]
         remito_plist = reduce(lambda x, y: x + y,
@@ -606,11 +622,266 @@ class OTMLUpdate(UpdateView):
     template_name_suffix = '_form'
     success_url = reverse_lazy('adm:otml-list')
 
+    @method_decorator(permission_required('adm.change_ot',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(OTMLUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OTMLUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:otml-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates filled versions of the form
+        and its inline formsets.
+        """
+        self.object = OTML.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        factura_form = Factura_LineaFormSet(instance=self.object)
+        ot_linea_form = OT_LineaFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = OTML.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        factura_form = Factura_LineaFormSet(self.request.POST, instance=self.object)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and factura_form.is_valid()
+           and ot_linea_form.is_valid()):
+            return self.form_valid(form, factura_form, ot_linea_form)
+        else:
+            return self.form_invalid(form, factura_form, ot_linea_form)
+
+    def form_valid(self, form, factura_form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Facturas and then redirects to a
+        success page.
+        """
+        form.save()
+        factura_form.save()
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, factura_form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  factura_form=factura_form,
+                                  ot_linea_form=ot_linea_form))
+
 
 class OTMLList(ListView):
     model = OTML
     template_name = 'adm/otml_list.html'
     paginate_by = 30
+
+    def get_queryset(self):
+        # Por defecto los ordeno por codigo (desc)
+        queryset = OTML.objects.all().order_by('-codigo')
+        kwargs = {}
+        for key, vals in self.request.GET.lists():
+            if key != 'page':
+                if key == 'order_by':
+                    queryset = queryset.order_by(vals[0])
+                elif key == 'estado':
+                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
+                elif key == 'fecha_realizado' or key == 'fecha_aviso':
+                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
+                           for v in vals]
+                elif key == 'factura':
+                    ots = [o.id for o in queryset if o.factura_set.get_queryset().filter(numero__in=vals)]
+                    kwargs['id__in'] = ots
+                elif key == 'factura__fecha':
+                    factura = Factura.objects.all().filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
+                                                                         for v in vals])
+                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'factura__importe':
+                    factura = Factura.objects.all().filter(importe__in=vals)
+                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'factura__fecha_aviso':
+                    factura = Factura.objects.all().filter(fecha_aviso__in=[datetime.strptime(v, "%d/%m/%Y")
+                                                                         for v in vals])
+                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'recibo':
+                    factura = Factura.objects.all()
+                    ots = [f.object_id for f in factura
+                        if f.recibo_set.get_queryset().filter(numero__in=vals)
+                            and f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'recibo__fecha':
+                    factura = Factura.objects.all()
+                    ots = [f.object_id for f in factura
+                        if f.recibo_set.get_queryset().filter(
+                                        fecha__in=[datetime.strptime(v, "%d/%m/%Y")
+                                                   for v in vals])
+                            and f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'recibo__tipo':
+                    factura = Factura.objects.all()
+                    ots = [f.object_id for f in factura
+                        if f.recibo_set.get_queryset().filter(
+                                        comprobante_cobro__in=vals)
+                            and f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                elif key == 'recibo__importe':
+                    factura = Factura.objects.all()
+                    ots = [f.object_id for f in factura
+                        if f.recibo_set.get_queryset().filter(
+                                        importe__in=vals)
+                            and f.content_type.model == 'otml']
+                    kwargs['id__in'] = ots
+                else:
+                    kwargs['%s__in' % key] = vals
+                if kwargs:
+                    queryset = queryset.filter(**kwargs)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        t_inicial = time()
+        context = super(OTMLList, self).get_context_data(**kwargs)
+        ots = OTML.objects.select_related()
+
+        field_names = ['estado', 'codigo', 'fecha_realizado', 'importe_bruto', 'factura', 'factura__fecha',
+                       'factura__importe', 'factura__fecha_aviso',
+                       'recibo', 'recibo__tipo', 'recibo__fecha', 'recibo__importe']
+        field_labels = ['Estado', 'Nro. OT', 'Fecha', 'Imp. Bruto',
+                        'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
+                        'Recibo', 'Tipo', 'Fecha', 'Imp.']
+
+        # OTs sin facturar
+        sfCount = len(ots.filter(estado='sin_facturar'))
+        # OTs sin pagar
+        npCount = len(ots.filter(estado='no_pago'))
+        # OTs pagadas
+        pagCount = len(ots.filter(estado='pagado'))
+        # OTs canceladas
+        canCount = len(ots.filter(estado='cancelado'))
+        options = []
+        estado_vals = ['sin_facturar(' + str(sfCount) + ')',
+                       'no_pago(' + str(npCount) + ')',
+                       'pagado(' + str(pagCount) + ')',
+                       'cancelado(' + str(canCount) + ')']
+        options.append(estado_vals)
+        cod_vals = sorted(set([o.codigo for o in ots]))
+        options.append(cod_vals)
+        fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
+                        for o in ots if o.fecha_realizado is not None]))
+        options.append(fec1_vals)
+        importe_bruto_vals = sorted(set([o.importe_bruto for o in ots if o.importe_bruto]))
+        options.append(importe_bruto_vals)
+        factura_list = [o.factura_set for o in ots]
+        factura_plist = reduce(lambda x, y: x + y,
+                                 [[t for t in f.get_queryset()] for f in factura_list], [])
+        factura_vals = sorted(set([f.numero for f in factura_plist]))
+        options.append(factura_vals)
+        factura_fecha_vals = sorted(set([f.fecha.strftime("%d/%m/%Y") for f in factura_plist
+                                         if f.fecha is not None]))
+        options.append(factura_fecha_vals)
+        importef_vals = sorted(set([f.importe for f in factura_plist]))
+        options.append(importef_vals)
+        fec2_vals = sorted(set([f.fecha_aviso.strftime("%d/%m/%Y") for f in factura_plist
+                                         if f.fecha_aviso is not None]))
+        options.append(fec2_vals)
+        recibo_list = [f.recibo_set for f in factura_plist]
+        recibo_plist = reduce(lambda x, y: x + y,
+                                 [[t for t in r.get_queryset()] for r in recibo_list], [])
+        recibo_vals = sorted(set([r.numero for r in recibo_plist]))
+        options.append(recibo_vals)
+        recibo_tipo_vals = sorted(set([r.comprobante_cobro for f in recibo_plist]))
+        options.append(recibo_tipo_vals)
+        recibo_fecha_vals = sorted(set([r.fecha.strftime("%d/%m/%Y") for f in recibo_plist if r.fecha is not None]))
+        options.append(recibo_fecha_vals)
+        recibo_importe_vals = sorted(set([r.importe for f in recibo_plist]))
+        options.append(recibo_importe_vals)
+        context['fields'] = list(zip(field_names, field_labels, options))
+        # Chequeo los filtros seleccionados para conservar el estado de los
+        # checkboxes
+        checked_fields = []
+        for key, vals in self.request.GET.lists():
+            if key != 'order_by':
+                checked_fields += ["%s_%s" % (v, key) for v in vals]
+        context['checked_fields'] = checked_fields
+        # Fecha de hoy para coloreo de filas
+        context['today'] = datetime.now().strftime("%d/%m/%Y")
+        # Para la paginacion
+        if 'order_by' in self.request.GET:
+            context['order_by'] = self.request.GET['order_by']
+        print "TIEMPO get_context_data: ", time() - t_inicial
+        return context
+
+    def post(self, request, *args, **kwargs):
+        response_dict = {'ok': True, 'msg': None}
+        if 'CancelarF' in request.POST:
+            if request.user.has_perm('adm.cancel_factura'):
+                factura_id = request.POST.get('CancelarF')
+                factura_obj = Factura.objects.get(pk=factura_id)
+                try:
+                    factura_obj._toState_cancelado()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Cancelar' in request.POST:
+            if request.user.has_perm('adm.cancel_otml'):
+                otml_id = request.POST.get('Cancelar')
+                otml_obj = OTML.objects.get(pk=otml_id)
+                try:
+                    otml_obj._toState_cancelado()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Finalizar' in request.POST:
+            if request.user.has_perm('adm.finish_otml'):
+                otml_id = request.POST.get('Finalizar')
+                otml_obj = OTML.objects.get(pk=otml_id)
+                try:
+                    num_recibos_factura = [f.recibo_set.count() for f in otml_obj.factura_set.all()]
+                    num_recibos_total = reduce(lambda x, y: x + y, num_recibos_factura, 0)
+                    if not num_recibos_total:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = "La OT no tiene recibos registrados.\
+                                                Para poder finalizarla debe estar pagada."
+                    else:
+                        otml_obj._toState_pagado(False)
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Eliminar' in request.POST:
+            if request.user.has_perm('adm.delete_otml'):
+                otml_id = request.POST.get('Eliminar')
+                otml_obj = OTML.objects.get(pk=otml_id)
+                otml_obj._delete()
+                response_dict['redirect'] = reverse_lazy('adm:otml-list').strip()
+            else:
+                raise PermissionDenied
+        return JsonResponse(response_dict)
 
 #===========================================
 #========== VISTAS PRESUPUESTO =============

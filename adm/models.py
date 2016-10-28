@@ -248,6 +248,8 @@ class Contrato(TimeStampedModel, AuthStampedModel):
     descuento = models.FloatField(verbose_name='Descuento', blank=False, null=True, default=0)
     fecha_realizado = models.DateField(verbose_name='Fecha',
                                        blank=False, null=True)
+   # Campos para la relacion inversa
+    ot_linea_set = GenericRelation('OT_Linea')
 
     class Meta:
         abstract = True
@@ -287,7 +289,6 @@ class OT(Contrato):
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
     factura_set = GenericRelation('Factura')
-    ot_linea_set = GenericRelation('OT_Linea')
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -348,6 +349,8 @@ class OTML(Contrato):
                               validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
+    # Campos para la relacion inversa
+    factura_set = GenericRelation('Factura')
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
