@@ -5,6 +5,7 @@ from django.contrib.contenttypes.forms import generic_inlineformset_factory, Bas
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError
 
 editable_fields = ['fecha_instrumento', 'fecha_realizado', 'fecha_aceptado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -69,10 +70,17 @@ class OTForm(forms.ModelForm):
             return self.cleaned_data['descuento']
 
     def clean_codigo(self):
+        codigoList = OTML.objects.values_list('codigo', flat=True)
         if self.instance and self.instance.estado != 'sin_facturar':
-            return self.instance.codigo
+            codigo = self.instance.codigo
         else:
-            return self.cleaned_data['codigo']
+            codigo = self.cleaned_data['codigo']
+        if codigo in codigoList:
+            raise ValidationError(
+                ('Ya existe una OT con ese número.'),
+                code='unique',
+            )
+        return codigo
 
     def clean_presupuesto(self):
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -124,10 +132,17 @@ class OTMLForm(forms.ModelForm):
                         self.fields[f].required = False
 
     def clean_codigo(self):
+        codigoList = OT.objects.values_list('codigo', flat=True)
         if self.instance and self.instance.estado != 'sin_facturar':
-            return self.instance.codigo
+            codigo = self.instance.codigo
         else:
-            return self.cleaned_data['codigo']
+            codigo = self.cleaned_data['codigo']
+        if codigo in codigoList:
+            raise ValidationError(
+                ('Ya existe una OT con ese número.'),
+                code='unique',
+            )
+        return codigo
 
     class Meta:
         model = OTML
