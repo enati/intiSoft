@@ -349,6 +349,12 @@ class OTML(Contrato):
                               validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
+    vpe = models.CharField(max_length=5, verbose_name='VPE', blank=True, null=True)
+    vpu = models.DateField('VPU', blank=True, null=True)
+    vpuu = models.DateField('VPUU', blank=True, null=True)
+    usuario = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT)
+    usuarioRep = models.ForeignKey(Usuario, verbose_name='Usuario Representado', on_delete=models.PROTECT,
+                                   related_name='usuarioRep_set')
     # Campos para la relacion inversa
     factura_set = GenericRelation('Factura')
 

@@ -159,6 +159,124 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <!-- VPE -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_vpe">
+                                    VPE
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.vpe }}
+                                        {% for error in form.vpe.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.vpe.value }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- VPU -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_vpu">
+                                    VPU
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.vpu }}
+                                        {% for error in form.vpu.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.vpu.value | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- VPUU -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_vpuu">
+                                    VPUU
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.vpuu }}
+                                        {% for error in form.vpuu.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.vpuu.value | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h3 class="text-danger">Usuario</h3>
+                            <!-- Usuario -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_usuario">
+                                      Usuario
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.usuario }}
+                                        {% for error in form.usuario.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.usuario.nombre }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Numero de Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_usuario__nro_usuario">
+                                    Número
+                                </label>
+                                <div class="col-md-6">
+                                   <p id="id_nro_usuario">{{ form.instance.usuario.nro_usuario }}</p>
+                                </div>
+                            </div>
+                            <!-- Cuit de Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_usuario__cuit">
+                                    Cuit
+                                </label>
+                                <div class="col-md-6">
+                                   <p id="id_cuit">{{ form.instance.usuario.cuit }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_usuarioRep">
+                                      Usuario Representado
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.usuarioRep }}
+                                        {% for error in form.usuario.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.usuarioRep.nombre }}
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,11 +290,15 @@
                         {{ ot_linea_form.non_form_errors }}
                     {% endif %}
                     <table id="ofertatec_formtable" class="table">
+                    <col style="width:20%">
+<!--
                         <col style="width:30%">
                         <col style="width:20%">
                         <col style="width:5%">
                         <col style="width:10%">
                         <col style="width:10%">
+                        <col style="width:10%">
+-->
                         <thead>
                             <td>Código</td>
                             <td style="display:none">Detalle</td>
@@ -185,66 +307,76 @@
                             <td>Horas</td>
                             <td>Precio Unitario</td>
                             <td>Precio Total</td>
+                            <td>Observaciones</td>
                         </thead>
                         <tbody>
-                            {% for form in ot_linea_form %}
+                            {% for formOt in ot_linea_form %}
                                 {% if edit %}
-                                    {{ form.id }}
+                                    {{ formOt.id }}
                                 {% endif %}
-                                <tr class="inline {{ ot_linea_form.prefix }}">
+                                <tr {% if form.instance.estado == 'sin_facturar' %}
+                                    class="inline {{ ot_linea_form.prefix }}"
+                                    {% endif %}>
                                     <td>
                                         {% if edit %}
-                                            {{ form.ofertatec }} {{ form.ofertatec.errors }}
+                                            {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                         {% else %}
-                                            {{ form.instance.ofertatec.codigo }}
+                                            {{ formOt.instance.ofertatec.codigo }}
                                         {% endif %}
                                     </td>
                                     <td style="display:none">
                                         {% if edit %}
-                                            {{ form.detalle }} {{ form.detalle.errors }}
+                                            {{ form.detalle }} {{ formOt.detalle.errors }}
                                         {% else %}
-                                            {{ form.instance.detalle }}
+                                            {{ formOt.instance.detalle }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}
+                                            {{ formOt.tipo_servicio }} {{ formOt.tipo_servicio.errors }}
                                         {% else %}
-                                            {{ form.instance.tipo_servicio | default_if_none:"" }}
+                                            {{ formOt.instance.tipo_servicio | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {{ form.cantidad }} {{ form.cantidad.errors }}
+                                            {{ formOt.cantidad }} {{ formOt.cantidad.errors }}
                                         {% else %}
-                                            {{ form.instance.cantidad }}
+                                            {{ formOt.instance.cantidad }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {{ form.cant_horas }} {{ form.cant_horas.errors }}
+                                            {{ formOt.cant_horas }} {{ formOt.cant_horas.errors }}
                                         {% else %}
-                                            {{ form.instance.cant_horas | default_if_none:"" }}
+                                            {{ formOt.instance.cant_horas | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {{ form.precio }} {{ form.precio.errors }}
+                                            {{ formOt.precio }} {{ formOt.precio.errors }}
                                         {% else %}
-                                            {{ form.instance.precio | default_if_none:"" }}
+                                            {{ formOt.instance.precio | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {{ form.precio_total }} {{ form.precio_total.errors }}
+                                            {{ formOt.precio_total }} {{ formOt.precio_total.errors }}
                                         {% else %}
-                                            {{ form.instance.precio_total | default_if_none:"" }}
+                                            {{ formOt.instance.precio_total | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if edit %}
-                                            {% if form.instance.pk %}
-                                                {{ form.DELETE }}
+                                            {{ formOt.observaciones }} {{ formOt.observaciones.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.observaciones }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit and form.instance.estado == 'sin_facturar' %}
+                                            {% if formOt.instance.pk %}
+                                                {{ formOt.DELETE }}
                                             {% endif %}
                                         {% endif %}
                                     </td>

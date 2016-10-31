@@ -144,6 +144,54 @@ class OTMLForm(forms.ModelForm):
             )
         return codigo
 
+    def clean_importe_bruto(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.importe_bruto
+        else:
+            return self.cleaned_data['importe_bruto']
+
+    def clean_importe_neto(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.importe_neto
+        else:
+            return self.cleaned_data['importe_neto']
+
+    def clean_descuento(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.descuento
+        else:
+            return self.cleaned_data['descuento']
+
+    def clean_vpe(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.vpe
+        else:
+            return self.cleaned_data['vpe']
+
+    def clean_vpu(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.vpu
+        else:
+            return self.cleaned_data['vpu']
+
+    def clean_vpuu(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.vpuu
+        else:
+            return self.cleaned_data['vpuu']
+
+    def clean_usuario(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.usuario
+        else:
+            return self.cleaned_data['usuario']
+
+    def clean_usuarioRep(self):
+        if self.instance and self.instance.estado != 'sin_facturar':
+            return self.instance.usuarioRep
+        else:
+            return self.cleaned_data['usuarioRep']
+
     class Meta:
         model = OTML
         fields = ['estado',
@@ -151,7 +199,12 @@ class OTMLForm(forms.ModelForm):
                   'fecha_realizado',
                   'importe_bruto',
                   'importe_neto',
-                  'descuento']
+                  'descuento',
+                  'vpe',
+                  'vpu',
+                  'vpuu',
+                  'usuario',
+                  'usuarioRep']
 
         error_messages = {
             'fecha_realizado': {
@@ -165,6 +218,11 @@ class OTMLForm(forms.ModelForm):
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
+            'vpu': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'vpuu': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+
             'importe_bruto': forms.TextInput(),
         }
 
@@ -414,7 +472,11 @@ class OT_LineaForm(forms.ModelForm):
                   'cantidad',
                   'cant_horas',
                   'detalle',
-                  'tipo_servicio']
+                  'tipo_servicio',
+                  'observaciones']
+        widgets = {
+            'observaciones': forms.Textarea(attrs={'rows':3}),
+            }
         error_messages = {
             'ofertatec': {
                 'required': 'Campo obligatorio.',

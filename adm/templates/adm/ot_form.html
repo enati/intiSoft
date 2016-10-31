@@ -289,7 +289,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if edit %}
+                                        {% if edit and form.instance.estado == 'sin_facturar' %}
                                             {% if form.instance.pk %}
                                                 {{ formOt.DELETE }}
                                             {% endif %}
