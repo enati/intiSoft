@@ -88,6 +88,7 @@ def get_user(request, *args, **kwargs):
         data = {'nro_usuario': user_obj.nro_usuario,
                 'cuit': user_obj.cuit,
                 'rubro': user_obj.rubro,
+                'mail': user_obj.mail,
                 }
     except:
         data = {}

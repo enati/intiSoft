@@ -277,6 +277,7 @@ $(document).ready(function() {
                     $("#id_nro_usuario").text(data['nro_usuario']);
                     $("#id_cuit").text(data['cuit']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_mail").text(data['mail']);
                 },
             });
         }
