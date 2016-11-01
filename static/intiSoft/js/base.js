@@ -277,6 +277,7 @@ $(document).ready(function() {
                     $("#id_nro_usuario").text(data['nro_usuario']);
                     $("#id_cuit").text(data['cuit']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_mail").text(data['mail']);
                 },
             });
         }
@@ -327,11 +328,26 @@ $(document).ready(function() {
     });
 
     $("[id^=id_adm-factura][id$=numero]").on('change', function (e) {
-        importe = $('#id_importe').val();
+        importe = $('#id_importe_neto').val();
         field_id = $(this).attr('id')
         importe_id = field_id.split("numero")[0] + 'importe'
         $('#'+importe_id).val(importe);
 
+    });
+
+    $("#btnImporteNeto").on('click', function(e) {
+        var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
+            total = 0,
+            importe_bruto = $("[id$=id_importe_bruto]"),
+            importe_neto = $("[id$=id_importe_neto]"),
+            descuento_val = parseFloat($("[id$=id_descuento]").val());
+        for (var i=0; i<otLinePrice_list.length; i++) {
+            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
+                total += parseFloat(otLinePrice_list[i].value);
+            }
+        }
+        importe_bruto.val(total);
+        importe_neto.val(total - descuento_val);
     });
 
     $("#id_codigo").on('change keyup', function (e) {
@@ -468,17 +484,19 @@ $(document).ready(function() {
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
         var art = ' el ';
+        var artP = 'Los ';
         //if ((model=='OT') || (model=='factura'))
-        if (model=='OT')
+        if (model=='OT' || model=='OT-ML')
             art = ' la ';
+            artP = 'Las ';
         if (action.localeCompare('Finalizar')==0) {
             if (model=='OT') {
                 var msg = "Las OT deben ser finalizadas solo en caso que ya hayan sido pagadas.\
                     Tenga en cuenta que una vez finalizada ya no podrá modificarse."
             }
             else
-                var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
-                    Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
+                var msg = artP+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
+                    Tenga en cuenta que una vez finalizado ya no podrá modificarse."
             modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }
