@@ -165,7 +165,7 @@
                         </td>
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
-                                data-model="OT-ml" type="button" class="btn btn-default"
+                                data-model="OT-ML" type="button" class="btn btn-default"
                                 data-id={{otml.id}} data-toggle="modal" data-target="#myModal"
                                 {% if otml.estado in "['pagado', 'cancelado']" or 'adm.cancel_otml' not in user.get_all_permissions  %}
                                     disabled
