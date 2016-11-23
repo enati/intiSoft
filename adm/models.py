@@ -394,6 +394,90 @@ class OTML(Contrato):
                        ("finish_otml", "Can finish OT-ML"),)
 
 
+def nextRUTCode():
+    cursor = connection.cursor()
+    cursor.execute("""SELECT (t1.codigo + 1)
+                     FROM adm_rut t1
+                     WHERE NOT EXISTS
+                        (SELECT t2.codigo FROM adm_rut t2 WHERE t2.codigo = t1.codigo + 1)
+                     """)
+    row = cursor.fetchone()
+    if row:
+        n = str(int(row[0]))
+        zeros = '0' * (5 - len(n))
+        return zeros + n
+    else:
+        return '00001'
+
+
+class RUT(Contrato):
+
+    ESTADOS = (
+        ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
+        ('pendiente', 'Pendiente'),
+        ('cobrada', 'Cobrada'),
+        ('cancelada', 'Cancelada')
+    )
+
+    AREAS = (
+        ('LIA', 'LIA'),
+        ('LIM1', 'LIM1'),
+        ('LIM2', 'LIM2'),
+        ('LIM3', 'LIM3'),
+        ('LIM6', 'LIM6'),
+        ('EXT', 'EXT'),
+        ('SIS', 'SIS'),
+        ('DES', 'DES'),
+        ('CAL', 'CAL'),
+        ('MEC', 'MEC'),
+        ('ML', 'ML'),
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='borrador', verbose_name='Estado')
+    codigo = models.CharField(max_length=15, verbose_name='Nro. RUT',
+                              unique=True, default=nextRUTCode,
+                              error_messages={'unique': "Ya existe una RUT con ese número."})
+    deudor = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT)
+    solicitante = models.CharField(max_length=4, choices=AREAS)
+    fecha_envio_ut = models.DateField('Fecha de envio a la UT', blank=True, null=True)
+    firmada = models.BooleanField('Retorno firmada')
+    fecha_envio_cc = models.DateField('Fecha de envio a CC', blank=True, null=True)
+
+    def _toState_pendiente(self):
+        self.estado = 'pendiente'
+        self.save()
+        return True
+
+    def _toState_cobrada(self):
+        # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
+        if self.presupuesto.estado != 'en_proceso_de_facturacion':
+            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
+        self.estado = 'cobrada'
+        self.save()
+        self.presupuesto._toState_finalizado()
+        return True
+
+    def _toState_cancelada(self):
+        if self.estado == 'cobrada':
+            raise StateError('No se pueden cancelar las RUT cobradas.', '')
+        self.estado = 'cancelada'
+        self.save()
+        return True
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        self.delete()
+        return True
+
+    class Meta:
+        permissions = (("cancel_rut", "Can cancel RUT"),
+                       ("finish_rut", "Can finish RUT"),)
+
+# Signals
+pre_save.connect(toState_pendiente, sender=RUT)
+
+
 class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 

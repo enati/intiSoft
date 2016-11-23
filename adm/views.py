@@ -2,9 +2,10 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, Factura
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, Factura, RUT
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm,\
+                   Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, RUTForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -880,6 +881,260 @@ class OTMLList(ListView):
                 otml_obj = OTML.objects.get(pk=otml_id)
                 otml_obj._delete()
                 response_dict['redirect'] = reverse_lazy('adm:otml-list').strip()
+            else:
+                raise PermissionDenied
+        return JsonResponse(response_dict)
+
+#===========================================
+#================ RUT ====================
+#===========================================
+
+
+class RUTCreate(CreateView):
+    model = RUT
+    form_class = RUTForm
+
+    @method_decorator(permission_required('adm.add_rut',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(RUTCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RUTCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:rut-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(self.request.POST)
+        if (form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, ot_linea_form)
+        else:
+            return self.form_invalid(form, ot_linea_form)
+
+    def form_valid(self, form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Factuas and Recibos then redirects to a
+        success page.
+        """
+        self.object = form.save()
+        ot_linea_form.instance = self.object
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+
+class RUTUpdate(UpdateView):
+    model = RUT
+    form_class = RUTForm
+    template_name_suffix = '_form'
+
+    @method_decorator(permission_required('adm.change_rut',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(RUTUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RUTUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:rut-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates filled versions of the form
+        and its inline formsets.
+        """
+        self.object = RUT.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = RUT.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, ot_linea_form)
+        else:
+            return self.form_invalid(form, ot_linea_form)
+
+    def form_valid(self, form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Facturas and then redirects to a
+        success page.
+        """
+        form.save()
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+
+class RUTList(ListView):
+    model = RUT
+    template_name = 'adm/rut_list.html'
+    paginate_by = 30
+
+    def get_queryset(self):
+        # Por defecto los ordeno por codigo (desc)
+        queryset = RUT.objects.all().order_by('-codigo')
+        kwargs = {}
+        for key, vals in self.request.GET.lists():
+            if key != 'page':
+                if key == 'order_by':
+                    queryset = queryset.order_by(vals[0])
+                elif key == 'estado':
+                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
+                elif key == 'fecha_realizado':
+                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
+                           for v in vals]
+                else:
+                    kwargs['%s__in' % key] = vals
+                if kwargs:
+                    queryset = queryset.filter(**kwargs)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        t_inicial = time()
+        context = super(RUTList, self).get_context_data(**kwargs)
+        ruts = RUT.objects.select_related()
+
+        field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
+                       'importe_bruto', 'fecha_envio_ut', 'fecha_envio_cc', 'firmada']
+        field_labels = ['Estado', 'Nro. RUT', 'Fecha', 'UT Deudora', 'Area Solic.', 'Imp. Bruto',
+                        'Fecha Envio a UT', 'Fecha Envio a CC', 'Retorno Firmada']
+
+        # RUTs en borrador
+        borrCount = len(ruts.filter(estado='borrador'))
+        # RUTs pendientes
+        penCount = len(ruts.filter(estado='pendiente'))
+        # RUTs cobradas
+        cobCount = len(ruts.filter(estado='cobrada'))
+        # RUTs canceladas
+        canCount = len(ruts.filter(estado='cancelada'))
+        options = []
+        estado_vals = ['borrador(' + str(borrCount) + ')',
+                       'pendiente(' + str(penCount) + ')',
+                       'cobrada(' + str(cobCount) + ')',
+                       'cancelada(' + str(canCount) + ')']
+        options.append(estado_vals)
+        cod_vals = sorted(set([r.codigo for r in ruts]))
+        options.append(cod_vals)
+        fec1_vals = sorted(set([r.fecha_realizado.strftime("%d/%m/%Y")
+                        for r in ruts if r.fecha_realizado is not None]))
+        options.append(fec1_vals)
+        deudor_vals = sorted(set([r.deudor for r in ruts if r.deudor]))
+        options.append(deudor_vals)
+        solicitante_vals = sorted(set([r.solicitante for r in ruts if r.solicitante]))
+        options.append(solicitante_vals)
+        importe_bruto_vals = sorted(set([r.importe_bruto for r in ruts if r.importe_bruto]))
+        options.append(importe_bruto_vals)
+        fec2_vals = sorted(set([r.fecha_envio_ut.strftime("%d/%m/%Y")
+                        for r in ruts if r.fecha_envio_ut is not None]))
+        options.append(fec2_vals)
+        fec3_vals = sorted(set([r.fecha_envio_cc.strftime("%d/%m/%Y")
+                        for r in ruts if r.fecha_envio_cc is not None]))
+        options.append(fec3_vals)
+        firmada_vals = sorted(set([r.firmada for r in ruts if r.firmada]))
+        options.append(firmada_vals)
+        context['fields'] = list(zip(field_names, field_labels, options))
+        # Chequeo los filtros seleccionados para conservar el estado de los
+        # checkboxes
+        checked_fields = []
+        for key, vals in self.request.GET.lists():
+            if key != 'order_by':
+                checked_fields += ["%s_%s" % (v, key) for v in vals]
+        context['checked_fields'] = checked_fields
+        # Fecha de hoy para coloreo de filas
+        context['today'] = datetime.now().strftime("%d/%m/%Y")
+        # Para la paginacion
+        if 'order_by' in self.request.GET:
+            context['order_by'] = self.request.GET['order_by']
+        print "TIEMPO get_context_data: ", time() - t_inicial
+        return context
+
+    def post(self, request, *args, **kwargs):
+        response_dict = {'ok': True, 'msg': None}
+        if 'Cancelar' in request.POST:
+            if request.user.has_perm('adm.cancel_rut'):
+                rut_id = request.POST.get('Cancelar')
+                rut_obj = RUT.objects.get(pk=rut_id)
+                try:
+                    rut_obj._toState_cancelada()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Finalizar' in request.POST:
+            if request.user.has_perm('adm.finish_rut'):
+                rut_id = request.POST.get('Finalizar')
+                rut_obj = RUT.objects.get(pk=rut_id)
+                try:
+                    rut_obj._toState_cobrada()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Eliminar' in request.POST:
+            if request.user.has_perm('adm.delete_rut'):
+                rut_id = request.POST.get('Eliminar')
+                rut_obj = RUT.objects.get(pk=rut_id)
+                rut_obj._delete()
+                response_dict['redirect'] = reverse_lazy('adm:rut-list').strip()
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)

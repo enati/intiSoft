@@ -11,6 +11,9 @@
         <li style="{% if '/adm/contratos/OT-ML/' in request.path %}background-color: #F5F5F5{% endif %}">
             <a href="{% url 'adm:otml-list' %}">OT-ML</a>
         </li>
+        <li style="{% if '/adm/contratos/RUT/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:rut-list' %}">RUT</a>
+        </li>
     </ul>
 </li>
 
