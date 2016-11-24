@@ -394,6 +394,74 @@ class OTML(Contrato):
                        ("finish_otml", "Can finish OT-ML"),)
 
 
+def nextSOTCode():
+    cursor = connection.cursor()
+    cursor.execute("""SELECT (t1.codigo + 1)
+                     FROM adm_sot t1
+                     WHERE NOT EXISTS
+                        (SELECT t2.codigo FROM adm_sot t2 WHERE t2.codigo = t1.codigo + 1)
+                     """)
+    row = cursor.fetchone()
+    if row:
+        n = str(int(row[0]))
+        zeros = '0' * (5 - len(n))
+        return zeros + n
+    else:
+        return '00001'
+
+
+class SOT(Contrato):
+
+    ESTADOS = (
+        ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
+        ('pendiente', 'Pendiente'),
+        ('cobrada', 'Cobrada'),
+        ('cancelada', 'Cancelada')
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='borrador', verbose_name='Estado')
+    codigo = models.CharField(max_length=15, verbose_name='Nro. SOT',
+                              unique=True, default=nextSOTCode,
+                              error_messages={'unique': "Ya existe una SOT con ese número."})
+    deudor = models.ForeignKey(Usuario, verbose_name='Usuario',
+                               on_delete=models.PROTECT, related_name='sot_deudor')
+    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario',
+                                 on_delete=models.PROTECT, related_name='sot_ejecutor')
+    usuario_final = models.ForeignKey(Usuario, verbose_name='Usuario OT', null=True, blank=True,
+                                      on_delete=models.PROTECT, related_name='sot_usuario_final')
+    ot = models.CharField(max_length=5, verbose_name='Nro. OT', blank=True, null=True)
+    expediente = models.CharField(max_length=5, verbose_name='Expediente', blank=True, null=True)
+    fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
+
+    def _toState_pendiente(self):
+        self.estado = 'pendiente'
+        self.save()
+        return True
+
+    def _toState_cobrada(self):
+        self.estado = 'cobrada'
+        self.save()
+        self.presupuesto._toState_finalizado()
+        return True
+
+    def _toState_cancelada(self):
+        if self.estado == 'cobrada':
+            raise StateError('No se pueden cancelar las SOT cobradas.', '')
+        self.estado = 'cancelada'
+        self.save()
+        return True
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        self.delete()
+        return True
+
+    class Meta:
+        permissions = (("cancel_sot", "Can cancel SOT"),
+                       ("finish_sot", "Can finish SOT"),)
+
+
 class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea, SOT
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -223,6 +223,119 @@ class OTMLForm(forms.ModelForm):
             'vpuu': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
 
+            'importe_bruto': forms.TextInput(),
+        }
+
+
+class SOTForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(SOTForm, self).__init__(*args, **kwargs)
+        self.fields['codigo'].widget.attrs['class'] = 'OT_code'
+        self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
+        if self.instance:
+            # Solo se deben poder crear RUTs a presupuestos aceptados
+            self.fields['presupuesto'].queryset = \
+                Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            if self.instance.estado != 'borrador':
+                for f in self.fields:
+                    # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
+                    # se pueden actualizar con el boton por si quedaron en 0
+                    if f == 'importe_neto' or f == 'importe_bruto':
+                        self.fields[f].widget.attrs['readonly'] = True
+                        self.fields[f].required = False
+                    elif f != 'firmada':
+                        self.fields[f].widget.attrs['disabled'] = True
+                        self.fields[f].required = False
+
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.codigo
+        else:
+            return self.cleaned_data['codigo']
+
+    def clean_fecha_realizado(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_realizado
+        else:
+            return self.cleaned_data['fecha_realizado']
+
+    def clean_deudor(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.deudor
+        else:
+            return self.cleaned_data['deudor']
+
+    def clean_usuario_final(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.usuario_final
+        else:
+            return self.cleaned_data['usuario_final']
+
+    def clean_ejecutor(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.ejecutor
+        else:
+            return self.cleaned_data['ejecutor']
+
+    def clean_fecha_prevista(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_prevista
+        else:
+            return self.cleaned_data['fecha_prevista']
+
+    def clean_ot(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.ot
+        else:
+            return self.cleaned_data['ot']
+
+    def clean_expediente(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.expediente
+        else:
+            return self.cleaned_data['expediente']
+
+    class Meta:
+        model = SOT
+        fields = ['estado',
+                  'codigo',
+                  'fecha_realizado',
+                  'importe_bruto',
+                  'importe_neto',
+                  'descuento',
+                  'fecha_prevista',
+                  'deudor',
+                  'ejecutor',
+                  'usuario_final',
+                  'ot',
+                  'expediente',
+                  'presupuesto']
+
+        error_messages = {
+            'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'deudor': {
+                'required': 'Campo obligatorio.',
+            },
+            'ejecutor': {
+                'required': 'Campo obligatorio.',
+            },
+            'usuario_final': {
+                'required': 'Campo obligatorio.',
+            },
+            'presupuesto': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
             'importe_bruto': forms.TextInput(),
         }
 
@@ -475,7 +588,7 @@ class OT_LineaForm(forms.ModelForm):
                   'tipo_servicio',
                   'observaciones']
         widgets = {
-            'observaciones': forms.Textarea(attrs={'rows':3}),
+            'observaciones': forms.Textarea(attrs={'rows': 3}),
             }
         error_messages = {
             'ofertatec': {
@@ -485,6 +598,9 @@ class OT_LineaForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
             'precio': {
+                'required': 'Campo obligatorio.',
+            },
+            'precio_total': {
                 'required': 'Campo obligatorio.',
             },
         }

@@ -486,7 +486,7 @@ $(document).ready(function() {
         var art = ' el ';
         var artP = 'Los ';
         //if ((model=='OT') || (model=='factura'))
-        if (model=='OT' || model=='OT-ML')
+        if (model=='OT' || model=='OT-ML' || model=='SOT')
             art = ' la ';
             artP = 'Las ';
         if (action.localeCompare('Finalizar')==0) {
