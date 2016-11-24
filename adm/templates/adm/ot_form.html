@@ -4,9 +4,13 @@
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
-        $(function() {
-            $(".datepicker").datepicker("option", "maxDate", '0');
-        });
+
+        function renewDatePickers() {
+            $(".datepicker").datepicker("destroy");
+            $(".datepicker").datepicker({"maxDate": '0'});
+        }
+
+        $(renewDatePickers);
 
         $(function() {
             {% for form in factura_form %}
@@ -16,12 +20,15 @@
             {% endfor %}
             $(".inline.{{ factura_form.prefix }}").formset({
                 prefix: "{{ factura_form.prefix }}",
+                added: renewDatePickers,
             });
             $(".inline.{{ remito_form.prefix }}").formset({
                 prefix: "{{ remito_form.prefix }}",
+                added: renewDatePickers,
             });
             $(".inline.{{ ot_linea_form.prefix }}").formset({
                 prefix: "{{ ot_linea_form.prefix }}",
+                added: renewDatePickers,
             });
         });
     </script>
