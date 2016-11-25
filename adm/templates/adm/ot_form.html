@@ -16,6 +16,7 @@
             {% for form in factura_form %}
                 $(".inline.{{ form.nested.0.prefix }}").formset({
                     prefix: "{{form.nested.0.prefix}}",
+                    added: renewDatePickers,
                 })
             {% endfor %}
             $(".inline.{{ factura_form.prefix }}").formset({
