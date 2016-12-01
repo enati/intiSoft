@@ -81,13 +81,19 @@
                     <div class="col-md-2">
                         <input type="submit" value="Editar" class="btn btn-danger" form="turnoForm">
                     </div>
+                     <div class="col-md-2" style="padding-left: 0px">
+                        <a class="btn btn-default" href="{{request.META.HTTP_REFERER}}">
+                            Volver
+                        </a>
+                    </div>
                 {% endif %}
+            {% else %}
+                 <div class="col-md-2" style="padding-left: 0px">
+                    <a class="btn btn-default" href="{{request.META.HTTP_REFERER}}">
+                        Volver
+                    </a>
+                </div>
             {% endif %}
-            <div class="col-md-2" style="padding-left: 0px">
-                <a class="btn btn-default" href="{{request.META.HTTP_REFERER}}">
-                    Volver
-                </a>
-            </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle
                                          {% if not edit %} disabled {% endif %}"
