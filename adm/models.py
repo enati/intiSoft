@@ -394,6 +394,77 @@ class OTML(Contrato):
                        ("finish_otml", "Can finish OT-ML"),)
 
 
+def nextSICode():
+    cursor = connection.cursor()
+    cursor.execute("""SELECT (t1.codigo + 1)
+                     FROM adm_si t1
+                     WHERE NOT EXISTS
+                        (SELECT t2.codigo FROM adm_si t2 WHERE t2.codigo = t1.codigo + 1)
+                     """)
+    row = cursor.fetchone()
+    if row:
+        n = str(int(row[0]))
+        zeros = '0' * (5 - len(n))
+        return zeros + n
+    else:
+        return '00001'
+
+
+class SI(Contrato):
+
+    ESTADOS = (
+        ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
+        ('finalizada', 'Finalizada'),
+        ('cancelada', 'Cancelada')
+    )
+
+    estado = models.CharField(max_length=12, choices=ESTADOS,
+                              default='borrador', verbose_name='Estado')
+    codigo = models.CharField(max_length=15, verbose_name='Nro. SI',
+                              unique=True, default=nextSICode,
+                              error_messages={'unique': "Ya existe una SI con ese número."})
+    solicitante = models.ForeignKey(Usuario, verbose_name='Area Solicitante',
+                               on_delete=models.PROTECT, related_name='si_soliciante')
+    ejecutor = models.ForeignKey(Usuario, verbose_name='Area Ejecutora',
+                                 on_delete=models.PROTECT, related_name='si_ejecutor')
+    fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
+    fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
+
+    def _toState_finalizada(self):
+        self.estado = 'finalizada'
+        self.fecha_fin_real = datetime.now().date()
+        self.save()
+        return True
+
+    def _toState_cancelada(self):
+        if self.estado == 'finalizada':
+            raise StateError('No se pueden cancelar las SI finalizadas.', '')
+        self.estado = 'cancelada'
+        self.save()
+        return True
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        self.delete()
+        return True
+
+    class Meta:
+        permissions = (("cancel_si", "Can cancel SOT"),
+                       ("finish_si", "Can finish SOT"),)
+
+
+class Tarea_Linea(TimeStampedModel, AuthStampedModel):
+
+    """ Lineas de tareas de Solicitud Interna """
+    tarea = models.CharField(verbose_name='Tarea', max_length=250)
+    horas = models.FloatField(verbose_name='Horas')
+    arancel = models.FloatField(verbose_name='Arancel')
+    si = models.ForeignKey(SI, verbose_name='SI')
+
+    class Meta:
+        ordering = ['id']
+
+
 class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 

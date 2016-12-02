@@ -10,6 +10,9 @@ urlpatterns = [
     url(r'^contratos/OT-ML/$', login_required(views.OTMLList.as_view()), name='otml-list'),
     url(r'^contratos/OT-ML/create/$', login_required(views.OTMLCreate.as_view()), name='otml-create'),
     url(r'^contratos/OT-ML/update/(?P<pk>\d+)/$', login_required(views.OTMLUpdate.as_view()), name='otml-update'),
+    url(r'^contratos/SI/$', login_required(views.SIList.as_view()), name='si-list'),
+    url(r'^contratos/SI/create/$', login_required(views.SICreate.as_view()), name='si-create'),
+    url(r'^contratos/SI/update/(?P<pk>\d+)/$', login_required(views.SIUpdate.as_view()), name='si-update'),
 
     url(r'^presup/$', login_required(views.PresupuestoList.as_view()), name='presup-list'),
     url(r'^presup/viewWord/(?P<pk>\d+)/$', 'adm.views.viewWord', name='presup-viewWord'),
