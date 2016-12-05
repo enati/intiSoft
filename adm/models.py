@@ -462,6 +462,22 @@ class SOT(Contrato):
                        ("finish_sot", "Can finish SOT"),)
 
 
+def nextRUTCode():
+    cursor = connection.cursor()
+    cursor.execute("""SELECT (t1.codigo + 1)
+                     FROM adm_rut t1
+                     WHERE NOT EXISTS
+                        (SELECT t2.codigo FROM adm_rut t2 WHERE t2.codigo = t1.codigo + 1)
+                     """)
+    row = cursor.fetchone()
+    if row:
+        n = str(int(row[0]))
+        zeros = '0' * (5 - len(n))
+        return zeros + n
+    else:
+        return '00001'
+
+
 class RUT(Contrato):
 
     ESTADOS = (
