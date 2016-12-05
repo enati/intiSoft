@@ -2,9 +2,10 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, Factura
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, Factura
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm,\
+                   Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -880,6 +881,260 @@ class OTMLList(ListView):
                 otml_obj = OTML.objects.get(pk=otml_id)
                 otml_obj._delete()
                 response_dict['redirect'] = reverse_lazy('adm:otml-list').strip()
+            else:
+                raise PermissionDenied
+        return JsonResponse(response_dict)
+
+
+#===========================================
+#================ SOT ====================
+#===========================================
+
+
+class SOTCreate(CreateView):
+    model = SOT
+    form_class = SOTForm
+
+    @method_decorator(permission_required('adm.add_sot',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(SOTCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SOTCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:sot-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(self.request.POST)
+        if (form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, ot_linea_form)
+        else:
+            return self.form_invalid(form, ot_linea_form)
+
+    def form_valid(self, form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Factuas and Recibos then redirects to a
+        success page.
+        """
+        self.object = form.save()
+        ot_linea_form.instance = self.object
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+
+class SOTUpdate(UpdateView):
+    model = SOT
+    form_class = SOTForm
+    template_name_suffix = '_form'
+
+    @method_decorator(permission_required('adm.change_sot',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(SOTUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SOTUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:sot-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates filled versions of the form
+        and its inline formsets.
+        """
+        self.object = SOT.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = SOT.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and ot_linea_form.is_valid()):
+            return self.form_valid(form, ot_linea_form)
+        else:
+            return self.form_invalid(form, ot_linea_form)
+
+    def form_valid(self, form, ot_linea_form):
+        """
+        Called if all forms are valid. Creates an OT instance along with
+        associated Facturas and then redirects to a
+        success page.
+        """
+        form.save()
+        ot_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, ot_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  ot_linea_form=ot_linea_form))
+
+
+class SOTList(ListView):
+    model = SOT
+    template_name = 'adm/sot_list.html'
+    paginate_by = 30
+
+    def get_queryset(self):
+        # Por defecto los ordeno por codigo (desc)
+        queryset = SOT.objects.all().order_by('-codigo')
+        kwargs = {}
+        for key, vals in self.request.GET.lists():
+            if key != 'page':
+                if key == 'order_by':
+                    queryset = queryset.order_by(vals[0])
+                elif key == 'estado':
+                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
+                elif key == 'fecha_realizado':
+                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
+                           for v in vals]
+                else:
+                    kwargs['%s__in' % key] = vals
+                if kwargs:
+                    queryset = queryset.filter(**kwargs)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        t_inicial = time()
+        context = super(SOTList, self).get_context_data(**kwargs)
+        sots = SOT.objects.select_related()
+
+        field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'ejecutor',
+                       'importe_bruto', 'fecha_prevista', 'ot', 'expediente']
+        field_labels = ['Estado', 'Nro. SOT', 'Fecha Realizada', 'UT Deudora', 'UT Ejecutora',
+                        'Imp. Bruto', 'Fecha Prevista', 'OT', 'Expediente']
+
+        # SOT en borrador
+        borrCount = len(sots.filter(estado='borrador'))
+        # SOT pendientes
+        penCount = len(sots.filter(estado='pendiente'))
+        # SOT cobradas
+        cobCount = len(sots.filter(estado='cobrada'))
+        # SOT canceladas
+        canCount = len(sots.filter(estado='cancelada'))
+        options = []
+        estado_vals = ['borrador(' + str(borrCount) + ')',
+                       'pendiente(' + str(penCount) + ')',
+                       'cobrada(' + str(cobCount) + ')',
+                       'cancelada(' + str(canCount) + ')']
+        options.append(estado_vals)
+        cod_vals = sorted(set([s.codigo for s in sots]))
+        options.append(cod_vals)
+        fec1_vals = sorted(set([s.fecha_realizado.strftime("%d/%m/%Y")
+                        for s in sots if s.fecha_realizado is not None]))
+        options.append(fec1_vals)
+        deudor_vals = sorted(set([s.deudor for s in sots if s.deudor]))
+        options.append(deudor_vals)
+        ejecutor_vals = sorted(set([s.ejecutor for s in sots if s.ejecutor]))
+        options.append(ejecutor_vals)
+        importe_bruto_vals = sorted(set([s.importe_bruto for s in sots if s.importe_bruto]))
+        options.append(importe_bruto_vals)
+        fec2_vals = sorted(set([s.fecha_prevista.strftime("%d/%m/%Y")
+                        for s in sots if s.fecha_prevista is not None]))
+        options.append(fec2_vals)
+        ot_vals = sorted(set([s.ot for s in sots]))
+        options.append(ot_vals)
+        expediente_vals = sorted(set([s.expediente for s in sots]))
+        options.append(expediente_vals)
+        context['fields'] = list(zip(field_names, field_labels, options))
+        # Chequeo los filtros seleccionados para conservar el estado de los
+        # checkboxes
+        checked_fields = []
+        for key, vals in self.request.GET.lists():
+            if key != 'order_by':
+                checked_fields += ["%s_%s" % (v, key) for v in vals]
+        context['checked_fields'] = checked_fields
+        # Fecha de hoy para coloreo de filas
+        context['today'] = datetime.now().strftime("%d/%m/%Y")
+        # Para la paginacion
+        if 'order_by' in self.request.GET:
+            context['order_by'] = self.request.GET['order_by']
+        print "TIEMPO get_context_data: ", time() - t_inicial
+        return context
+
+    def post(self, request, *args, **kwargs):
+        response_dict = {'ok': True, 'msg': None}
+        if 'Cancelar' in request.POST:
+            if request.user.has_perm('adm.cancel_sot'):
+                sot_id = request.POST.get('Cancelar')
+                sot_obj = SOT.objects.get(pk=sot_id)
+                try:
+                    sot_obj._toState_cancelada()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Finalizar' in request.POST:
+            if request.user.has_perm('adm.finish_sot'):
+                sot_id = request.POST.get('Finalizar')
+                sot_obj = SOT.objects.get(pk=sot_id)
+                try:
+                    sot_obj._toState_cobrada()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        if 'Eliminar' in request.POST:
+            if request.user.has_perm('adm.delete_sot'):
+                sot_id = request.POST.get('Eliminar')
+                sot_obj = SOT.objects.get(pk=sot_id)
+                sot_obj._delete()
+                response_dict['redirect'] = reverse_lazy('adm:sot-list').strip()
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
