@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea, SOT
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea, SOT, RUT
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -235,7 +235,7 @@ class SOTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         if self.instance:
-            # Solo se deben poder crear RUTs a presupuestos aceptados
+            # Solo se deben poder crear SOTs a presupuestos aceptados
             self.fields['presupuesto'].queryset = \
                 Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
             if self.instance.estado != 'borrador':
@@ -313,7 +313,7 @@ class SOTForm(forms.ModelForm):
                   'expediente',
                   'presupuesto']
 
-        error_messages = {
+    error_messages = {
             'fecha_realizado': {
                 'required': 'Campo obligatorio.',
             },
@@ -331,10 +331,115 @@ class SOTForm(forms.ModelForm):
             },
         }
 
-        widgets = {
+    widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'importe_bruto': forms.TextInput(),
+        }
+
+
+class RUTForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(RUTForm, self).__init__(*args, **kwargs)
+        self.fields['codigo'].widget.attrs['class'] = 'OT_code'
+        self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
+        if self.instance:
+            # Solo se deben poder crear RUTs a presupuestos aceptados
+            self.fields['presupuesto'].queryset = \
+                Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            if self.instance.estado != 'borrador':
+                for f in self.fields:
+                    # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
+                    # se pueden actualizar con el boton por si quedaron en 0
+                    if f == 'importe_neto' or f == 'importe_bruto':
+                        self.fields[f].widget.attrs['readonly'] = True
+                        self.fields[f].required = False
+                    elif f != 'firmada':
+                        self.fields[f].widget.attrs['disabled'] = True
+                        self.fields[f].required = False
+
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.codigo
+        else:
+            return self.cleaned_data['codigo']
+
+    def clean_fecha_realizado(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_realizado
+        else:
+            return self.cleaned_data['fecha_realizado']
+
+    def clean_deudor(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.deudor
+        else:
+            return self.cleaned_data['deudor']
+
+    def clean_solicitante(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.solicitante
+        else:
+            return self.cleaned_data['solicitante']
+
+    def clean_fecha_envio_ut(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_envio_ut
+        else:
+            return self.cleaned_data['fecha_envio_ut']
+
+    def clean_fecha_envio_cc(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_envio_cc
+        else:
+            return self.cleaned_data['fecha_envio_cc']
+
+    def clean_firmada(self):
+        if self.instance and self.instance.estado not in ['borrador', 'pendiente']:
+            return self.instance.firmada
+        else:
+            return self.cleaned_data['firmada']
+
+    class Meta:
+        model = RUT
+        fields = ['estado',
+                  'codigo',
+                  'fecha_realizado',
+                  'importe_bruto',
+                  'importe_neto',
+                  'descuento',
+                  'fecha_envio_ut',
+                  'fecha_envio_cc',
+                  'firmada',
+                  'deudor',
+                  'solicitante',
+                  'presupuesto']
+
+        error_messages = {
+            'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'deudor': {
+                'required': 'Campo obligatorio.',
+            },
+            'solicitante': {
+                'required': 'Campo obligatorio.',
+            },
+            'presupuesto': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_envio_ut': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_envio_cc': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'importe_bruto': forms.TextInput(),
         }
@@ -561,7 +666,7 @@ class CustomInlineFormset(BaseGenericInlineFormSet):
             ## Label del select de oferta tecnologica
             form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
                                                         % (obj.codigo, obj.detalle)
-        if self.instance and self.instance.estado != 'sin_facturar':
+        if self.instance and self.instance.estado not in ['sin_facturar', 'borrador']:
             for form in self.forms:
                 form.fields['ofertatec'].widget.attrs['disabled'] = True
                 for field in form.fields:

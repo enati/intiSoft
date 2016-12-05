@@ -45,7 +45,7 @@ def range_3(actual_page):
 
 @register.filter(name='disable')
 def disable(field):
-    return field.as_widget(attrs={"disabled" : "disabled"})
+    return field.as_widget(attrs={"disabled": "disabled"})
 
 
 @register.filter(name='getOTCode')
@@ -62,3 +62,10 @@ def revName(name):
         return name[2:]
     except:
         return []
+
+
+@register.filter(name='boolToText')
+def boolToText(val):
+    if val:
+        return "Si"
+    return "No"

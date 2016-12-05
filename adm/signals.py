@@ -27,3 +27,8 @@ def remember_fecha_aceptado(sender, **kwargs):
         instance.old_fecha_aceptado = None
 
 
+def toState_pendiente(sender, **kwargs):
+    instance = kwargs.get('instance')
+    if instance.pk:
+        if instance.fecha_envio_cc and instance.estado == 'borrador':
+            instance.estado = 'pendiente'
