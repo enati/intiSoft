@@ -741,7 +741,8 @@ def get_price(request, *args, **kwargs):
     try:
         ot_id = request.GET['ot_id']
         ot_obj = OfertaTec.objects.get(pk=ot_id)
-        data = {'precio': ot_obj.precio,
+        data = {'codigo': ot_obj.codigo,
+                'precio': ot_obj.precio,
                 'precio_total': ot_obj.precio,
                 'detalle': ot_obj.detalle,
                 'tipo_servicio': ot_obj.tipo_servicio}

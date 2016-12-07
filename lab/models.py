@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from adm.models import Presupuesto, Usuario, OfertaTec
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
+from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from django.db.models.signals import pre_save, post_save, m2m_changed
 from django.dispatch import receiver
@@ -207,6 +208,8 @@ class OfertaTec_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica del Presupuesto """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
+    codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
+                              max_length=14, verbose_name='Codigo')
     precio = models.FloatField(verbose_name='Precio')
     precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)

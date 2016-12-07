@@ -398,6 +398,8 @@ class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
+    codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
+                              max_length=14, verbose_name='Codigo')
     precio = models.FloatField(verbose_name='Precio')
     precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)

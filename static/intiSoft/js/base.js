@@ -203,6 +203,9 @@ $(document).ready(function() {
         if ( ot_id != "" ) {
             var select = $(this).get(0);
             splitted_id = select.id.split("-");
+            splitted_id[splitted_id.length-1] = 'codigo';
+            codigo_id = '#'.concat(splitted_id.join("-"));
+            codigo = $(codigo_id);
             splitted_id[splitted_id.length-1] = 'precio';
             precio_id = '#'.concat(splitted_id.join("-"));
             precio = $(precio_id);
@@ -220,6 +223,7 @@ $(document).ready(function() {
                 method: 'get',
                 data: {'ot_id': ot_id},
                 success: function(data){
+                    codigo.val(data['codigo']);
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);

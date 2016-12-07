@@ -467,6 +467,7 @@ class OT_LineaForm(forms.ModelForm):
 
         model = OT_Linea
         fields = ['ofertatec',
+                  'codigo',
                   'precio',
                   'precio_total',
                   'cantidad',
