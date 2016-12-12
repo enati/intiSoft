@@ -765,7 +765,8 @@ def get_presup(request, *args, **kwargs):
         data['area'] = presup_obj.get_turno_activo().area
         data['ofertatec'] = []
         for ot in presup_obj.get_turno_activo().ofertatec_linea_set.all():
-            data['ofertatec'].append({'ofertatec': ot.ofertatec.id, 'tipo_servicio': ot.tipo_servicio,
+            data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
+                                      'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                       'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
                                       'precio': ot.precio, 'precio_total': ot.precio_total})
 
