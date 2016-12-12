@@ -271,56 +271,56 @@
                                                     {% if edit %}
                                                         {{ form.codigo }} {{ form.codigo.errors }}
                                                     {% else %}
-                                                        {{ form.codigo.value }}
+                                                        {{ form.instance.codigo}}
                                                     {% endif %}
                                                 </td>
                                                 <td style="display:none">
                                                     {% if edit %}
                                                         {{ form.detalle }} {{ form.detalle.errors }}
                                                     {% else %}
-                                                        {{ form.detalle.value }}
+                                                        {{ form.instance.detalle }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}
                                                     {% else %}
-                                                        {{ form.tipo_servicio.value  | default_if_none:"" }}
+                                                        {{ form.instance.tipo_servicio  | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.cantidad }} {{ form.cantidad.errors }}
                                                     {% else %}
-                                                        {{ form.cantidad.value }}
+                                                        {{ form.instance.cantidad }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.cant_horas }} {{ form.cant_horas.errors }}
                                                     {% else %}
-                                                        {{ form.cant_horas.value | default_if_none:"" }}
+                                                        {{ form.instance.cant_horas | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.precio }} {{ form.precio.errors }}
                                                     {% else %}
-                                                        {{ form.precio.value | default_if_none:"" }}
+                                                        {{ form.instance.precio | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.precio_total }} {{ form.precio_total.errors }}
                                                     {% else %}
-                                                        {{ form.precio_total.value | default_if_none:"" }}
+                                                        {{ form.instance.precio_total | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.observaciones }} {{ form.observaciones.errors }}
                                                     {% else %}
-                                                        {{ form.observaciones.value | default_if_none:"" }}
+                                                        {{ form.instance.observaciones | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
