@@ -269,11 +269,17 @@
                                                 </td>
                                                 <td style="display:none">
                                                     {% if edit %}
+                                                        {{ form.codigo }} {{ form.codigo.errors }}
+                                                    {% else %}
+                                                        {{ form.codigo.value }}
+                                                    {% endif %}
+                                                </td>
+                                                <td style="display:none">
+                                                    {% if edit %}
                                                         {{ form.detalle }} {{ form.detalle.errors }}
                                                     {% else %}
                                                         {{ form.detalle.value }}
                                                     {% endif %}
-
                                                 </td>
                                                 <td>
                                                     {% if edit %}
