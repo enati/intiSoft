@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'intiSoft',
     'smart_pagination',
     'reversion',
+    'django_permanent'
 )
 
 MIDDLEWARE_CLASSES = (
