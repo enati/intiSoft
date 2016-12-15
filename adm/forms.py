@@ -313,31 +313,31 @@ class SOTForm(forms.ModelForm):
                   'expediente',
                   'presupuesto']
 
-    error_messages = {
-            'fecha_realizado': {
-                'required': 'Campo obligatorio.',
-            },
-            'deudor': {
-                'required': 'Campo obligatorio.',
-            },
-            'ejecutor': {
-                'required': 'Campo obligatorio.',
-            },
-            'usuario_final': {
-                'required': 'Campo obligatorio.',
-            },
-            'presupuesto': {
-                'required': 'Campo obligatorio.',
-            },
-        }
+        error_messages = {
+                'fecha_realizado': {
+                    'required': 'Campo obligatorio.',
+                },
+                'deudor': {
+                    'required': 'Campo obligatorio.',
+                },
+                'ejecutor': {
+                    'required': 'Campo obligatorio.',
+                },
+                'usuario_final': {
+                    'required': 'Campo obligatorio.',
+                },
+                'presupuesto': {
+                    'required': 'Campo obligatorio.',
+                },
+            }
 
-    widgets = {
-            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-            'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-            'importe_bruto': forms.TextInput(),
-        }
+        widgets = {
+                'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                          'readonly': True},),
+                'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
+                                                          'readonly': True},),
+                'importe_bruto': forms.TextInput(),
+            }
 
 
 class RUTForm(forms.ModelForm):
