@@ -247,6 +247,7 @@ $(document).ready(function() {
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
+                    $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);
 
                     var n = $('#id_adm-ot_linea-content_type-object_id-TOTAL_FORMS').val()
                     for (i=0; i<n; i++) {

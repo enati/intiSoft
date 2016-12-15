@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+    <object pk="1" model="adm.usuario">
+        <field name="nombre">INTI ROSARIO</field>
+        <field name="rubro">ESTADO</field>
+        <field name="nro_usuario"></field>
+        <field name="cuit"></field>
+        <field name="mail"></field>
+        <field name="created">2016-12-26 10:27:00</field>
+        <field name="modified">2016-12-26 10:27:00</field>
+    </object>
+</django-objects>

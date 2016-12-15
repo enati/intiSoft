@@ -426,7 +426,7 @@ class SOT(Contrato):
                               error_messages={'unique': "Ya existe una SOT con ese número."})
     deudor = models.ForeignKey(Usuario, verbose_name='Usuario',
                                on_delete=models.PROTECT, related_name='sot_deudor')
-    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario',
+    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario', default=1,
                                  on_delete=models.PROTECT, related_name='sot_ejecutor')
     usuario_final = models.ForeignKey(Usuario, verbose_name='Usuario OT', null=True, blank=True,
                                       on_delete=models.PROTECT, related_name='sot_usuario_final')
