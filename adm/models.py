@@ -506,7 +506,9 @@ class RUT(Contrato):
     codigo = models.CharField(max_length=15, verbose_name='Nro. RUT',
                               unique=True, default=nextRUTCode,
                               error_messages={'unique': "Ya existe una RUT con ese número."})
-    deudor = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT)
+    deudor = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT, related_name='rut_deudor')
+    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario', default=1,
+                                 on_delete=models.PROTECT, related_name='rut_ejecutor')
     solicitante = models.CharField(max_length=4, choices=AREAS)
     fecha_envio_ut = models.DateField('Fecha de envio a la UT', blank=True, null=True)
     firmada = models.BooleanField('Retorno firmada')

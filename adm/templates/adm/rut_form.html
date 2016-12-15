@@ -160,7 +160,7 @@
                             <!-- UT Deudora -->
                             <div class="form-group">
                                 <label class="control-label col-md-5" style="text-align:left"
-                                 for="id_deudpr">
+                                 for="id_deudor">
                                     UT Deudora
                                 </label>
                                 <div class="col-md-6">
@@ -173,6 +173,25 @@
                                         {% endfor %}
                                     {% else %}
                                         {{ form.instance.deudor.nombre }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- UT Ejecutora -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_ejecutora">
+                                    UT Ejecutora
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.ejecutor }}
+                                        {% for error in form.ejecutor.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.ejecutor.nombre }}
                                     {% endif %}
                                 </div>
                             </div>

@@ -380,6 +380,12 @@ class RUTForm(forms.ModelForm):
         else:
             return self.cleaned_data['deudor']
 
+    def clean_ejecutor(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.ejecutor
+        else:
+            return self.cleaned_data['ejecutor']
+
     def clean_solicitante(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.solicitante
@@ -416,6 +422,7 @@ class RUTForm(forms.ModelForm):
                   'fecha_envio_cc',
                   'firmada',
                   'deudor',
+                  'ejecutor',
                   'solicitante',
                   'presupuesto']
 
@@ -424,6 +431,9 @@ class RUTForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
             'deudor': {
+                'required': 'Campo obligatorio.',
+            },
+            'ejecutor': {
                 'required': 'Campo obligatorio.',
             },
             'solicitante': {
