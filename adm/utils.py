@@ -116,3 +116,102 @@ def genWord(vals):
     #document.save(response)
 
     return response
+
+
+def genSOT(vals):
+    if os.name == 'posix':
+        #Linux
+        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
+    else:
+        #Windows
+        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+
+    document = Document(path + vals['plantilla'])
+
+    style = document.styles['Normal']
+    font = style.font
+    font.name = 'Arial Narrow'
+    font.size = Pt(8)
+
+    # Documento temporal para la tabla de OTs
+    tmp_doc = Document()
+    ot_table = tmp_doc.add_table(0, 16)
+    ot_table.alignment = 0
+
+    table = document.tables[0]
+    table_xml = document._part._element.body[0]
+    # Necesario para ajustar el ancho de las columnas
+    ot_table.autofit = False
+
+
+    #=======================================
+    #========== DATOS DE LA SOT ============
+    #=======================================
+    # Nro UT Ejecutora
+    table.column_cells(3)[1].paragraphs[0].add_run(vals['nro_ejecutor'] or '')
+    # UT Ejecutora
+    table.column_cells(4)[1].paragraphs[0].add_run(vals['ejecutor'] or '')
+    # Nro UT Deudora
+    table.column_cells(10)[1].paragraphs[0].add_run(vals['nro_deudor'] or '')
+    # UT Deudora
+    table.column_cells(12)[1].paragraphs[0].add_run(vals['deudor'] or '')
+    # Fecha de apertura
+    table.column_cells(1)[3].paragraphs[0].add_run(vals['fecha_apertura'] or '')
+    # OT Codigo
+    table.column_cells(9)[3].paragraphs[0].add_run(vals['ot'] or '')
+    # Expediente
+    table.column_cells(9)[4].paragraphs[0].add_run(vals['expediente'] or '')
+    # SOT Codigo
+    table.column_cells(2)[5].paragraphs[0].add_run(vals['codigo'] or '')
+    # Usuario final
+    table.column_cells(5)[5].paragraphs[0].add_run(vals['usuario_final'] or '')
+    table.column_cells(5)[5].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    ## OT's
+    if vals['ofertatec']:
+        cod, det, tipo_servicio, cantidad, precio, precio_total = vals['ofertatec'][0]
+        table.column_cells(0)[8].paragraphs[0].add_run(cod + '\n' + det or '')
+        table.column_cells(0)[8].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+        table.column_cells(3)[8].paragraphs[0].add_run(tipo_servicio or '')
+        table.column_cells(5)[8].paragraphs[0].add_run(str(cantidad) or '')
+        table.column_cells(8)[8].paragraphs[0].add_run(str(precio) or '')
+        table.column_cells(15)[8].paragraphs[0].add_run(str(precio_total) or '')
+        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:]):
+            # Creo y completo una fila en el documento temporal
+            nrow = ot_table.add_row()
+            # Ajusto el width
+            for i in range(15):
+                nrow.cells[i].width = table.column_cells(i)[7].width
+            # Mergeo las celdas
+            nrow.cells[0].merge(nrow.cells[2])
+            nrow.cells[3].merge(nrow.cells[4])
+            nrow.cells[5].merge(nrow.cells[7])
+            nrow.cells[8].merge(nrow.cells[13])
+            # Completo las columnas
+            nrow.cells[0].paragraphs[0].add_run(cod + '\n' + det)
+            nrow.cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+            nrow.cells[3].paragraphs[0].add_run(tipo_servicio or '')
+            nrow.cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            nrow.cells[5].paragraphs[0].add_run(str(cantidad) or '')
+            nrow.cells[5].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            nrow.cells[8].paragraphs[0].add_run(str(precio) or '')
+            nrow.cells[8].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            nrow.cells[15].paragraphs[0].add_run(str(precio_total) or '')
+            nrow.cells[15].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            ## Inserto la fila en el documento original
+            table_xml.insert(n + 11, nrow._tr)
+
+        n = n if n else 0
+        table.column_cells(15)[n + 10].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
+        table.column_cells(15)[n + 28].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
+        table.column_cells(15)[n + 30].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
+
+    table.column_cells(1)[n + 10].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+
+    f = StringIO()
+    document.save(f)
+    f.seek(0)
+
+    response = HttpResponse(f.getvalue(), content_type='text/docx')
+    response['Content-Disposition'] = "attachment; filename=%s.docx" % ('SOT-' + vals['codigo'] or 'SOT')
+
+    return response

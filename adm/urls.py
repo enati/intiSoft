@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^contratos/OT-ML/create/$', login_required(views.OTMLCreate.as_view()), name='otml-create'),
     url(r'^contratos/OT-ML/update/(?P<pk>\d+)/$', login_required(views.OTMLUpdate.as_view()), name='otml-update'),
     url(r'^contratos/SOT/$', login_required(views.SOTList.as_view()), name='sot-list'),
+    url(r'^contratos/SOT/viewSOT/(?P<pk>\d+)/$', 'adm.views.viewSOT', name='sot-viewSOT'),
     url(r'^contratos/SOT/create/$', login_required(views.SOTCreate.as_view()), name='sot-create'),
     url(r'^contratos/SOT/update/(?P<pk>\d+)/$', login_required(views.SOTUpdate.as_view()), name='sot-update'),
     url(r'^contratos/RUT/$', login_required(views.RUTList.as_view()), name='rut-list'),

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
-from .utils import genWord
+from .utils import genWord, genSOT
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
@@ -73,13 +73,31 @@ def viewWord(request, *args, **kwargs):
     if turno_activo:
         for o in turno_activo.ofertatec_linea_set.get_queryset():
             vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio_total))
-        #vals['ofertatec'] += turno_activo.ofertatec.codigo if turno_activo else ''
-        #vals['detalle'] = turno_activo.ofertatec.detalle if turno_activo else ''
-        #vals['precio'] = str(turno_activo.ofertatec.precio) if turno_activo else ''
-    # Create the HttpResponse object with the appropriate headers.
-    #response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    # Create the Word object
     return genWord(vals)
+
+
+def viewSOT(request, *args, **kwargs):
+    sot_id = kwargs.get('pk')
+    sot_obj = SOT.objects.get(id=sot_id)
+    vals = {}
+    vals['nro_ejecutor'] = sot_obj.ejecutor.nro_usuario
+    vals['ejecutor'] = sot_obj.ejecutor.nombre
+    vals['nro_deudor'] = sot_obj.deudor.nro_usuario
+    vals['deudor'] = sot_obj.deudor.nombre
+    vals['fecha_apertura'] = sot_obj.fecha_realizado.strftime('%d/%m/%Y')
+    vals['ot'] = sot_obj.ot
+    vals['expediente'] = sot_obj.expediente
+    vals['codigo'] = sot_obj.codigo
+    vals['fecha_prevista'] = sot_obj.fecha_prevista.strftime('%d/%m/%Y')
+    vals['usuario_final'] = sot_obj.usuario_final.nombre if sot_obj.usuario_final else ''
+    vals['ofertatec'] = []
+    acc = 0
+    for o in sot_obj.ot_linea_set.get_queryset():
+        vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
+        acc += o.precio_total
+    vals['arancel_previsto'] = acc
+    vals['plantilla'] = 'SOT.docx'
+    return genSOT(vals)
 
 
 def get_user(request, *args, **kwargs):

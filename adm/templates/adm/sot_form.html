@@ -46,13 +46,13 @@
                     <div class="col-md-2">
                         <input type="submit" value="Editar" class="btn btn-danger" form="SOTForm">
                     </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="btn btn-default" href="{{http_referer}}">
+                            Volver
+                        </a>
+                    </div>
                 {% endif %}
             {% endif %}
-            <div class="col-md-2" style="padding-left: 0px">
-                <a class="btn btn-default" href="{{http_referer}}">
-                    Volver
-                </a>
-            </div>
             <div class="btn-group col-md-2"">
                 <button type="button" class="btn btn-default dropdown-toggle
                                             {% if not edit %} disabled {% endif %}"
@@ -79,6 +79,12 @@
                         <a href="#" data-action="Cancelar" data-model="SOT" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Cancelar SOT</a>
                     </li>
+                    {% endif %}
+                    <li role="separator" class="divider" />
+                    {% if 'adm.add_sot' in user.get_all_permissions %}
+                        <li>
+                            <a id="viewSOT" href="{% url 'adm:sot-viewSOT' object.id %}" data-id="{{object.id}}">Generar SOT</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -192,7 +198,7 @@
                                             </div>
                                         {% endfor %}
                                     {% else %}
-                                        {{ form.ejecutor.value | default_if_none:"" }}
+                                        {{ form.instance.ejecutor.nombre }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -264,7 +270,7 @@
                                             </div>
                                         {% endfor %}
                                     {% else %}
-                                        {{ form.usuario_final.value | default_if_none:"" }}
+                                        {{ form.instance.usuario_final.nombre }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -397,7 +403,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if edit and form.instance.estado == 'sin_facturar' %}
+                                        {% if edit and form.instance.estado == 'borrador' %}
                                             {% if formOt.instance.pk %}
                                                 {{ formOt.DELETE }}
                                             {% endif %}
