@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^contratos/SOT/create/$', login_required(views.SOTCreate.as_view()), name='sot-create'),
     url(r'^contratos/SOT/update/(?P<pk>\d+)/$', login_required(views.SOTUpdate.as_view()), name='sot-update'),
     url(r'^contratos/RUT/$', login_required(views.RUTList.as_view()), name='rut-list'),
+    url(r'^contratos/SOT/viewRUT/(?P<pk>\d+)/$', 'adm.views.viewRUT', name='rut-viewRUT'),
     url(r'^contratos/RUT/create/$', login_required(views.RUTCreate.as_view()), name='rut-create'),
     url(r'^contratos/RUT/update/(?P<pk>\d+)/$', login_required(views.RUTUpdate.as_view()), name='rut-update'),
 

@@ -317,6 +317,9 @@ class SOTForm(forms.ModelForm):
                 'fecha_realizado': {
                     'required': 'Campo obligatorio.',
                 },
+                'fecha_prevista': {
+                    'required': 'Campo obligatorio.',
+                },
                 'deudor': {
                     'required': 'Campo obligatorio.',
                 },
@@ -374,6 +377,12 @@ class RUTForm(forms.ModelForm):
         else:
             return self.cleaned_data['fecha_realizado']
 
+    def clean_fecha_prevista(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_prevista
+        else:
+            return self.cleaned_data['fecha_prevista']
+
     def clean_deudor(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.deudor
@@ -415,6 +424,7 @@ class RUTForm(forms.ModelForm):
         fields = ['estado',
                   'codigo',
                   'fecha_realizado',
+                  'fecha_prevista',
                   'importe_bruto',
                   'importe_neto',
                   'descuento',
@@ -428,6 +438,9 @@ class RUTForm(forms.ModelForm):
 
         error_messages = {
             'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'fecha_prevista': {
                 'required': 'Campo obligatorio.',
             },
             'deudor': {
@@ -446,6 +459,8 @@ class RUTForm(forms.ModelForm):
 
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'fecha_envio_ut': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),

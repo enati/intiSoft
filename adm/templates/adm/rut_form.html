@@ -6,6 +6,8 @@
     <script>
         $(function() {
             $(".datepicker").datepicker("option", "maxDate", '0');
+            $(".datepicker#id_fecha_prevista").datepicker("option", "maxDate", '');
+            $(".datepicker#id_fecha_prevista").datepicker("option", "minDate", '0');
         });
 
         $(function() {
@@ -45,13 +47,13 @@
                     <div class="col-md-2">
                         <input type="submit" value="Editar" class="btn btn-danger" form="RUTForm">
                     </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="btn btn-default" href="{{http_referer}}">
+                            Volver
+                        </a>
+                    </div>
                 {% endif %}
             {% endif %}
-            <div class="col-md-2" style="padding-left: 0px">
-                <a class="btn btn-default" href="{{http_referer}}">
-                    Volver
-                </a>
-            </div>
             <div class="btn-group col-md-2"">
                 <button type="button" class="btn btn-default dropdown-toggle
                                             {% if not edit %} disabled {% endif %}"
@@ -78,6 +80,12 @@
                         <a href="#" data-action="Cancelar" data-model="RUT" data-id={{object.id}}
                            data-toggle="modal" data-target="#myModal">Cancelar RUT</a>
                     </li>
+                    {% endif %}
+                    <li role="separator" class="divider" />
+                    {% if 'adm.add_sot' in user.get_all_permissions %}
+                        <li>
+                            <a id="viewRUT" href="{% url 'adm:rut-viewRUT' object.id %}" data-id="{{object.id}}">Generar RUT</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -217,6 +225,25 @@
                         </div>
 
                         <div class="col-md-6">
+                            <!-- Fecha de Prevista -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_fecha_prevista">
+                                    Fecha Prevista
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.fecha_prevista }}
+                                        {% for error in form.fecha_prevista.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.fecha_prevista.value | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
                             <!-- Fecha de Envio a UT -->
                             <div class="form-group">
                                 <label class="control-label col-md-5" style="text-align:left"
@@ -403,7 +430,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if edit and form.instance.estado == 'sin_facturar' %}
+                                        {% if edit and form.instance.estado == 'borrador' %}
                                             {% if formOt.instance.pk %}
                                                 {{ formOt.DELETE }}
                                             {% endif %}

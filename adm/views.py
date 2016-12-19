@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
-from .utils import genWord, genSOT
+from .utils import genWord, genSOT, genRUT
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
@@ -98,6 +98,27 @@ def viewSOT(request, *args, **kwargs):
     vals['arancel_previsto'] = acc
     vals['plantilla'] = 'SOT.docx'
     return genSOT(vals)
+
+
+def viewRUT(request, *args, **kwargs):
+    rut_id = kwargs.get('pk')
+    rut_obj = RUT.objects.get(id=rut_id)
+    vals = {}
+    vals['nro_ejecutor'] = rut_obj.ejecutor.nro_usuario
+    vals['ejecutor'] = rut_obj.ejecutor.nombre
+    vals['nro_deudor'] = rut_obj.deudor.nro_usuario
+    vals['deudor'] = rut_obj.deudor.nombre
+    vals['codigo'] = rut_obj.codigo
+    vals['fecha_apertura'] = rut_obj.fecha_realizado.strftime('%d/%m/%Y')
+    vals['fecha_prevista'] = rut_obj.fecha_prevista.strftime('%d/%m/%Y')
+    vals['ofertatec'] = []
+    acc = 0
+    for o in rut_obj.ot_linea_set.get_queryset():
+        vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
+        acc += o.precio_total
+    vals['arancel_previsto'] = acc
+    vals['plantilla'] = 'RUT.docx'
+    return genRUT(vals)
 
 
 def get_user(request, *args, **kwargs):
