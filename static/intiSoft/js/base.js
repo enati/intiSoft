@@ -251,21 +251,24 @@ $(document).ready(function() {
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
+                    $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);
 
                     var n = $('#id_adm-ot_linea-content_type-object_id-TOTAL_FORMS').val()
                     for (i=0; i<n; i++) {
                         $('#ofertatec_formtable tr.inline:first a.delete-row').click()
                     }
-                    for (i=0; i<data['ofertatec'].length; i++) {
-                        $('#ofertatec_formtable .add-row').click();
-                        $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
-                        $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
-                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
-                        $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
-                        $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
-                        $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
-                        $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
-                        $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
+                    if (n != null) {
+                        for (i=0; i<data['ofertatec'].length; i++) {
+                            $('#ofertatec_formtable .add-row').click();
+                            $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
+                            $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
+                            $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
+                            $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
+                            $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
+                            $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
+                            $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
+                            $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
+                        }
                     }
                 },
             });
@@ -472,6 +475,7 @@ $(document).ready(function() {
                             }
                             else {
                                 window.location = window.location.href.split("?")[0];
+                                window.location.reload();
                             }
                         }
                         else {
@@ -501,7 +505,7 @@ $(document).ready(function() {
         var art = ' el ';
         var artP = 'Los ';
         //if ((model=='OT') || (model=='factura'))
-        if (model=='OT' || model=='OT-ML')
+        if (model=='OT' || model=='OT-ML' || model=='SOT' || model=='RUT')
             art = ' la ';
             artP = 'Las ';
         if (action.localeCompare('Finalizar')==0) {
