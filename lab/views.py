@@ -741,7 +741,8 @@ def get_price(request, *args, **kwargs):
     try:
         ot_id = request.GET['ot_id']
         ot_obj = OfertaTec.objects.get(pk=ot_id)
-        data = {'precio': ot_obj.precio,
+        data = {'codigo': ot_obj.codigo,
+                'precio': ot_obj.precio,
                 'precio_total': ot_obj.precio,
                 'detalle': ot_obj.detalle,
                 'tipo_servicio': ot_obj.tipo_servicio}
@@ -764,9 +765,11 @@ def get_presup(request, *args, **kwargs):
         data['area'] = presup_obj.get_turno_activo().area
         data['ofertatec'] = []
         for ot in presup_obj.get_turno_activo().ofertatec_linea_set.all():
-            data['ofertatec'].append({'ofertatec': ot.ofertatec.id, 'tipo_servicio': ot.tipo_servicio,
+            data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
+                                      'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                       'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
-                                      'precio': ot.precio, 'precio_total': ot.precio_total})
+                                      'precio': ot.precio, 'precio_total': ot.precio_total,
+                                      'detalle': ot.detalle})
 
     except:
         data = {}

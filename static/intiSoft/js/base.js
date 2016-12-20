@@ -203,6 +203,9 @@ $(document).ready(function() {
         if ( ot_id != "" ) {
             var select = $(this).get(0);
             splitted_id = select.id.split("-");
+            splitted_id[splitted_id.length-1] = 'codigo';
+            codigo_id = '#'.concat(splitted_id.join("-"));
+            codigo = $(codigo_id);
             splitted_id[splitted_id.length-1] = 'precio';
             precio_id = '#'.concat(splitted_id.join("-"));
             precio = $(precio_id);
@@ -220,6 +223,7 @@ $(document).ready(function() {
                 method: 'get',
                 data: {'ot_id': ot_id},
                 success: function(data){
+                    codigo.val(data['codigo']);
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
@@ -255,11 +259,13 @@ $(document).ready(function() {
                     for (i=0; i<data['ofertatec'].length; i++) {
                         $('#ofertatec_formtable .add-row').click();
                         $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
-                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].tipo_servicio;
-                        $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].cantidad;
-                        $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cant_horas;
-                        $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].precio;
-                        $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio_total;
+                        $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
+                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
+                        $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
+                        $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
+                        $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
+                        $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
+                        $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
                     }
                 },
             });
@@ -283,33 +289,42 @@ $(document).ready(function() {
         }
     });
 
-    $("[id^=id_ofertatec][id$=cant_horas]").on('change', function (e) {
-        cant_horas_id = $(this).attr('id');
-        formset_number = cant_horas_id.split("-")[1];
-        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
-        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
-        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
-        if (isNaN(cant_horas)) {
-            precio_total.val(precio);
-        }
-        else {
-            precio_total.val(cant_horas*precio);
-        }
+    $("[id^=id_ofertatec][id$=cant_horas], [id^=id_ofertatec][id$=cantidad], [id^=id_ofertatec][id$=precio]")
+        .on('change', function (e) {
+            var cant_horas_id = $(this).attr('id'),
+                formset_number = cant_horas_id.split("-")[1],
+                cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
+                cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
+                precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
+                precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
+                acc = precio;
+
+                if (!isNaN(cant_horas)) {
+                    acc *= cant_horas;
+                }
+                if (!isNaN(cantidad)) {
+                    acc *= cantidad;
+                }
+                precio_total.val(acc);
     });
 
-    $("[id^=id_adm-ot][id$=cantidad]").on('change', function (e) {
-        cant_horas_id = $(this).attr('id');
-        formset_number = cant_horas_id.split("-")[4];
-        cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
-        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
-        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
-        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
-        if (isNaN(cant_horas)) {
-            precio_total.val(cantidad*precio);
-        }
-        else {
-            precio_total.val(cantidad*cant_horas*precio);
-        }
+    $("[id^=id_adm-ot][id$=cantidad], [id^=id_adm-ot][id$=cant_horas], [id^=id_adm-ot][id$=precio]")
+            .on('change', function (e) {
+                var cant_horas_id = $(this).attr('id'),
+                    formset_number = cant_horas_id.split("-")[4],
+                    cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
+                    cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
+                    precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
+                    precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
+                    acc = precio;
+
+                if (!isNaN(cant_horas)) {
+                    acc *= cant_horas;
+                }
+                if (!isNaN(cantidad)) {
+                    acc *= cantidad;
+                }
+                precio_total.val(acc);
     });
 
     $("[id^=id_adm-ot][id$=cant_horas]").on('change', function (e) {

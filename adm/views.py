@@ -90,11 +90,14 @@ def viewSOT(request, *args, **kwargs):
     vals['codigo'] = sot_obj.codigo
     vals['fecha_prevista'] = sot_obj.fecha_prevista.strftime('%d/%m/%Y')
     vals['usuario_final'] = sot_obj.usuario_final.nombre if sot_obj.usuario_final else ''
+    vals['importe_neto'] = sot_obj.importe_neto
+    vals['importe_bruto'] = sot_obj.importe_bruto
+    vals['descuento'] = sot_obj.descuento
     vals['ofertatec'] = []
     acc = 0
     for o in sot_obj.ot_linea_set.get_queryset():
         vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
-        acc += o.precio_total
+        #acc += o.precio_total
     vals['arancel_previsto'] = acc
     vals['plantilla'] = 'SOT.docx'
     return genSOT(vals)

@@ -348,12 +348,19 @@
                                         {% if edit %}
                                             {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                         {% else %}
-                                            {{ formOt.instance.ofertatec.codigo }}
+                                            {{ formOt.instance.codigo }}
                                         {% endif %}
                                     </td>
                                     <td style="display:none">
                                         {% if edit %}
-                                            {{ form.detalle }} {{ formOt.detalle.errors }}
+                                            {{ formOt.codigo }} {{ formOt.codigo.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.codigo}}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
+                                            {{ formOt.detalle }} {{ formOt.detalle.errors }}
                                         {% else %}
                                             {{ formOt.instance.detalle }}
                                         {% endif %}

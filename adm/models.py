@@ -2,6 +2,7 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
+from django_permanent.models import PermanentModel
 from adm.signals import *
 from django.db.models.signals import post_init, pre_save
 from django.core.validators import RegexValidator
@@ -59,7 +60,7 @@ class Usuario(TimeStampedModel, AuthStampedModel):
 
 
 @reversion.register()
-class OfertaTec(TimeStampedModel, AuthStampedModel):
+class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     proveedor = models.IntegerField(default='106', verbose_name='Proveedor')
     codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
@@ -553,6 +554,8 @@ class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
+    codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
+                              max_length=14, verbose_name='Codigo')
     precio = models.FloatField(verbose_name='Precio')
     precio_total = models.FloatField(verbose_name='Precio Total')
     cantidad = models.IntegerField(verbose_name='Cantidad', default=1)

@@ -689,8 +689,8 @@ class CustomInlineFormset(BaseGenericInlineFormSet):
         super(CustomInlineFormset, self).__init__(*args, **kwargs)
         for form in self.forms:
             ## Label del select de oferta tecnologica
-            form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
-                                                        % (obj.codigo, obj.detalle)
+            form.fields['ofertatec'].label_from_instance = lambda obj: "%s - %s - %s" \
+                                                        % (obj.codigo, obj.subrubro, obj.detalle)
         if self.instance and self.instance.estado not in ['sin_facturar', 'borrador']:
             for form in self.forms:
                 form.fields['ofertatec'].widget.attrs['disabled'] = True
@@ -710,6 +710,7 @@ class OT_LineaForm(forms.ModelForm):
 
         model = OT_Linea
         fields = ['ofertatec',
+                  'codigo',
                   'precio',
                   'precio_total',
                   'cantidad',
