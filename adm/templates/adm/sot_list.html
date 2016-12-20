@@ -73,6 +73,7 @@
                         <td>{{ sot.deudor }}</td>
                         <td>{{ sot.solicitante }}</td>
                         <td>${{ sot.importe_bruto | floatformat }}</td>
+                        <td>${{ sot.importe_neto | floatformat }}</td>
                         <td>{{ sot.fecha_envio_ut | date | default_if_none:"" }}</td>
                         <td>{{ sot.firmada | boolToText }}</td>
                         <td>{{ sot.fecha_envio_cc | date | default_if_none:"" }}</td>

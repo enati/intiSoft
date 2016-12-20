@@ -73,6 +73,7 @@
                         <td>{{ rut.deudor }}</td>
                         <td>{{ rut.solicitante }}</td>
                         <td>${{ rut.importe_bruto | floatformat }}</td>
+                        <td>${{ rut.importe_neto | floatformat }}</td>
                         <td>{{ rut.fecha_envio_ut | date | default_if_none:"" }}</td>
                         <td>{{ rut.firmada | boolToText }}</td>
                         <td>{{ rut.fecha_envio_cc | date | default_if_none:"" }}</td>

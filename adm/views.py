@@ -1095,9 +1095,11 @@ class SOTList(ListView):
         sots = SOT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
-                       'importe_bruto', 'fecha_envio_ut', 'fecha_envio_cc', 'firmada']
+                       'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'fecha_envio_cc',
+                       'firmada']
         field_labels = ['Estado', 'Nro. SOT', 'Fecha Realizada', 'UT Deudora', 'Area Solic.',
-                        'Imp. Bruto', 'Fecha Envio UT', 'Retorno Firmada', 'Fecha Envio CC']
+                        'Imp. Bruto', 'Imp. Neto',  'Fecha Envio UT', 'Retorno Firmada',
+                        'Fecha Envio CC']
 
         # SOT en borrador
         borrCount = len(sots.filter(estado='borrador'))
@@ -1124,6 +1126,8 @@ class SOTList(ListView):
         options.append(solicitante_vals)
         importe_bruto_vals = sorted(set([s.importe_bruto for s in sots if s.importe_bruto]))
         options.append(importe_bruto_vals)
+        importe_neto_vals = sorted(set([s.importe_neto for s in sots if s.importe_neto]))
+        options.append(importe_neto_vals)
         fec2_vals = sorted(set([s.fecha_envio_ut.strftime("%d/%m/%Y")
                         for s in sots if s.fecha_envio_ut is not None]))
         options.append(fec2_vals)
@@ -1349,9 +1353,10 @@ class RUTList(ListView):
         ruts = RUT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
-                       'importe_bruto', 'fecha_envio_ut', 'firmada', 'fecha_envio_cc']
+                       'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'firmada',
+                       'fecha_envio_cc']
         field_labels = ['Estado', 'Nro. RUT', 'Fecha', 'UT Deudora', 'Area Solic.', 'Imp. Bruto',
-                        'Fecha Envio a UT', 'Retorno Firmada', 'Fecha Envio a CC']
+                        'Imp. Neto', 'Fecha Envio a UT', 'Retorno Firmada', 'Fecha Envio a CC']
 
         # RUTs en borrador
         borrCount = len(ruts.filter(estado='borrador'))
@@ -1378,6 +1383,8 @@ class RUTList(ListView):
         options.append(solicitante_vals)
         importe_bruto_vals = sorted(set([r.importe_bruto for r in ruts if r.importe_bruto]))
         options.append(importe_bruto_vals)
+        importe_neto_vals = sorted(set([r.importe_neto for r in ruts if r.importe_neto]))
+        options.append(importe_neto_vals)
         fec2_vals = sorted(set([r.fecha_envio_ut.strftime("%d/%m/%Y")
                         for r in ruts if r.fecha_envio_ut is not None]))
         options.append(fec2_vals)
