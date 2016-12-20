@@ -355,6 +355,13 @@
                                     </td>
                                     <td style="display:none">
                                         {% if edit %}
+                                            {{ formOt.codigo }} {{ formOt.codigo.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.codigo}}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
                                             {{ formOt.detalle }} {{ formOt.detalle.errors }}
                                         {% else %}
                                             {{ formOt.instance.detalle }}
