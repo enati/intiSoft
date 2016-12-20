@@ -71,13 +71,13 @@
                         <td>{{ sot.codigo }}</td>
                         <td>{{ sot.fecha_realizado | date | default_if_none:"" }}</td>
                         <td>{{ sot.deudor }}</td>
-                        <td>{{ sot.ejecutor }}</td>
+                        <td>{{ sot.solicitante }}</td>
                         <td>${{ sot.importe_bruto | floatformat }}</td>
-                        <td>{{ sot.fecha_prevista | date | default_if_none:"" }}</td>
-                        <td>{{ sot.ot }}</td>
-                        <td>{{ sot.expediente }}</td>
+                        <td>{{ sot.fecha_envio_ut | date | default_if_none:"" }}</td>
+                        <td>{{ sot.firmada | boolToText }}</td>
+                        <td>{{ sot.fecha_envio_cc | date | default_if_none:"" }}</td>
                         <td>
-                            <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
+                            <button onclick="trlink=false;" title="Cobrada" data-action="Finalizar"
                                 data-model="SOT" type="button" class="btn btn-default"
                                 data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
                                 {% if sot.estado != "pendiente" or 'adm.finish_sot' not in user.get_all_permissions  %}

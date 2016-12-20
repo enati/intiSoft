@@ -223,7 +223,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <!-- Fecha de Prevista -->
                             <div class="form-group">
@@ -263,25 +262,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <!-- Fecha de Envio a CC -->
-                            <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
-                                  for="id_fecha_envio_cc">
-                                      Fecha Envio a CC
-                                </label>
-                                <div class="col-md-6">
-                                    {% if edit %}
-                                        {{ form.fecha_envio_cc }}
-                                        {% for error in form.fecha_envio_cc.errors %}
-                                            <div class="alert alert-error">
-                                                <strong>{{ error|escape }}</strong>
-                                            </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ form.instance.fecha_envio_cc | default_if_none:""  }}
-                                    {% endif %}
-                                </div>
-                            </div>
                             <!-- Retorno firmada -->
                             <div class="form-group">
                                 <label class="control-label col-md-5" style="text-align:left"
@@ -298,6 +278,25 @@
                                         {% endfor %}
                                     {% else %}
                                         {{ form.instance.firmada | boolToText }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Fecha de Envio a CC -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_fecha_envio_cc">
+                                      Fecha Envio a CC
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.fecha_envio_cc }}
+                                        {% for error in form.fecha_envio_cc.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.fecha_envio_cc | default_if_none:""  }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -378,6 +377,13 @@
                                             {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                         {% else %}
                                             {{ formOt.instance.ofertatec.codigo }}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
+                                            {{ formOt.codigo }} {{ formOt.codigo.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.codigo}}
                                         {% endif %}
                                     </td>
                                     <td style="display:none">

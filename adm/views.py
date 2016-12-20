@@ -97,7 +97,7 @@ def viewSOT(request, *args, **kwargs):
     acc = 0
     for o in sot_obj.ot_linea_set.get_queryset():
         vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
-        #acc += o.precio_total
+        acc += o.precio_total
     vals['arancel_previsto'] = acc
     vals['plantilla'] = 'SOT.docx'
     return genSOT(vals)
@@ -1094,10 +1094,10 @@ class SOTList(ListView):
         context = super(SOTList, self).get_context_data(**kwargs)
         sots = SOT.objects.select_related()
 
-        field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'ejecutor',
-                       'importe_bruto', 'fecha_prevista', 'ot', 'expediente']
-        field_labels = ['Estado', 'Nro. SOT', 'Fecha Realizada', 'UT Deudora', 'UT Ejecutora',
-                        'Imp. Bruto', 'Fecha Prevista', 'OT', 'Expediente']
+        field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
+                       'importe_bruto', 'fecha_envio_ut', 'fecha_envio_cc', 'firmada']
+        field_labels = ['Estado', 'Nro. SOT', 'Fecha Realizada', 'UT Deudora', 'Area Solic.',
+                        'Imp. Bruto', 'Fecha Envio UT', 'Retorno Firmada', 'Fecha Envio CC']
 
         # SOT en borrador
         borrCount = len(sots.filter(estado='borrador'))
@@ -1120,17 +1120,18 @@ class SOTList(ListView):
         options.append(fec1_vals)
         deudor_vals = sorted(set([s.deudor for s in sots if s.deudor]))
         options.append(deudor_vals)
-        ejecutor_vals = sorted(set([s.ejecutor for s in sots if s.ejecutor]))
-        options.append(ejecutor_vals)
+        solicitante_vals = sorted(set([s.solicitante for s in sots if s.solicitante]))
+        options.append(solicitante_vals)
         importe_bruto_vals = sorted(set([s.importe_bruto for s in sots if s.importe_bruto]))
         options.append(importe_bruto_vals)
-        fec2_vals = sorted(set([s.fecha_prevista.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_prevista is not None]))
+        fec2_vals = sorted(set([s.fecha_envio_ut.strftime("%d/%m/%Y")
+                        for s in sots if s.fecha_envio_ut is not None]))
         options.append(fec2_vals)
-        ot_vals = sorted(set([s.ot for s in sots]))
-        options.append(ot_vals)
-        expediente_vals = sorted(set([s.expediente for s in sots]))
-        options.append(expediente_vals)
+        fec3_vals = sorted(set([s.fecha_envio_cc.strftime("%d/%m/%Y")
+                        for s in sots if s.fecha_envio_cc is not None]))
+        options.append(fec3_vals)
+        firmada_vals = sorted(set([s.firmada for s in sots if s.firmada]))
+        options.append(firmada_vals)
         context['fields'] = list(zip(field_names, field_labels, options))
         # Chequeo los filtros seleccionados para conservar el estado de los
         # checkboxes
@@ -1348,9 +1349,9 @@ class RUTList(ListView):
         ruts = RUT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
-                       'importe_bruto', 'fecha_envio_ut', 'fecha_envio_cc', 'firmada']
+                       'importe_bruto', 'fecha_envio_ut', 'firmada', 'fecha_envio_cc']
         field_labels = ['Estado', 'Nro. RUT', 'Fecha', 'UT Deudora', 'Area Solic.', 'Imp. Bruto',
-                        'Fecha Envio a UT', 'Fecha Envio a CC', 'Retorno Firmada']
+                        'Fecha Envio a UT', 'Retorno Firmada', 'Fecha Envio a CC']
 
         # RUTs en borrador
         borrCount = len(ruts.filter(estado='borrador'))

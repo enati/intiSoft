@@ -267,6 +267,12 @@ class SOTForm(forms.ModelForm):
         else:
             return self.cleaned_data['deudor']
 
+    def clean_solicitante(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.solicitante
+        else:
+            return self.cleaned_data['solicitante']
+
     def clean_usuario_final(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.usuario_final
@@ -284,6 +290,24 @@ class SOTForm(forms.ModelForm):
             return self.instance.fecha_prevista
         else:
             return self.cleaned_data['fecha_prevista']
+
+    def clean_fecha_envio_ut(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_envio_ut
+        else:
+            return self.cleaned_data['fecha_envio_ut']
+
+    def clean_fecha_envio_cc(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_envio_cc
+        else:
+            return self.cleaned_data['fecha_envio_cc']
+
+    def clean_firmada(self):
+        if self.instance and self.instance.estado not in ['borrador', 'pendiente']:
+            return self.instance.firmada
+        else:
+            return self.cleaned_data['firmada']
 
     def clean_ot(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -311,7 +335,11 @@ class SOTForm(forms.ModelForm):
                   'usuario_final',
                   'ot',
                   'expediente',
-                  'presupuesto']
+                  'presupuesto',
+                  'fecha_envio_ut',
+                  'fecha_envio_cc',
+                  'firmada',
+                  'solicitante']
 
         error_messages = {
                 'fecha_realizado': {
@@ -332,10 +360,17 @@ class SOTForm(forms.ModelForm):
                 'presupuesto': {
                     'required': 'Campo obligatorio.',
                 },
+                'solicitante': {
+                    'required': 'Campo obligatorio.',
+                },
             }
 
         widgets = {
                 'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                          'readonly': True},),
+                'fecha_envio_ut': forms.DateInput(attrs={'class': 'datepicker',
+                                                          'readonly': True},),
+                'fecha_envio_cc': forms.DateInput(attrs={'class': 'datepicker',
                                                           'readonly': True},),
                 'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
                                                           'readonly': True},),

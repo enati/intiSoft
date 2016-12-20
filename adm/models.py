@@ -420,6 +420,20 @@ class SOT(Contrato):
         ('cancelada', 'Cancelada')
     )
 
+    AREAS = (
+        ('LIA', 'LIA'),
+        ('LIM1', 'LIM1'),
+        ('LIM2', 'LIM2'),
+        ('LIM3', 'LIM3'),
+        ('LIM6', 'LIM6'),
+        ('EXT', 'EXT'),
+        ('SIS', 'SIS'),
+        ('DES', 'DES'),
+        ('CAL', 'CAL'),
+        ('MEC', 'MEC'),
+        ('ML', 'ML'),
+    )
+
     estado = models.CharField(max_length=12, choices=ESTADOS,
                               default='borrador', verbose_name='Estado')
     codigo = models.CharField(max_length=15, verbose_name='Nro. SOT',
@@ -433,7 +447,11 @@ class SOT(Contrato):
                                       on_delete=models.PROTECT, related_name='sot_usuario_final')
     ot = models.CharField(max_length=5, verbose_name='Nro. OT', blank=True, null=True)
     expediente = models.CharField(max_length=5, verbose_name='Expediente', blank=True, null=True)
+    fecha_envio_ut = models.DateField('Fecha de envio a la UT', blank=True, null=True)
+    firmada = models.BooleanField('Retorno firmada')
+    fecha_envio_cc = models.DateField('Fecha de envio a CC', blank=True, null=True)
     fecha_prevista = models.DateField('Fecha prevista')
+    solicitante = models.CharField(max_length=4, choices=AREAS)
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
