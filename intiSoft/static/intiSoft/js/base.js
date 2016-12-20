@@ -260,7 +260,7 @@ $(document).ready(function() {
                         $('#ofertatec_formtable .add-row').click();
                         $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
                         $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
-                        // El [1] es detalle, no lo completo
+                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
                         $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
                         $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
                         $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
