@@ -772,7 +772,7 @@ def get_presup(request, *args, **kwargs):
                                       'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                       'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
                                       'precio': ot.precio, 'precio_total': ot.precio_total,
-                                      'detalle': ot.detalle})
+                                      'detalle': ot.detalle, 'observaciones': ot.observaciones})
 
     except:
         data = {}

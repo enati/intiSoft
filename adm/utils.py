@@ -293,8 +293,9 @@ def genRUT(vals):
             table_xml.insert(n + 11, nrow._tr)
 
         table.column_cells(13)[n + 10].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
-        table.column_cells(13)[n + 28].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
-        table.column_cells(13)[n + 30].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
+        table.column_cells(13)[n + 28].paragraphs[0].add_run(str(vals['importe_bruto']) or '')
+        table.column_cells(13)[n + 29].paragraphs[0].add_run(str(vals['descuento']) or '')
+        table.column_cells(13)[n + 30].paragraphs[0].add_run(str(vals['importe_neto']) or '')
 
     table.column_cells(1)[n + 10].paragraphs[0].add_run(vals['fecha_prevista'] or '')
 

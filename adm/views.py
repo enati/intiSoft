@@ -114,6 +114,9 @@ def viewRUT(request, *args, **kwargs):
     vals['codigo'] = rut_obj.codigo
     vals['fecha_apertura'] = rut_obj.fecha_realizado.strftime('%d/%m/%Y')
     vals['fecha_prevista'] = rut_obj.fecha_prevista.strftime('%d/%m/%Y')
+    vals['importe_neto'] = rut_obj.importe_neto
+    vals['importe_bruto'] = rut_obj.importe_bruto
+    vals['descuento'] = rut_obj.descuento
     vals['ofertatec'] = []
     acc = 0
     for o in rut_obj.ot_linea_set.get_queryset():

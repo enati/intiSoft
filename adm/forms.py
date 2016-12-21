@@ -404,7 +404,7 @@ class RUTForm(forms.ModelForm):
                     if f == 'importe_neto' or f == 'importe_bruto':
                         self.fields[f].widget.attrs['readonly'] = True
                         self.fields[f].required = False
-                    elif f != 'firmada':
+                    elif f not in ['firmada', 'fecha_envio_cc']:
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
@@ -462,6 +462,12 @@ class RUTForm(forms.ModelForm):
         else:
             return self.cleaned_data['firmada']
 
+    def clean_descuento_fijo(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.descuento_fijo
+        else:
+            return self.cleaned_data['descuento_fijo']
+
     class Meta:
         model = RUT
         fields = ['estado',
@@ -477,7 +483,8 @@ class RUTForm(forms.ModelForm):
                   'deudor',
                   'ejecutor',
                   'solicitante',
-                  'presupuesto']
+                  'presupuesto',
+                  'descuento_fijo']
 
         error_messages = {
             'fecha_realizado': {
