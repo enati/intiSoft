@@ -451,7 +451,7 @@ class RUTForm(forms.ModelForm):
             return self.cleaned_data['fecha_envio_ut']
 
     def clean_fecha_envio_cc(self):
-        if self.instance and self.instance.estado != 'borrador':
+        if self.instance and self.instance.estado not in ['borrador', 'pendiente']:
             return self.instance.fecha_envio_cc
         else:
             return self.cleaned_data['fecha_envio_cc']
