@@ -16,7 +16,8 @@ def bootstrap_format(f, **kwargs):
     if f.name in ['nombre', 'rubro', 'subrubro', 'tipo_servicio', 'area']:
         formfield.widget.attrs.update({'style': 'text-transform: uppercase'})
     tmp = formfield.widget.attrs.get('class') or ''
-    formfield.widget.attrs.update({'class': 'form-control ' + tmp})
+    if f.name != 'descuento_fijo':
+        formfield.widget.attrs.update({'class': 'form-control ' + tmp})
     return formfield
 
 
@@ -245,7 +246,7 @@ class SOTForm(forms.ModelForm):
                     if f == 'importe_neto' or f == 'importe_bruto':
                         self.fields[f].widget.attrs['readonly'] = True
                         self.fields[f].required = False
-                    elif f != 'firmada':
+                    elif f not in ['firmada', 'fecha_envio_cc']:
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
@@ -298,7 +299,7 @@ class SOTForm(forms.ModelForm):
             return self.cleaned_data['fecha_envio_ut']
 
     def clean_fecha_envio_cc(self):
-        if self.instance and self.instance.estado != 'borrador':
+        if self.instance and self.instance.estado not in ['borrador', 'pendiente']:
             return self.instance.fecha_envio_cc
         else:
             return self.cleaned_data['fecha_envio_cc']
@@ -321,6 +322,12 @@ class SOTForm(forms.ModelForm):
         else:
             return self.cleaned_data['expediente']
 
+    def clean_descuento_fijo(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.descuento_fijo
+        else:
+            return self.cleaned_data['descuento_fijo']
+
     class Meta:
         model = SOT
         fields = ['estado',
@@ -339,7 +346,8 @@ class SOTForm(forms.ModelForm):
                   'fecha_envio_ut',
                   'fecha_envio_cc',
                   'firmada',
-                  'solicitante']
+                  'solicitante',
+                  'descuento_fijo']
 
         error_messages = {
                 'fecha_realizado': {

@@ -250,6 +250,8 @@ $(document).ready(function() {
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
+                    $("select#id_solicitante").val(data['area']);
+                    $("#id_fecha_prevista").val(data['fecha_turno']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
                     $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);
 
@@ -614,6 +616,18 @@ $(document).ready(function() {
             document.getElementById("id_new_password").removeAttribute("disabled");
             document.getElementById("id_cnew_password").removeAttribute("disabled");
             return false;
+        }
+    });
+
+    $('#id_descuento_fijo').change(function() {
+        if(this.checked) {
+            // Calculo el 10% del bruto
+            importe_bruto = parseFloat($('#id_importe_bruto').val());
+            $('#id_descuento').val(importe_bruto/10);
+            $('#id_descuento').attr('readonly', true);
+        }
+        else {
+            $('#id_descuento').attr('readonly', false);
         }
     });
 

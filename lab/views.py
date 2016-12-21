@@ -19,6 +19,7 @@ from django.views.generic import View
 from reversion.models import Version
 import reversion
 
+
 thismonth = str(datetime.now().month)
 thisyear = str(datetime.now().year)
 
@@ -756,6 +757,7 @@ def get_presup(request, *args, **kwargs):
     try:
         presup_id = request.GET['presup_id']
         presup_obj = Presupuesto.objects.get(pk=presup_id)
+        turno_activo = presup_obj.get_turno_activo()
         data['fecha_solicitado'] = presup_obj.fecha_solicitado.strftime("%d/%m/%Y")
         data['fecha_realizado'] = presup_obj.fecha_realizado.strftime("%d/%m/%Y") if presup_obj.fecha_realizado else ''
         data['fecha_aceptado'] = presup_obj.fecha_aceptado.strftime("%d/%m/%Y") if presup_obj.fecha_aceptado else ''
@@ -763,8 +765,9 @@ def get_presup(request, *args, **kwargs):
         data['mail'] = presup_obj.usuario.mail
         data['rubro'] = presup_obj.usuario.rubro
         data['area'] = presup_obj.get_turno_activo().area
+        data['fecha_turno'] = turno_activo.fecha_fin.strftime("%d/%m/%Y")
         data['ofertatec'] = []
-        for ot in presup_obj.get_turno_activo().ofertatec_linea_set.all():
+        for ot in turno_activo.ofertatec_linea_set.all():
             data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
                                       'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                       'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
