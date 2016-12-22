@@ -307,3 +307,80 @@ def genRUT(vals):
     response['Content-Disposition'] = "attachment; filename=%s.docx" % ('RUT-' + vals['codigo'] or 'SOT')
 
     return response
+
+
+def genSI(vals):
+    if os.name == 'posix':
+        #Linux
+        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
+    else:
+        #Windows
+        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+
+    document = Document(path + vals['plantilla'])
+
+    style = document.styles['Normal']
+    font = style.font
+    font.name = 'Arial Narrow'
+    font.size = Pt(8)
+
+    # Documento temporal para la tabla de OTs
+    tmp_doc = Document()
+    ot_table = tmp_doc.add_table(0, 28)
+    ot_table.alignment = 0
+
+    table = document.tables[0]
+    table_xml = document._part._element.body[0]
+    # Necesario para ajustar el ancho de las columnas
+    ot_table.autofit = False
+
+
+    #=======================================
+    #========== DATOS DE LA SI ============
+    #=======================================
+    # UT Ejecutora
+    table.column_cells(1)[2].paragraphs[0].add_run(vals['ejecutor'] or '')
+    # UT Deudora
+    table.column_cells(21)[2].paragraphs[0].add_run(vals['solicitante'] or '')
+    # Fecha de apertura
+    table.column_cells(1)[4].paragraphs[0].add_run(vals['fecha_apertura'] or '')
+    # RUT Codigo
+    table.column_cells(1)[6].paragraphs[0].add_run(vals['codigo'] or '')
+    ## OT's
+    n = 1
+    if vals['ofertatec']:
+        cod, det, tipo_servicio, cantidad, precio, precio_total = vals['ofertatec'][0]
+        table.column_cells(0)[9].paragraphs[0].add_run(cod + '\n' + det or '')
+        table.column_cells(0)[9].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+        table.column_cells(7)[9].paragraphs[0].add_run(tipo_servicio or '')
+        table.column_cells(26)[9].paragraphs[0].add_run(str(cantidad) or '')
+        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:]):
+            # Creo y completo una fila en el documento temporal
+            nrow = ot_table.add_row()
+            # Ajusto el width
+            for i in range(14):
+                nrow.cells[i].width = table.column_cells(i)[8].width
+            # Mergeo las celdas
+            nrow.cells[0].merge(nrow.cells[6])
+            nrow.cells[7].merge(nrow.cells[25])
+            nrow.cells[26].merge(nrow.cells[27])
+            # Completo las columnas
+            nrow.cells[0].paragraphs[0].add_run(cod + '\n' + det)
+            nrow.cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+            nrow.cells[7].paragraphs[0].add_run(tipo_servicio or '')
+            nrow.cells[7].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            nrow.cells[26].paragraphs[0].add_run(str(cantidad) or '')
+            nrow.cells[26].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            # Inserto la fila en el documento original
+            table_xml.insert(n + 12, nrow._tr)
+
+    table.column_cells(1)[n + 9].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+
+    f = StringIO()
+    document.save(f)
+    f.seek(0)
+
+    response = HttpResponse(f.getvalue(), content_type='text/docx')
+    response['Content-Disposition'] = "attachment; filename=%s.docx" % ('RUT-' + vals['codigo'] or 'SOT')
+
+    return response

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
-from .utils import genWord, genSOT, genRUT
+from .utils import genWord, genSOT, genRUT, genSI
 from django.http import JsonResponse
 import json
 from intiSoft.exception import StateError
@@ -125,6 +125,22 @@ def viewRUT(request, *args, **kwargs):
     vals['arancel_previsto'] = acc
     vals['plantilla'] = 'RUT.docx'
     return genRUT(vals)
+
+
+def viewSI(request, *args, **kwargs):
+    si_id = kwargs.get('pk')
+    si_obj = SI.objects.get(id=si_id)
+    vals = {}
+    vals['ejecutor'] = si_obj.ejecutor
+    vals['solicitante'] = si_obj.solicitante
+    vals['codigo'] = si_obj.codigo
+    vals['fecha_apertura'] = si_obj.fecha_realizado.strftime('%d/%m/%Y')
+    vals['fecha_prevista'] = si_obj.fecha_prevista.strftime('%d/%m/%Y')
+    vals['ofertatec'] = []
+    for o in si_obj.ot_linea_set.get_queryset():
+        vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
+    vals['plantilla'] = 'SI.docx'
+    return genSI(vals)
 
 
 def get_user(request, *args, **kwargs):

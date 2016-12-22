@@ -89,6 +89,12 @@
                            data-toggle="modal" data-target="#myModal">Cancelar SI</a>
                     </li>
                     {% endif %}
+                    <li role="separator" class="divider" />
+                    {% if 'adm.add_si' in user.get_all_permissions %}
+                        <li>
+                            <a id="viewSI" href="{% url 'adm:si-viewSI' object.id %}" data-id="{{object.id}}">Generar SI</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         {% else %}
@@ -182,7 +188,7 @@
                                             </div>
                                         {% endfor %}
                                     {% else %}
-                                        {{ form.instance.solicitante.nombre }}
+                                        {{ form.instance.solicitante }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -223,7 +229,7 @@
                                             </div>
                                         {% endfor %}
                                     {% else %}
-                                        {{ form.instance.ejecutor.nombre }}
+                                        {{ form.instance.ejecutor }}
                                     {% endif %}
                                 </div>
                             </div>
@@ -272,6 +278,13 @@
                                             {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                         {% else %}
                                             {{ formOt.instance.ofertatec.codigo }}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
+                                            {{ formOt.codigo }} {{ formOt.codigo.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.codigo}}
                                         {% endif %}
                                     </td>
                                     <td style="display:none">

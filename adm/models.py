@@ -597,15 +597,27 @@ class SI(Contrato):
         ('cancelada', 'Cancelada')
     )
 
+    AREAS = (
+        ('LIA', 'LIA'),
+        ('LIM1', 'LIM1'),
+        ('LIM2', 'LIM2'),
+        ('LIM3', 'LIM3'),
+        ('LIM6', 'LIM6'),
+        ('EXT', 'EXT'),
+        ('SIS', 'SIS'),
+        ('DES', 'DES'),
+        ('CAL', 'CAL'),
+        ('MEC', 'MEC'),
+        ('ML', 'ML'),
+    )
+
     estado = models.CharField(max_length=12, choices=ESTADOS,
                               default='borrador', verbose_name='Estado')
     codigo = models.CharField(max_length=15, verbose_name='Nro. SI',
                               unique=True, default=nextSICode,
                               error_messages={'unique': "Ya existe una SI con ese número."})
-    solicitante = models.ForeignKey(Usuario, verbose_name='Area Solicitante',
-                               on_delete=models.PROTECT, related_name='si_soliciante')
-    ejecutor = models.ForeignKey(Usuario, verbose_name='Area Ejecutora',
-                                 on_delete=models.PROTECT, related_name='si_ejecutor')
+    solicitante = models.CharField(max_length=4, choices=AREAS)
+    ejecutor = models.CharField(max_length=4, choices=AREAS)
     fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
     fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
     # Campos para la relacion inversa

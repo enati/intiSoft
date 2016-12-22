@@ -553,15 +553,15 @@ class SIForm(forms.ModelForm):
         model = SI
 
         fields = ['estado',
-          'codigo',
-          'fecha_realizado',
-          'importe_bruto',
-          'importe_neto',
-          'descuento',
-          'fecha_prevista',
-          'solicitante',
-          'ejecutor',
-          'fecha_fin_real']
+                  'codigo',
+                  'fecha_realizado',
+                  'importe_bruto',
+                  'importe_neto',
+                  'descuento',
+                  'fecha_prevista',
+                  'solicitante',
+                  'ejecutor',
+                  'fecha_fin_real']
 
         error_messages = {
             'fecha_realizado': {
