@@ -651,7 +651,7 @@ class Tarea_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de tareas de Solicitud Interna """
     tarea = models.CharField(verbose_name='Tarea', max_length=250)
     horas = models.FloatField(verbose_name='Horas')
-    arancel = models.FloatField(verbose_name='Arancel')
+    arancel = models.FloatField(verbose_name='Arancel', null=True, blank=True)
     # Campos para relacion generica
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()

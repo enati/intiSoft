@@ -503,6 +503,7 @@ class RUTForm(forms.ModelForm):
             'importe_bruto': forms.TextInput(),
         }
 
+
 class SIForm(forms.ModelForm):
     formfield_callback = bootstrap_format
 

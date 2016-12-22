@@ -368,28 +368,6 @@ $(document).ready(function() {
         importe_neto.val(total - descuento_val);
     });
 
-    $("#btnImporteNetoSI").on('click', function(e) {
-        var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
-            tareaLinePrice_list = $("[id^=id_adm-tarea_linea][id$=arancel]"),
-            total = 0,
-            importe_bruto = $("[id$=id_importe_bruto]"),
-            importe_neto = $("[id$=id_importe_neto]"),
-            descuento_val = parseFloat($("[id$=id_descuento]").val());
-        for (var i=0; i<otLinePrice_list.length; i++) {
-            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
-                total += parseFloat(otLinePrice_list[i].value);
-            }
-        }
-        for (var i=0; i<tareaLinePrice_list.length; i++) {
-            if (tareaLinePrice_list[i].closest('tr').style.display != 'none') {
-                var arancel = tareaLinePrice_list[i].value;
-                total += ((arancel != "") ? parseFloat(arancel) : 0);
-            }
-        }
-        importe_bruto.val(total);
-        importe_neto.val(total - descuento_val);
-    });
-
     $("#id_codigo").on('change keyup', function (e) {
         var presup_id = $(this).val()
         if (presup_id != "") {

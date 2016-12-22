@@ -341,15 +341,15 @@
                                             {% if formOt.instance.pk %}
                                                 {{ formOt.DELETE }}
                                             {% endif %}
-                                            {% if formTarea.errors %}
-                                                {% for error in formTarea.non_field_errors %}
-                                                    <div class="alert alert-error">
-                                                        <strong>{{ error|escape }}</strong>
-                                                    </div>
-                                                {% endfor %}
-                                            {% endif %}
                                         {% endif %}
                                     </td>
+                                    {% if formOt.errors %}
+                                        {% for error in formOt.non_field_errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -364,7 +364,7 @@
                         {{ tarea_linea_form.non_form_errors }}
                     {% endif %}
                     <table id="tareas_formtable" class="table">
-                    <col style="width:60%">
+                    <col style="width:80%">
 <!--
                         <col style="width:30%">
                         <col style="width:20%">
@@ -376,7 +376,6 @@
                         <thead>
                             <td>Tarea</td>
                             <td>Horas</td>
-                            <td>Arancel</td>
                         </thead>
                         <tbody>
                             {% for formTarea in tarea_linea_form %}
@@ -401,26 +400,19 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if edit %}
-                                            {{ formTarea.arancel }} {{ formTarea.arancel.errors }}
-                                        {% else %}
-                                            {{ formTarea.instance.arancel | default_if_none:"" }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
                                         {% if edit and form.instance.estado == 'borrador' %}
                                             {% if formTarea.instance.pk %}
                                                 {{ formTarea.DELETE }}
                                             {% endif %}
-                                            {% if formTarea.errors %}
-                                                {% for error in formTarea.non_field_errors %}
-                                                    <div class="alert alert-error">
-                                                        <strong>{{ error|escape }}</strong>
-                                                    </div>
-                                                {% endfor %}
-                                            {% endif %}
                                         {% endif %}
                                     </td>
+                                    {% if formTarea.errors %}
+                                        {% for error in formTarea.non_field_errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -497,7 +489,7 @@
                                {% endif %}
                             </div>
                         </div>
-                        <button type="button" class="btn btn-default" id="btnImporteNetoSI"
+                        <button type="button" class="btn btn-default" id="btnImporteNeto"
                             {% if not edit %}disabled="disabled"{% endif %}>
                             <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
                         </button>
