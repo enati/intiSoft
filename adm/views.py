@@ -137,8 +137,11 @@ def viewSI(request, *args, **kwargs):
     vals['fecha_apertura'] = si_obj.fecha_realizado.strftime('%d/%m/%Y')
     vals['fecha_prevista'] = si_obj.fecha_prevista.strftime('%d/%m/%Y')
     vals['ofertatec'] = []
+    vals['tarea'] = []
     for o in si_obj.ot_linea_set.get_queryset():
         vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
+    for t in si_obj.tarea_linea_set.get_queryset():
+        vals['tarea'].append((t.tarea, t.horas))
     vals['plantilla'] = 'SI.docx'
     return genSI(vals)
 

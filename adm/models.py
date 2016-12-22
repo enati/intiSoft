@@ -621,7 +621,7 @@ class SI(Contrato):
     fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
     fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
     # Campos para la relacion inversa
-    tarea_linea_set = GenericRelation('Tarea Linea')
+    tarea_linea_set = GenericRelation('Tarea_Linea')
 
     def _toState_finalizada(self):
         self.estado = 'finalizada'

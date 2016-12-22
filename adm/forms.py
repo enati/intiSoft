@@ -873,6 +873,7 @@ class Tarea_LineaForm(forms.ModelForm):
 
 Tarea_LineaFormSet = generic_inlineformset_factory(Tarea_Linea,
                                                    min_num=1,
+                                                   max_num=9,
                                                    extra=0,
                                                    formfield_callback=bootstrap_format,
                                                    form=Tarea_LineaForm,

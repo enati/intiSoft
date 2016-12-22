@@ -334,7 +334,6 @@ def genSI(vals):
     # Necesario para ajustar el ancho de las columnas
     ot_table.autofit = False
 
-
     #=======================================
     #========== DATOS DE LA SI ============
     #=======================================
@@ -358,7 +357,7 @@ def genSI(vals):
             # Creo y completo una fila en el documento temporal
             nrow = ot_table.add_row()
             # Ajusto el width
-            for i in range(14):
+            for i in range(27):
                 nrow.cells[i].width = table.column_cells(i)[8].width
             # Mergeo las celdas
             nrow.cells[0].merge(nrow.cells[6])
@@ -374,13 +373,19 @@ def genSI(vals):
             # Inserto la fila en el documento original
             table_xml.insert(n + 12, nrow._tr)
 
-    table.column_cells(1)[n + 9].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+    table.column_cells(1)[n + 11].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+
+    for n, (tarea, horas) in enumerate(vals['tarea']):
+        table.column_cells(0)[n + 20].paragraphs[0].add_run(tarea)
+        table.column_cells(0)[n + 20].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        table.column_cells(20)[n + 20].paragraphs[0].add_run(str(horas))
+        table.column_cells(20)[n + 20].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     f = StringIO()
     document.save(f)
     f.seek(0)
 
     response = HttpResponse(f.getvalue(), content_type='text/docx')
-    response['Content-Disposition'] = "attachment; filename=%s.docx" % ('RUT-' + vals['codigo'] or 'SOT')
+    response['Content-Disposition'] = "attachment; filename=%s.docx" % ('SI-' + vals['codigo'] or 'SI')
 
     return response
