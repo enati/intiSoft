@@ -589,14 +589,13 @@ class Tarea_LineaForm(forms.ModelForm):
                   'arancel']
 
 
-Tarea_LineaFormSet = inlineformset_factory(SI,
-                                           Tarea_Linea,
-                                           min_num=1,
-                                           extra=0,
-                                           formfield_callback=bootstrap_format,
-                                           form=Tarea_LineaForm,
-                                           formset=BaseInlineFormSet,
-                                          )
+Tarea_LineaFormSet = generic_inlineformset_factory(Tarea_Linea,
+                                                   min_num=1,
+                                                   extra=0,
+                                                   formfield_callback=bootstrap_format,
+                                                   form=Tarea_LineaForm,
+                                                   formset=BaseGenericInlineFormSet,
+                                                  )
 
 
 class PresupuestoForm(forms.ModelForm):

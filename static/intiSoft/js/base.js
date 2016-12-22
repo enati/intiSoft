@@ -352,7 +352,7 @@ $(document).ready(function() {
 
     $("#btnImporteNetoSI").on('click', function(e) {
         var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
-            tareaLinePrice_list = $("[id^=id_tarea_linea_set][id$=arancel]"),
+            tareaLinePrice_list = $("[id^=id_adm-tarea_linea][id$=arancel]"),
             total = 0,
             importe_bruto = $("[id$=id_importe_bruto]"),
             importe_neto = $("[id$=id_importe_neto]"),

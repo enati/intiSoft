@@ -429,6 +429,8 @@ class SI(Contrato):
                                  on_delete=models.PROTECT, related_name='si_ejecutor')
     fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
     fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
+    # Campos para la relacion inversa
+    tarea_linea_set = GenericRelation('Tarea Linea')
 
     def _toState_finalizada(self):
         self.estado = 'finalizada'
@@ -459,7 +461,10 @@ class Tarea_Linea(TimeStampedModel, AuthStampedModel):
     tarea = models.CharField(verbose_name='Tarea', max_length=250)
     horas = models.FloatField(verbose_name='Horas')
     arancel = models.FloatField(verbose_name='Arancel')
-    si = models.ForeignKey(SI, verbose_name='SI')
+    # Campos para relacion generica
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         ordering = ['id']
