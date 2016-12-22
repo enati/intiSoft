@@ -18,6 +18,9 @@ urlpatterns = [
     url(r'^contratos/SOT/viewRUT/(?P<pk>\d+)/$', 'adm.views.viewRUT', name='rut-viewRUT'),
     url(r'^contratos/RUT/create/$', login_required(views.RUTCreate.as_view()), name='rut-create'),
     url(r'^contratos/RUT/update/(?P<pk>\d+)/$', login_required(views.RUTUpdate.as_view()), name='rut-update'),
+    url(r'^contratos/SI/$', login_required(views.SIList.as_view()), name='si-list'),
+    url(r'^contratos/SI/create/$', login_required(views.SICreate.as_view()), name='si-create'),
+    url(r'^contratos/SI/update/(?P<pk>\d+)/$', login_required(views.SIUpdate.as_view()), name='si-update'),
 
     url(r'^presup/$', login_required(views.PresupuestoList.as_view()), name='presup-list'),
     url(r'^presup/viewWord/(?P<pk>\d+)/$', 'adm.views.viewWord', name='presup-viewWord'),

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, Factura, Recibo, Remito, OT_Linea, SOT, RUT
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -250,29 +250,11 @@ class SOTForm(forms.ModelForm):
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
-    def clean_codigo(self):
-        if self.instance and self.instance.estado != 'borrador':
-            return self.instance.codigo
-        else:
-            return self.cleaned_data['codigo']
-
-    def clean_fecha_realizado(self):
-        if self.instance and self.instance.estado != 'borrador':
-            return self.instance.fecha_realizado
-        else:
-            return self.cleaned_data['fecha_realizado']
-
     def clean_deudor(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.deudor
         else:
             return self.cleaned_data['deudor']
-
-    def clean_solicitante(self):
-        if self.instance and self.instance.estado != 'borrador':
-            return self.instance.solicitante
-        else:
-            return self.cleaned_data['solicitante']
 
     def clean_usuario_final(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -470,6 +452,7 @@ class RUTForm(forms.ModelForm):
 
     class Meta:
         model = RUT
+
         fields = ['estado',
                   'codigo',
                   'fecha_realizado',
@@ -490,6 +473,7 @@ class RUTForm(forms.ModelForm):
             'fecha_realizado': {
                 'required': 'Campo obligatorio.',
             },
+
             'fecha_prevista': {
                 'required': 'Campo obligatorio.',
             },
@@ -515,6 +499,86 @@ class RUTForm(forms.ModelForm):
             'fecha_envio_ut': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'fecha_envio_cc': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'importe_bruto': forms.TextInput(),
+        }
+
+class SIForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(SIForm, self).__init__(*args, **kwargs)
+        self.fields['codigo'].widget.attrs['class'] = 'OT_code'
+        self.fields['codigo'].widget.attrs['form'] = 'SIForm'
+        if self.instance:
+            if self.instance.estado != 'borrador':
+                for f in self.fields:
+                    # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
+                    # se pueden actualizar con el boton por si quedaron en 0
+                    if f == 'importe_neto' or f == 'importe_bruto':
+                        self.fields[f].widget.attrs['readonly'] = True
+                        self.fields[f].required = False
+
+    def clean_codigo(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.codigo
+        else:
+            return self.cleaned_data['codigo']
+
+    def clean_fecha_realizado(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_realizado
+        else:
+            return self.cleaned_data['fecha_realizado']
+
+    def clean_solicitante(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.solicitante
+        else:
+            return self.cleaned_data['solicitante']
+
+    def clean_ejecutor(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.ejecutor
+        else:
+            return self.cleaned_data['ejecutor']
+
+    def clean_fecha_prevista(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.fecha_prevista
+        else:
+            return self.cleaned_data['fecha_prevista']
+
+    class Meta:
+        model = SI
+
+        fields = ['estado',
+          'codigo',
+          'fecha_realizado',
+          'importe_bruto',
+          'importe_neto',
+          'descuento',
+          'fecha_prevista',
+          'solicitante',
+          'ejecutor',
+          'fecha_fin_real']
+
+        error_messages = {
+            'fecha_realizado': {
+                'required': 'Campo obligatorio.',
+            },
+            'solicitante': {
+                'required': 'Campo obligatorio.',
+            },
+            'ejecutor': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+        widgets = {
+            'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'importe_bruto': forms.TextInput(),
         }
@@ -794,6 +858,25 @@ OT_LineaFormSet = generic_inlineformset_factory(OT_Linea,
                                                 form=OT_LineaForm,
                                                 formset=CustomInlineFormset,
                                                )
+
+
+class Tarea_LineaForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Tarea_Linea
+        fields = ['tarea',
+                  'horas',
+                  'arancel']
+
+
+Tarea_LineaFormSet = generic_inlineformset_factory(Tarea_Linea,
+                                                   min_num=1,
+                                                   extra=0,
+                                                   formfield_callback=bootstrap_format,
+                                                   form=Tarea_LineaForm,
+                                                   formset=BaseGenericInlineFormSet,
+                                                  )
 
 
 class PresupuestoForm(forms.ModelForm):
