@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from adm.models import Presupuesto, Usuario, OfertaTec
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
+from django_permanent.models import PermanentModel
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from django.db.models.signals import pre_save, post_save, m2m_changed
@@ -30,7 +31,7 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
 
 
 @reversion.register(follow=["ofertatec_linea_set", "presupuesto"])
-class Turno(TimeStampedModel, AuthStampedModel):
+class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     #_fecha_inicio_orig = None
     #_presupuesto_orig = None
