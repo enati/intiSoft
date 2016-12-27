@@ -16,6 +16,17 @@ from intiSoft.exception import StateError
 from reversion.models import Version
 import reversion
 from time import time
+import re
+from django.views.decorators.cache import cache_control
+
+#===========================================
+#========== VARIABLES GLOBALES =============
+#===========================================
+back_url_presupuesto = reverse_lazy('adm:presup-list')
+back_url_ot = reverse_lazy('adm:ot-list')
+back_url_otml = reverse_lazy('adm:otml-list')
+back_url_usuario = reverse_lazy('adm:usuarios-list')
+back_url_ofertatec = reverse_lazy('adm:ofertatec-list')
 
 #===========================================
 #======== FUNCIONES AUXILIARES =============
@@ -146,11 +157,17 @@ class OTCreate(CreateView):
     @method_decorator(permission_required('adm.add_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ot
+            back_url_ot = http_referer
         return super(OTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OTCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_ot
         return context
 
     def get_success_url(self):
@@ -227,6 +244,11 @@ class OTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ot
+            back_url_ot = http_referer
         return super(OTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -234,6 +256,7 @@ class OTUpdate(UpdateView):
         turno = (context['object']).presupuesto.get_turno_activo()
         context['turno_activo'] = turno
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_ot
         return context
 
     def get_success_url(self):
@@ -551,11 +574,17 @@ class OTMLCreate(CreateView):
     @method_decorator(permission_required('adm.add_otml',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_otml
+            back_url_otml = http_referer
         return super(OTMLCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OTMLCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_otml
         return context
 
     def get_success_url(self):
@@ -626,11 +655,17 @@ class OTMLUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_otml
+            back_url_otml = http_referer
         return super(OTMLUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OTMLUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_otml
         return context
 
     def get_success_url(self):
@@ -892,15 +927,22 @@ class OTMLList(ListView):
 class PresupuestoCreate(CreateView):
     model = Presupuesto
     form_class = PresupuestoForm
+    back_url = reverse_lazy('adm:presup-list')
 
     @method_decorator(permission_required('adm.add_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_presupuesto
+            back_url_presupuesto = http_referer
         return super(PresupuestoCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(PresupuestoCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_presupuesto
         return context
 
     def get_success_url(self):
@@ -1100,6 +1142,11 @@ class PresupuestoUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_presupuesto
+            back_url_presupuesto = http_referer
         return super(PresupuestoUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1128,6 +1175,7 @@ class PresupuestoUpdate(UpdateView):
                 otLineaVersByRevision.append(ot)
 
         context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
+        context['back_url'] = back_url_presupuesto
         return context
 
     def get_success_url(self):
@@ -1218,11 +1266,17 @@ class OfertaTecCreate(CreateView):
     @method_decorator(permission_required('adm.add_ofertatec',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ofertatec
+            back_url_ofertatec = http_referer
         return super(OfertaTecCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OfertaTecCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_ofertatec
         return context
 
     def get_success_url(self):
@@ -1254,11 +1308,17 @@ class OfertaTecUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_ofertatec',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ofertatec
+            back_url_ofertatec = http_referer
         return super(OfertaTecUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OfertaTecUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_ofertatec
         return context
 
     def get_success_url(self):
@@ -1341,11 +1401,17 @@ class UsuarioCreate(CreateView):
     @method_decorator(permission_required('adm.add_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_usuario
+            back_url_usuario = http_referer
         return super(UsuarioCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UsuarioCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_usuario
         return context
 
     def get_success_url(self):
@@ -1377,11 +1443,17 @@ class UsuarioUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_usuario
+            back_url_usuario = http_referer
         return super(UsuarioUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UsuarioUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_usuario
         return context
 
     def get_success_url(self):
