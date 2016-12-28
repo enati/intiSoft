@@ -214,6 +214,12 @@ class OTMLForm(forms.ModelForm):
             'importe_bruto': {
                 'required': 'Campo obligatorio.',
             },
+            'usuarioRep': {
+                'required': 'Campo obligatorio.',
+            },
+            'usuario': {
+                'required': 'Campo obligatorio.',
+            },
         }
 
         widgets = {
