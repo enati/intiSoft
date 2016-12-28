@@ -18,7 +18,6 @@ from reversion.models import Version
 import reversion
 from time import time
 import re
-from django.views.decorators.cache import cache_control
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -28,6 +27,9 @@ back_url_ot = reverse_lazy('adm:ot-list')
 back_url_otml = reverse_lazy('adm:otml-list')
 back_url_usuario = reverse_lazy('adm:usuarios-list')
 back_url_ofertatec = reverse_lazy('adm:ofertatec-list')
+back_url_sot = reverse_lazy('adm:sot-list')
+back_url_rut = reverse_lazy('adm:rut-list')
+back_url_si = reverse_lazy('adm:si-list')
 
 #===========================================
 #======== FUNCIONES AUXILIARES =============
@@ -996,11 +998,17 @@ class SOTCreate(CreateView):
     @method_decorator(permission_required('adm.add_sot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_sot
+            back_url_sot = http_referer
         return super(SOTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SOTCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_sot
         return context
 
     def get_success_url(self):
@@ -1063,11 +1071,17 @@ class SOTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_sot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_sot
+            back_url_sot = http_referer
         return super(SOTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SOTUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_sot
         return context
 
     def get_success_url(self):
@@ -1254,11 +1268,17 @@ class RUTCreate(CreateView):
     @method_decorator(permission_required('adm.add_rut',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_rut
+            back_url_rut = http_referer
         return super(RUTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(RUTCreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_rut
         return context
 
     def get_success_url(self):
@@ -1321,11 +1341,17 @@ class RUTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_rut',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_rut
+            back_url_rut = http_referer
         return super(RUTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(RUTUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_rut
         return context
 
     def get_success_url(self):
@@ -1511,11 +1537,17 @@ class SICreate(CreateView):
     @method_decorator(permission_required('adm.add_si',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_si
+            back_url_si = http_referer
         return super(SICreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SICreate, self).get_context_data(**kwargs)
         context['edit'] = True
+        context['back_url'] = back_url_si
         return context
 
     def get_success_url(self):
@@ -1585,11 +1617,17 @@ class SIUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_si',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_si
+            back_url_si = http_referer
         return super(SIUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SIUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_si
         return context
 
     def get_success_url(self):
