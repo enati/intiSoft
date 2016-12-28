@@ -18,10 +18,26 @@ from labCalendar import WorkoutCalendar
 from django.views.generic import View
 from reversion.models import Version
 import reversion
+import re
 
+#===========================================
+#========== VARIABLES GLOBALES =============
+#===========================================
 
 thismonth = str(datetime.now().month)
 thisyear = str(datetime.now().year)
+
+back_url_lia = reverse_lazy('lab:lia-list')
+back_url_lim1 = reverse_lazy('lab:lia-lim1')
+back_url_lim2 = reverse_lazy('lab:lia-lim2')
+back_url_lim3 = reverse_lazy('lab:lia-lim3')
+back_url_lim6 = reverse_lazy('lab:lia-lim6')
+back_url_ext = reverse_lazy('lab:lia-ext')
+back_url_sis = reverse_lazy('lab:lia-sis')
+back_url_des = reverse_lazy('lab:lia-des')
+back_url_cal = reverse_lazy('lab:lia-cal')
+back_url_mec = reverse_lazy('lab:lia-mec')
+back_url_ml = reverse_lazy('lab:lia-ml')
 
 
 class TurnoList(ListView):
@@ -247,6 +263,7 @@ class MLList(TurnoList):
 class TurnoCreate(CreateView):
     model = Turno
     form_class = TurnoForm
+    lab = ''
 
     def get(self, request, *args, **kwargs):
         """
@@ -304,11 +321,22 @@ class TurnoCreate(CreateView):
 
 class LIACreate(TurnoCreate):
     template_name = 'lab/LIA_form.html'
+    lab = 'LIA'
 
     @method_decorator(permission_required('lab.add_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lia
+            back_url_lia = http_referer
         return super(LIACreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIACreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lia
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
@@ -323,7 +351,17 @@ class LIM1Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim1
+            back_url_lim1 = http_referer
         return super(LIM1Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM1Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim1
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
@@ -338,7 +376,17 @@ class LIM2Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim2
+            back_url_lim2 = http_referer
         return super(LIM2Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM2Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim2
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
@@ -353,7 +401,17 @@ class LIM3Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim3
+            back_url_lim3 = http_referer
         return super(LIM3Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM3Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim3
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
@@ -368,7 +426,17 @@ class LIM6Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim6
+            back_url_lim6 = http_referer
         return super(LIM6Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM6Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim6
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
@@ -383,7 +451,17 @@ class EXTCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ext
+            back_url_ext = http_referer
         return super(EXTCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EXTCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_ext
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
@@ -398,7 +476,17 @@ class SISCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_sis
+            back_url_sis = http_referer
         return super(SISCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SISCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_sis
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
@@ -413,7 +501,17 @@ class DESCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_des
+            back_url_des = http_referer
         return super(DESCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(DESCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_des
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
@@ -428,7 +526,17 @@ class CALCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_CAL',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_cal
+            back_url_cal = http_referer
         return super(CALCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CALCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_cal
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:CAL-update', kwargs={'pk': self.object.id})
@@ -443,7 +551,17 @@ class MECCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_MEC',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_mec
+            back_url_mec = http_referer
         return super(MECCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MECCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_mec
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:MEC-update', kwargs={'pk': self.object.id})
@@ -458,7 +576,17 @@ class MLCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_ML',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ml
+            back_url_ml = http_referer
         return super(MLCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MLCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_ml
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:ML-update', kwargs={'pk': self.object.id})
@@ -595,7 +723,17 @@ class LIAUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lia
+            back_url_lia = http_referer
         return super(LIAUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIAUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lia
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIA-update', kwargs={'pk': self.object.id})
@@ -607,7 +745,17 @@ class LIM1Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim1
+            back_url_lim1 = http_referer
         return super(LIM1Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM1Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim1
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM1-update', kwargs={'pk': self.object.id})
@@ -619,7 +767,17 @@ class LIM2Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim2
+            back_url_lim2 = http_referer
         return super(LIM2Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM2Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim2
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM2-update', kwargs={'pk': self.object.id})
@@ -631,7 +789,17 @@ class LIM3Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim3
+            back_url_lim3 = http_referer
         return super(LIM3Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM3Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim3
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
@@ -643,7 +811,17 @@ class LIM6Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim6
+            back_url_lim6 = http_referer
         return super(LIM6Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM6Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim6
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:LIM6-update', kwargs={'pk': self.object.id})
@@ -655,7 +833,17 @@ class EXTUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ext
+            back_url_ext = http_referer
         return super(EXTUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EXTUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_ext
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
@@ -667,7 +855,17 @@ class SISUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_sis
+            back_url_sis = http_referer
         return super(SISUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SISUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_sis
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
@@ -679,7 +877,17 @@ class DESUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_des
+            back_url_des = http_referer
         return super(DESUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(DESUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_des
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:DES-update', kwargs={'pk': self.object.id})
@@ -691,7 +899,17 @@ class CALUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_CAL',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_cal
+            back_url_cal = http_referer
         return super(CALUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CALUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_cal
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:CAL-update', kwargs={'pk': self.object.id})
@@ -703,7 +921,17 @@ class MECUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_MEC',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_mec
+            back_url_mec = http_referer
         return super(MECUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MECUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_mec
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:MEC-update', kwargs={'pk': self.object.id})
@@ -715,7 +943,17 @@ class MLUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_ML',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_ml
+            back_url_ml = http_referer
         return super(MLUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MLUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_ml
+        return context
 
     def get_success_url(self):
         return reverse_lazy('lab:ML-update', kwargs={'pk': self.object.id})

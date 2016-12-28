@@ -125,7 +125,7 @@ def nextCode():
 
 
 @reversion.register(follow=["usuario", "turno_set"])
-class Presupuesto(TimeStampedModel, AuthStampedModel):
+class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     old_fecha_aceptado = None
 
@@ -241,7 +241,7 @@ pre_save.connect(check_state, sender=Presupuesto)
 post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
-class Contrato(TimeStampedModel, AuthStampedModel):
+class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
                                     null=True, blank=False, on_delete=models.PROTECT)
     importe_neto = models.FloatField(verbose_name='Importe Neto', blank=False, null=True, default=0)
