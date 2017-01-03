@@ -128,6 +128,9 @@ function rollBackPresupuesto() {
 //}
 
 $(document).ready(function() {
+    //fieldName = window.location.search.split("=")[0]
+    //fieldValue = window.location.search.split("=")[1]
+    //$('#searchField').tagsinput('add', fieldName + fieldValue);
 
     // Reseteo las fechas cuando hago una nueva revision
     if (window.location.href.indexOf('revision') != -1) {
@@ -571,6 +574,21 @@ $(document).ready(function() {
             },
     });
 
+    $(".input-group-btn .dropdown-menu li a").click(function(){
+
+        var selText = $(this).html();
+
+        //working version - for single button //
+       //$('.btn:first-child').html(selText+'<span class="caret"></span>');
+
+       //working version - for multiple buttons //
+       $(this).parents('.input-group-btn').find('.btn-search').html(selText);
+       searchBy = $(this).parents('li').data('name');
+       $('#searchField').attr('name', searchBy);
+
+   });
+
+/*
     $('.cbSearch').on({"change keyup": function(e) {
         var fieldName = $(this).attr('id').split("-")[0];
         var key = this.value.toUpperCase();
@@ -585,6 +603,7 @@ $(document).ready(function() {
         });
     }
     });
+*/
 
     submitAll = function(){
         //Crea un formulario con todas las opciones seleccionadas
