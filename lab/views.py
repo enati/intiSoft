@@ -1125,7 +1125,7 @@ class CalendarView(View):
             month = '0' + str(month)
         date = year + '-' + month
         turnos = Turno.objects.order_by('fecha_inicio').filter(fecha_inicio__contains=date,
-                                                               estado__in=['borrador', 'activo'],
+                                                               estado__in=['en_espera', 'activo'],
                                                                area=self.lab)
         cal = WorkoutCalendar(turnos, self.lab).formatmonth(int(year), int(month))
         return render(request, self.template_name, {'user': request.user, 'calendar': mark_safe(cal)})

@@ -34,11 +34,18 @@ class WorkoutCalendar(HTMLCalendar):
                 cssclass += ' filled'
                 body = ['<ul class="list-unstyled">']
                 for workout in self.workouts[day]:
+                    try:
+                        popupData = workout.presupuesto.usuario.nombre + "\n\n" +\
+                                    "Inicio: " + workout.fecha_inicio.strftime("%d/%m/%y") + "\n" +\
+                                    "Fin:      " + workout.fecha_fin.strftime("%d/%m/%y") + "\n\n" +\
+                                    "\n".join(map(lambda x: x.codigo + " - " + x.detalle, workout.ofertatec_linea_set.all()))
+                    except:
+                        popupData = ""
                     if workout.presupuesto_id:
                         if workout.revisionar:
                             cssstate[workout.estado] += ' overlay2'
                         body.append('<li style="position: relative" class= "%s">' % cssstate[workout.estado])
-                        body.append("<a href=" + reverse('lab:%s-update' % self.lab, kwargs={'pk': workout.id}) + ">")
+                        body.append("<a title='" + popupData + "' href=" + reverse('lab:%s-update' % self.lab, kwargs={'pk': workout.id}) + ">")
                         presup_obj = Presupuesto.objects.get(pk=workout.presupuesto_id)
                         user_obj = Usuario.objects.get(pk=presup_obj.usuario_id)
                         body.append(esc(user_obj.nombre))

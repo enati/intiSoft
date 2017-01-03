@@ -232,7 +232,11 @@ p.truncated {
 //}
 
 .today {
-    background-color: #ddd;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+table.month {
+    background-color: #eee
 }
 
 td.mon, td.tue, td.wed, td.thu, td.fri, td.sat, td.sun {
