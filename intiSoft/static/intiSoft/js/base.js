@@ -105,6 +105,18 @@ function rollBackPresupuesto() {
      });
 }
 
+$.fn.wrapInTag = function(opts) {
+
+  var tag = opts.tag || 'strong'
+    , words = opts.words || []
+    , regex = RegExp(words.join('|'), 'gi') // case insensitive
+    , replacement = '<'+ tag +'>$&</'+ tag +'>';
+
+  return this.html(function() {
+    return $(this).text().replace(regex, replacement);
+  });
+};
+
 //function cancelarFactura(event) {
 //    btn = $(event.target);
 //    form_prefix = btn.data('f_prefix') + '-' + btn.data('f_id');
@@ -128,9 +140,23 @@ function rollBackPresupuesto() {
 //}
 
 $(document).ready(function() {
-    //fieldName = window.location.search.split("=")[0]
-    //fieldValue = window.location.search.split("=")[1]
-    //$('#searchField').tagsinput('add', fieldName + fieldValue);
+
+    var url = decodeURIComponent(window.location),
+        matches = url.match(/[\?|\&]search=([^\&]+)/),
+        getParams = matches ? matches[1].split(",") : [],
+        getParamsDate = [];
+    for (var i = 0; i < getParams.length; i++) {
+        $('#searchField').tagsinput('add', getParams[i]);
+        // Si es la fecha con formato dd/mm/yyyy-dd/mm/yyyy la separo en 2 palabras para la negrita
+        //match = getParams[i].match(/\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}/);
+        //getParamsDate = match ? match[0].split("-") : [];
+        //if (getParamsDate.length > 0) {
+            //getParams.splice(i, 1);
+        //}
+    }
+    $('#otTable tbody td:not(:has(button))').wrapInTag({words: getParams});
+
+
 
     // Reseteo las fechas cuando hago una nueva revision
     if (window.location.href.indexOf('revision') != -1) {
@@ -604,29 +630,6 @@ $(document).ready(function() {
     }
     });
 */
-
-    submitAll = function(){
-        //Crea un formulario con todas las opciones seleccionadas
-        //de cada dropbox
-        var f = document.createElement("form");
-        f.setAttribute('method',"get");
-        f.setAttribute('action', "");
-
-        var checkbox_list = document.getElementsByClassName("cb");
-
-        for (var i=0; i<checkbox_list.length; i++) {
-            if (checkbox_list[i].checked) {
-                var n = document.createElement("input");
-                n.setAttribute('type',"hidden");
-                n.setAttribute('name',checkbox_list[i].name);
-                n.setAttribute('value',checkbox_list[i].value);
-                n.checked = true;
-                f.appendChild(n);
-            }
-        }
-        document.body.appendChild(f);
-        f.submit();
-    };
 
     $("#change_pass").on({"click": function (e) {
             document.getElementById("id_old_password").removeAttribute("disabled");

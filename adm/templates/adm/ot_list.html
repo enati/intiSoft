@@ -1,4 +1,15 @@
 {% extends "intiSoft/base.html" %}
+{% block head %}
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'intiSoft/js/moment.js' %}"></script>
+<script type="text/javascript" src="{% static 'intiSoft/js/daterangepicker.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'intiSoft/css/daterangepicker.css' %}" />
+<script>
+    $(function() {
+        $('#calendarBtn').daterangepicker();
+    });
+</script>
+{% endblock %}
 {% block content %}
 {% load intiSoft_filters %}
 <div class="row">
@@ -19,38 +30,11 @@
         <form name="searchForm" class="search-bar" action="" method="GET">
             <div class="input-group">
                 <div class="input-group-btn">
-                    <button id="searchSelect" type="button" class="btn btn-search btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span class="label-icon">Buscar</span>
-                        <span class="caret"></span>
+                    <button id="calendarBtn" type="button"class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-calendar"></span>
                     </button>
-                    <ul class="dropdown-menu pull-left" role="menu">
-                       <li data-name="presupuesto__codigo">
-                            <a href="#">
-                                <span class="glyphicon glyphicon-user"></span>
-                                <span class="label-icon" name="Presupuesto">Buscar por presupuesto</span>
-                            </a>
-                        </li>
-                        <li data-name="presupuesto__usuario__nombre">
-                            <a href="#">
-                            <span class="glyphicon glyphicon-book"></span>
-                            <span class="label-icon" name="Usuario">Buscar por usuario</span>
-                            </a>
-                        </li>
-                        <li data-name="codigo">
-                            <a href="#">
-                            <span class="glyphicon glyphicon-book"></span>
-                            <span class="label-icon"  name="OT">Buscar por OT</span>
-                            </a>
-                        </li>
-                        <li data-name="area">
-                            <a href="#">
-                            <span class="glyphicon glyphicon-book"></span>
-                            <span class="label-icon"  name="Area">Buscar por area</span>
-                            </a>
-                        </li>
-                    </ul>
                 </div>
-                <input id="searchField" type="text" class="form-control" data-role="tagsinput">
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
                 <div class="input-group-btn">
                     <button type="submit" value="submit" class="btn btn-search btn-default">
                         <span class="glyphicon glyphicon-search"></span>
@@ -73,26 +57,6 @@
                             <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
                                 <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
                                 <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
-<!--
-                                <li role="separator" class="divider"></li>
-                                <li><a onclick="seleccionar_todo(form_{{ name }})">Marcar todos</a></li>
-                                <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
-                                <li role="separator" class="divider"></li>
-                                <form name="form_{{ name }}" class="form-contact" action="{% url 'adm:presup-list' %}" method="GET">
-                                    <input type="text" class="form-control cbSearch" id="{{name}}-search" name="{{name}}-search">
-                                    <div style="max-height:110px; overflow-y:auto">
-                                        {% for option in options %}
-                                             <div class="checkbox" style="padding-left:5%">
-                                                <label><input type="checkbox" class="cb" name="{{ name }}" value="{{ option }}"
-                                                {% if option|add:"_"|add:name in checked_fields %}checked{% endif %}> {{ option }} </label>
-                                              </div>
-                                        {% endfor %}
-                                    </div>
-                                    <br/>
-                                    <button onclick="submitAll()" type="button" class="btn" style="border: 1px solid grey; margin-left:10px">
-                                    Ok
-                                </form>
--->
                             </ul>
                         </div>
                     </td>
@@ -244,7 +208,7 @@
             </tbody>
         </table>
         <table style="margin: 0 auto">
-            <td><div id="ref" class="alert-neutral">&nbsp;</div>No Facturado</td>
+            <td><div id="ref" class="alert-neutral">&nbsp;</div>Sin Facturar</td>
             <td><div id="ref" class="alert-warning">&nbsp;</div>No Pago</td>
             <td><div id="ref" class="alert-success">&nbsp;</div>Pagado</td>
             <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelado</td>
