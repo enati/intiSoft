@@ -395,12 +395,15 @@ class OTML(Contrato):
                        ("finish_otml", "Can finish OT-ML"),)
 
 
+# Ultimo codigo disponible (teniendo en cuenta saltos,
+# empezando desde el 03927)
 def nextSOTCode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
                      FROM adm_sot t1
-                     WHERE NOT EXISTS
-                        (SELECT t2.codigo FROM adm_sot t2 WHERE t2.codigo = t1.codigo + 1)
+                     WHERE
+                         NOT EXISTS
+                            (SELECT t2.codigo FROM adm_sot t2 WHERE t2.codigo = t1.codigo + 1)
                      """)
     row = cursor.fetchone()
     if row:
@@ -408,7 +411,7 @@ def nextSOTCode():
         zeros = '0' * (5 - len(n))
         return zeros + n
     else:
-        return '00001'
+        return '03927'
 
 
 class SOT(Contrato):
@@ -485,12 +488,15 @@ class SOT(Contrato):
 pre_save.connect(toState_pendiente, sender=SOT)
 
 
+# Ultimo codigo disponible (teniendo en cuenta saltos,
+# empezando desde el 00454)
 def nextRUTCode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
                      FROM adm_rut t1
-                     WHERE NOT EXISTS
-                        (SELECT t2.codigo FROM adm_rut t2 WHERE t2.codigo = t1.codigo + 1)
+                     WHERE
+                         NOT EXISTS
+                            (SELECT t2.codigo FROM adm_rut t2 WHERE t2.codigo = t1.codigo + 1)
                      """)
     row = cursor.fetchone()
     if row:
@@ -498,7 +504,7 @@ def nextRUTCode():
         zeros = '0' * (5 - len(n))
         return zeros + n
     else:
-        return '00001'
+        return '00454'
 
 
 class RUT(Contrato):
