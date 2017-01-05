@@ -1,14 +1,6 @@
 {% extends "intiSoft/base.html" %}
 {% block head %}
 {% load staticfiles %}
-<script type="text/javascript" src="{% static 'intiSoft/js/moment.js' %}"></script>
-<script type="text/javascript" src="{% static 'intiSoft/js/daterangepicker.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'intiSoft/css/daterangepicker.css' %}" />
-<script>
-    $(function() {
-        $('#calendarBtn').daterangepicker();
-    });
-</script>
 {% endblock %}
 {% block content %}
 {% load intiSoft_filters %}

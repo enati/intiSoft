@@ -141,6 +141,8 @@ $.fn.wrapInTag = function(opts) {
 
 $(document).ready(function() {
 
+    $('#calendarBtn').daterangepicker();
+
     var url = decodeURIComponent(window.location),
         matches = url.match(/[\?|\&]search=([^\&]+)/),
         getParams = matches ? matches[1].split(",") : [],
