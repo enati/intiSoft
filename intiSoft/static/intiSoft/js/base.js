@@ -157,6 +157,7 @@ $(document).ready(function() {
         //}
     }
     $('#otTable tbody td:not(:has(button))').wrapInTag({words: getParams});
+    $('#presupuestoTable tbody td:not(:has(button))').wrapInTag({words: getParams});
 
 
 

@@ -1745,37 +1745,32 @@ class PresupuestoList(ListView):
 
     def get_queryset(self):
         queryset = Presupuesto.objects.select_related().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado' or key == 'fecha_aceptado' \
-                    or key == 'fecha_solicitado' or key == 'fecha_instrumento':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    # Este caso lo trato aparte ya que estos campos no forman parte del presupuesto
-                    kwargs['%s__in' % key] = vals
-                    if key.find('ofertatec__') != -1:
-                        ot_queryset = OfertaTec_Linea.objects.all()
-                        ofertatec_lineas = ot_queryset.filter(**kwargs)
-                        turnos = [ot.turno for ot in ofertatec_lineas]
-                        presup = [p.id for p in queryset if p.get_turno_activo() in turnos]
-                        p_queryset = queryset.filter(id__in=presup)
-                        return p_queryset
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion del presupuesto
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(usuario__nombre__icontains="%s" % arg) |
+                                    Q(usuario__nro_usuario__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(turno__area__icontains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         self._checkstate(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(PresupuestoList, self).get_context_data(**kwargs)
-
-        presupuestos = Presupuesto.objects.select_related()
-        turnos = [p.get_turno_activo() for p in presupuestos]
 
         presupuestos_by_page = context['object_list']
         turnos_by_page = [p.get_turno_activo() for p in presupuestos_by_page]
@@ -1794,47 +1789,8 @@ class PresupuestoList(ListView):
                         'Fecha de Aceptacion',
                         'Llegada del Instrumento',
                         'Nro Recepcion']
-        # Agregado para mostrar los campos ordenados
-        # Presup en borrador
-        borrCount = len(presupuestos.filter(estado='borrador'))
-        # Presup aceptados
-        acepCount = len(presupuestos.filter(estado='aceptado'))
-        # Presup finalizados
-        finCount = len(presupuestos.filter(estado='finalizado'))
-        # Presup finalizados
-        facCount = len(presupuestos.filter(estado='en_proceso_de_facturacion'))
-        # Presup cancelados
-        canCount = len(presupuestos.filter(estado='cancelado'))
-        options = []
-        estado_vals = ['borrador('+str(borrCount)+')', 'aceptado('+str(acepCount)+')', 'en_proceso_de_facturacion('+str(facCount)+')', 'finalizado('+str(finCount)+')', 'cancelado('+str(canCount)+')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([p.codigo for p in presupuestos]))
-        options.append(cod_vals)
-        usuario_vals = sorted(set([p.usuario.nombre for p in presupuestos]))
-        options.append(usuario_vals)
-        nro_usuario_vals = sorted(set([p.usuario.nro_usuario for p in presupuestos]))
-        options.append(nro_usuario_vals)
-        area_vals = sorted(set([t.area for t in turnos if t is not None]))
-        options.append(area_vals)
-        fec2_vals = sorted(set([p.fecha_realizado.strftime("%d/%m/%Y")
-                        for p in presupuestos if p.fecha_realizado is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([p.fecha_aceptado.strftime("%d/%m/%Y")
-                        for p in presupuestos if p.fecha_aceptado is not None]))
-        options.append(fec3_vals)
-        fec4_vals = sorted(set([p.fecha_instrumento.strftime("%d/%m/%Y")
-                      for p in presupuestos if p.fecha_instrumento is not None]))
-        options.append(fec4_vals)
-        nro_recepcion_vals = sorted(set([p.nro_recepcion for p in presupuestos]))
-        options.append(nro_recepcion_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
