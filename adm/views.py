@@ -1231,26 +1231,33 @@ class RUTList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = RUT.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la RUT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(deudor__nombre__icontains="%s" % arg) |
+                                    Q(ejecutor__nombre__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_bruto__contains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(RUTList, self).get_context_data(**kwargs)
-        ruts = RUT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
                        'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'firmada',
@@ -1258,49 +1265,7 @@ class RUTList(ListView):
         field_labels = ['Estado', 'Nro. RUT', 'Fecha', 'UT Deudora', 'Area Solic.', 'Imp. Bruto',
                         'Imp. Neto', 'Fecha Envio a UT', 'Retorno Firmada', 'Fecha Envio a CC']
 
-        # RUTs en borrador
-        borrCount = len(ruts.filter(estado='borrador'))
-        # RUTs pendientes
-        penCount = len(ruts.filter(estado='pendiente'))
-        # RUTs cobradas
-        cobCount = len(ruts.filter(estado='cobrada'))
-        # RUTs canceladas
-        canCount = len(ruts.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'pendiente(' + str(penCount) + ')',
-                       'cobrada(' + str(cobCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([r.codigo for r in ruts]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([r.fecha_realizado.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        deudor_vals = sorted(set([r.deudor for r in ruts if r.deudor]))
-        options.append(deudor_vals)
-        solicitante_vals = sorted(set([r.solicitante for r in ruts if r.solicitante]))
-        options.append(solicitante_vals)
-        importe_bruto_vals = sorted(set([r.importe_bruto for r in ruts if r.importe_bruto]))
-        options.append(importe_bruto_vals)
-        importe_neto_vals = sorted(set([r.importe_neto for r in ruts if r.importe_neto]))
-        options.append(importe_neto_vals)
-        fec2_vals = sorted(set([r.fecha_envio_ut.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_envio_ut is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([r.fecha_envio_cc.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_envio_cc is not None]))
-        options.append(fec3_vals)
-        firmada_vals = sorted(set([r.firmada for r in ruts if r.firmada]))
-        options.append(firmada_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
