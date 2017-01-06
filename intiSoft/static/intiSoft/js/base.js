@@ -157,7 +157,7 @@ $(document).ready(function() {
         //}
     }
     $('#otTable tbody td:not(:has(button)),\
-       #presupuestoTable tbody td:not(:has(btton)),\
+       #presupuestoTable tbody td:not(:has(button)),\
        #rutTable tbody td:not(:has(button)),\
        #sotTable tbody td:not(:has(button)),\
        #siTable tbody td:not(:has(button)),\
