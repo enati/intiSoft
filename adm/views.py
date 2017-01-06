@@ -1871,44 +1871,30 @@ class UsuarioList(ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        #import pdb; pdb.set_trace()
         queryset = Usuario.objects.all()
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        QList.append(Q(nro_usuario__contains="%s" % arg) |
+                                    Q(nombre__icontains="%s" % arg) |
+                                    Q(cuit__contains="%s" % arg) |
+                                    Q(mail__icontains="%s" % arg) |
+                                    Q(rubro__icontains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(UsuarioList, self).get_context_data(**kwargs)
-        usuarios = Usuario.objects.all()
         field_names = ['nro_usuario', 'nombre', 'cuit', 'mail', 'rubro']
         field_labels = ['Nro. Usuario', 'Nombre', 'Cuit', 'Mail', 'Rubro']
-        # Agregado para mostrar los campos ordenados
-        options = []
-        nro_vals = sorted(set([u.nro_usuario for u in usuarios]))
-        options.append(nro_vals)
-        nombre_vals = sorted(set([u.nombre for u in usuarios]))
-        options.append(nombre_vals)
-        cuit_vals = sorted(set([u.cuit for u in usuarios]))
-        options.append(cuit_vals)
-        mail_vals = sorted(set([u.mail for u in usuarios if u.mail is not None]))
-        options.append(mail_vals)
-        rubro_vals = sorted(set([u.rubro for u in usuarios]))
-        options.append(rubro_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+
+        context['fields'] = list(zip(field_names, field_labels))
         # Para la paginacion
         if self.request.GET.has_key('order_by'):
             context['order_by'] = self.request.GET['order_by']
