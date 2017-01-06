@@ -1746,50 +1746,33 @@ class OfertaTecList(ListView):
 
     def get_queryset(self):
         queryset = OfertaTec.objects.all()
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        QList.append(Q(proveedor__contains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(rubro__icontains="%s" % arg) |
+                                    Q(subrubro__icontains="%s" % arg) |
+                                    Q(tipo_servicio__icontains="%s" % arg) |
+                                    Q(area__icontains="%s" % arg) |
+                                    Q(detalle__icontains="%s" % arg) |
+                                    Q(precio__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(OfertaTecList, self).get_context_data(**kwargs)
-        ofertas = OfertaTec.objects.all()
         field_names = ['proveedor', 'codigo', 'rubro', 'subrubro',
                        'tipo_servicio', 'area', 'detalle', 'precio']
         field_labels = ['Proveedor', 'Codigo', 'Rubro', 'Subrubro',
                         'Tipo de Servicio', 'Area', 'Detalle', 'Precio']
-        # Agregado para mostrar los campos ordenados
-        options = []
-        prov_vals = sorted(set([o.proveedor for o in ofertas]))
-        options.append(prov_vals)
-        cod_vals = sorted(set([o.codigo for o in ofertas]))
-        options.append(cod_vals)
-        rubro_vals = sorted(set([o.rubro for o in ofertas]))
-        options.append(rubro_vals)
-        subrubro_vals = sorted(set([o.subrubro for o in ofertas]))
-        options.append(subrubro_vals)
-        serv_vals = sorted(set([o.tipo_servicio for o in ofertas]))
-        options.append(serv_vals)
-        area_vals = sorted(set([o.area for o in ofertas]))
-        options.append(area_vals)
-        detalle_vals = sorted(set([o.detalle for o in ofertas]))
-        options.append(detalle_vals)
-        precio_vals = sorted(set([o.precio for o in ofertas]))
-        options.append(precio_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Para la paginacion
         if self.request.GET.has_key('order_by'):
             context['order_by'] = self.request.GET['order_by']
