@@ -966,21 +966,28 @@ class SOTList(ListView):
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la SOT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(deudor__nombre__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_bruto__contains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(SOTList, self).get_context_data(**kwargs)
-        sots = SOT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
                        'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'fecha_envio_cc',
@@ -989,49 +996,7 @@ class SOTList(ListView):
                         'Imp. Bruto', 'Imp. Neto',  'Fecha Envio UT', 'Retorno Firmada',
                         'Fecha Envio CC']
 
-        # SOT en borrador
-        borrCount = len(sots.filter(estado='borrador'))
-        # SOT pendientes
-        penCount = len(sots.filter(estado='pendiente'))
-        # SOT cobradas
-        cobCount = len(sots.filter(estado='cobrada'))
-        # SOT canceladas
-        canCount = len(sots.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'pendiente(' + str(penCount) + ')',
-                       'cobrada(' + str(cobCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([s.codigo for s in sots]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([s.fecha_realizado.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        deudor_vals = sorted(set([s.deudor for s in sots if s.deudor]))
-        options.append(deudor_vals)
-        solicitante_vals = sorted(set([s.solicitante for s in sots if s.solicitante]))
-        options.append(solicitante_vals)
-        importe_bruto_vals = sorted(set([s.importe_bruto for s in sots if s.importe_bruto]))
-        options.append(importe_bruto_vals)
-        importe_neto_vals = sorted(set([s.importe_neto for s in sots if s.importe_neto]))
-        options.append(importe_neto_vals)
-        fec2_vals = sorted(set([s.fecha_envio_ut.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_envio_ut is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([s.fecha_envio_cc.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_envio_cc is not None]))
-        options.append(fec3_vals)
-        firmada_vals = sorted(set([s.firmada for s in sots if s.firmada]))
-        options.append(firmada_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
