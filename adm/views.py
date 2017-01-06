@@ -2,7 +2,7 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm,\
                    Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm, Tarea_LineaFormSet
@@ -18,6 +18,8 @@ from reversion.models import Version
 import reversion
 from time import time
 import re
+from django.db.models import Q
+import operator
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -394,81 +396,47 @@ class OTList(ListView):
     paginate_by = 30
 
     def get_queryset(self):
+        t_inicial = time()
         # Por defecto los ordeno por codigo (desc)
         queryset = OT.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado' or key == 'fecha_aviso':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                elif key == 'area':
-                    presup_by_ot = [o.presupuesto for o in queryset]
-                    filtered_presup = [p for p in presup_by_ot if p.get_turno_activo().area in vals]
-                    kwargs['presupuesto__in'] = filtered_presup
-                elif key == 'factura':
-                    ots = [o.id for o in queryset if o.factura_set.get_queryset().filter(numero__in=vals)]
-                    kwargs['id__in'] = ots
-                elif key == 'factura__fecha':
-                    factura = Factura.objects.all().filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                                         for v in vals])
-                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'factura__importe':
-                    factura = Factura.objects.all().filter(importe__in=vals)
-                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'factura__fecha_aviso':
-                    factura = Factura.objects.all().filter(fecha_aviso__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                                         for v in vals])
-                    ots = [f.object_id for f in factura if f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                            if f.recibo_set.get_queryset().filter(numero__in=vals)
-                                and f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__fecha':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                            if f.recibo_set.get_queryset().filter(
-                                            fecha__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                   for v in vals])
-                                and f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__tipo':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                            if f.recibo_set.get_queryset().filter(
-                                            comprobante_cobro__in=vals)
-                                and f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__importe':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                            if f.recibo_set.get_queryset().filter(
-                                            importe__in=vals)
-                                and f.content_type.model == 'ot']
-                    kwargs['id__in'] = ots
-                elif key == 'remito':
-                    factura = Factura.objects.all()
-                    ots = [o.id for o in queryset if o.remito_set.get_queryset().filter(numero__in=vals)]
-                    kwargs['id__in'] = ots
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la OT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            #recibosFilteredByDate = Recibo.objects.filter(Q(fecha__range=['%s' % start_date, '%s' % end_date]))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))# |
+                                         #Q(factura_set__fecha__range=['%s' % start_date, '%s' % end_date]) |
+                                         #Q(factura_set__fecha_aviso__range=['%s' % start_date, '%s' % end_date]) |
+                                         #Q(factura_set__recibo__in=recibosFilteredByDate))
+                            continue
+                        recibosFiltered = Recibo.objects.filter(Q(numero__contains="%s" % arg) |
+                                                       Q(comprobante_cobro__contains="%s" % arg) |
+                                                       Q(importe__contains="%s" % arg))
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(presupuesto__codigo__contains="%s" % arg) |
+                                    Q(presupuesto__usuario__nombre__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(presupuesto__turno__area__icontains="%s" % arg) |
+                                    Q(importe_bruto__contains="%s" % arg) |
+                                    Q(factura_set__numero__contains="%s" % arg) |
+                                    Q(factura_set__importe__contains="%s" % arg) |
+                                    Q(factura_set__recibo__in=recibosFiltered) |
+                                    Q(remito__numero__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
+        print "TIEMPO get_queryset: ", time() - t_inicial
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(OTList, self).get_context_data(**kwargs)
-        ots = OT.objects.select_related()
 
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
                        'codigo', 'fecha_realizado', 'importe_bruto', 'area', 'factura', 'factura__fecha',
@@ -478,76 +446,13 @@ class OTList(ListView):
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
 
-        # OTs sin facturar
-        sfCount = len(ots.filter(estado='sin_facturar'))
-        # OTs sin pagar
-        npCount = len(ots.filter(estado='no_pago'))
-        # OTs pagadas
-        pagCount = len(ots.filter(estado='pagado'))
-        # OTs canceladas
-        canCount = len(ots.filter(estado='cancelado'))
-        options = []
-        estado_vals = ['sin_facturar(' + str(sfCount) + ')',
-                       'no_pago(' + str(npCount) + ')',
-                       'pagado(' + str(pagCount) + ')',
-                       'cancelado(' + str(canCount) + ')']
-        options.append(estado_vals)
-        presup_vals = sorted(set([o.presupuesto.codigo for o in ots]))
-        options.append(presup_vals)
-        usuario_vals = sorted(set([o.presupuesto.usuario.nombre for o in ots]))
-        options.append(usuario_vals)
-        cod_vals = sorted(set([o.codigo for o in ots]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
-                        for o in ots if o.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        importe_bruto_vals = sorted(set([o.importe_bruto for o in ots if o.importe_bruto]))
-        options.append(importe_bruto_vals)
-        area_vals = sorted(set([o.presupuesto.get_turno_activo().area for o in ots
-                                if o.presupuesto.get_turno_activo() is not None]))
-        options.append(area_vals)
-        factura_list = [o.factura_set for o in ots]
-        factura_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in f.get_queryset()] for f in factura_list], [])
-        factura_vals = sorted(set([f.numero for f in factura_plist]))
-        options.append(factura_vals)
-        factura_fecha_vals = sorted(set([f.fecha.strftime("%d/%m/%Y") for f in factura_plist
-                                         if f.fecha is not None]))
-        options.append(factura_fecha_vals)
-        importef_vals = sorted(set([f.importe for f in factura_plist]))
-        options.append(importef_vals)
-        fec2_vals = sorted(set([f.fecha_aviso.strftime("%d/%m/%Y") for f in factura_plist
-                                         if f.fecha_aviso is not None]))
-        options.append(fec2_vals)
-        recibo_list = [f.recibo_set for f in factura_plist]
-        recibo_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in r.get_queryset()] for r in recibo_list], [])
-        recibo_vals = sorted(set([r.numero for r in recibo_plist]))
-        options.append(recibo_vals)
-        recibo_tipo_vals = sorted(set([r.comprobante_cobro for f in recibo_plist]))
-        options.append(recibo_tipo_vals)
-        recibo_fecha_vals = sorted(set([r.fecha.strftime("%d/%m/%Y") for f in recibo_plist if r.fecha is not None]))
-        options.append(recibo_fecha_vals)
-        recibo_importe_vals = sorted(set([r.importe for r in recibo_plist]))
-        options.append(recibo_importe_vals)
-        remito_list = [o.remito_set for o in ots]
-        remito_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in r.get_queryset()] for r in remito_list], [])
-        remito_vals = sorted(set([r.numero for r in remito_plist]))
-        options.append(remito_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
         if 'order_by' in self.request.GET:
             context['order_by'] = self.request.GET['order_by']
+
         print "TIEMPO get_context_data: ", time() - t_inicial
         return context
 
@@ -805,66 +710,31 @@ class OTMLList(ListView):
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado' or key == 'fecha_aviso':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                elif key == 'factura':
-                    ots = [o.id for o in queryset if o.factura_set.get_queryset().filter(numero__in=vals)]
-                    kwargs['id__in'] = ots
-                elif key == 'factura__fecha':
-                    factura = Factura.objects.all().filter(fecha__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                                         for v in vals])
-                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'factura__importe':
-                    factura = Factura.objects.all().filter(importe__in=vals)
-                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'factura__fecha_aviso':
-                    factura = Factura.objects.all().filter(fecha_aviso__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                                         for v in vals])
-                    ots = [f.object_id for f in factura if f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                        if f.recibo_set.get_queryset().filter(numero__in=vals)
-                            and f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__fecha':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                        if f.recibo_set.get_queryset().filter(
-                                        fecha__in=[datetime.strptime(v, "%d/%m/%Y")
-                                                   for v in vals])
-                            and f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__tipo':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                        if f.recibo_set.get_queryset().filter(
-                                        comprobante_cobro__in=vals)
-                            and f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                elif key == 'recibo__importe':
-                    factura = Factura.objects.all()
-                    ots = [f.object_id for f in factura
-                        if f.recibo_set.get_queryset().filter(
-                                        importe__in=vals)
-                            and f.content_type.model == 'otml']
-                    kwargs['id__in'] = ots
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion del presupuesto
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        recibosFiltered = Recibo.objects.filter(Q(numero__contains="%s" % arg) |
+                                                                Q(comprobante_cobro__contains="%s" % arg) |
+                                                                Q(importe__contains="%s" % arg))
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                     Q(codigo__contains="%s" % arg) |
+                                     Q(importe_bruto__contains="%s" % arg) |
+                                     Q(factura_set__numero__icontains="%s" % arg) |
+                                     Q(factura_set__importe__contains="%s" % arg) |
+                                     Q(factura_set__recibo__in=recibosFiltered))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(OTMLList, self).get_context_data(**kwargs)
-        ots = OTML.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'importe_bruto', 'factura', 'factura__fecha',
                        'factura__importe', 'factura__fecha_aviso',
@@ -873,59 +743,7 @@ class OTMLList(ListView):
                         'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.']
 
-        # OTs sin facturar
-        sfCount = len(ots.filter(estado='sin_facturar'))
-        # OTs sin pagar
-        npCount = len(ots.filter(estado='no_pago'))
-        # OTs pagadas
-        pagCount = len(ots.filter(estado='pagado'))
-        # OTs canceladas
-        canCount = len(ots.filter(estado='cancelado'))
-        options = []
-        estado_vals = ['sin_facturar(' + str(sfCount) + ')',
-                       'no_pago(' + str(npCount) + ')',
-                       'pagado(' + str(pagCount) + ')',
-                       'cancelado(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([o.codigo for o in ots]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([o.fecha_realizado.strftime("%d/%m/%Y")
-                        for o in ots if o.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        importe_bruto_vals = sorted(set([o.importe_bruto for o in ots if o.importe_bruto]))
-        options.append(importe_bruto_vals)
-        factura_list = [o.factura_set for o in ots]
-        factura_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in f.get_queryset()] for f in factura_list], [])
-        factura_vals = sorted(set([f.numero for f in factura_plist]))
-        options.append(factura_vals)
-        factura_fecha_vals = sorted(set([f.fecha.strftime("%d/%m/%Y") for f in factura_plist
-                                         if f.fecha is not None]))
-        options.append(factura_fecha_vals)
-        importef_vals = sorted(set([f.importe for f in factura_plist]))
-        options.append(importef_vals)
-        fec2_vals = sorted(set([f.fecha_aviso.strftime("%d/%m/%Y") for f in factura_plist
-                                         if f.fecha_aviso is not None]))
-        options.append(fec2_vals)
-        recibo_list = [f.recibo_set for f in factura_plist]
-        recibo_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in r.get_queryset()] for r in recibo_list], [])
-        recibo_vals = sorted(set([r.numero for r in recibo_plist]))
-        options.append(recibo_vals)
-        recibo_tipo_vals = sorted(set([r.comprobante_cobro for f in recibo_plist]))
-        options.append(recibo_tipo_vals)
-        recibo_fecha_vals = sorted(set([r.fecha.strftime("%d/%m/%Y") for f in recibo_plist if r.fecha is not None]))
-        options.append(recibo_fecha_vals)
-        recibo_importe_vals = sorted(set([r.importe for f in recibo_plist]))
-        options.append(recibo_importe_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
@@ -1143,26 +961,32 @@ class SOTList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = SOT.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la SOT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(deudor__nombre__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_bruto__contains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(SOTList, self).get_context_data(**kwargs)
-        sots = SOT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
                        'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'fecha_envio_cc',
@@ -1171,49 +995,7 @@ class SOTList(ListView):
                         'Imp. Bruto', 'Imp. Neto',  'Fecha Envio UT', 'Retorno Firmada',
                         'Fecha Envio CC']
 
-        # SOT en borrador
-        borrCount = len(sots.filter(estado='borrador'))
-        # SOT pendientes
-        penCount = len(sots.filter(estado='pendiente'))
-        # SOT cobradas
-        cobCount = len(sots.filter(estado='cobrada'))
-        # SOT canceladas
-        canCount = len(sots.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'pendiente(' + str(penCount) + ')',
-                       'cobrada(' + str(cobCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([s.codigo for s in sots]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([s.fecha_realizado.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        deudor_vals = sorted(set([s.deudor for s in sots if s.deudor]))
-        options.append(deudor_vals)
-        solicitante_vals = sorted(set([s.solicitante for s in sots if s.solicitante]))
-        options.append(solicitante_vals)
-        importe_bruto_vals = sorted(set([s.importe_bruto for s in sots if s.importe_bruto]))
-        options.append(importe_bruto_vals)
-        importe_neto_vals = sorted(set([s.importe_neto for s in sots if s.importe_neto]))
-        options.append(importe_neto_vals)
-        fec2_vals = sorted(set([s.fecha_envio_ut.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_envio_ut is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([s.fecha_envio_cc.strftime("%d/%m/%Y")
-                        for s in sots if s.fecha_envio_cc is not None]))
-        options.append(fec3_vals)
-        firmada_vals = sorted(set([s.firmada for s in sots if s.firmada]))
-        options.append(firmada_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
@@ -1413,26 +1195,33 @@ class RUTList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = RUT.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la RUT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(deudor__nombre__icontains="%s" % arg) |
+                                    Q(ejecutor__nombre__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_bruto__contains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(RUTList, self).get_context_data(**kwargs)
-        ruts = RUT.objects.select_related()
 
         field_names = ['estado', 'codigo', 'fecha_realizado', 'deudor', 'solicitante',
                        'importe_bruto', 'importe_neto', 'fecha_envio_ut', 'firmada',
@@ -1440,49 +1229,7 @@ class RUTList(ListView):
         field_labels = ['Estado', 'Nro. RUT', 'Fecha', 'UT Deudora', 'Area Solic.', 'Imp. Bruto',
                         'Imp. Neto', 'Fecha Envio a UT', 'Retorno Firmada', 'Fecha Envio a CC']
 
-        # RUTs en borrador
-        borrCount = len(ruts.filter(estado='borrador'))
-        # RUTs pendientes
-        penCount = len(ruts.filter(estado='pendiente'))
-        # RUTs cobradas
-        cobCount = len(ruts.filter(estado='cobrada'))
-        # RUTs canceladas
-        canCount = len(ruts.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'pendiente(' + str(penCount) + ')',
-                       'cobrada(' + str(cobCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([r.codigo for r in ruts]))
-        options.append(cod_vals)
-        fec1_vals = sorted(set([r.fecha_realizado.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_realizado is not None]))
-        options.append(fec1_vals)
-        deudor_vals = sorted(set([r.deudor for r in ruts if r.deudor]))
-        options.append(deudor_vals)
-        solicitante_vals = sorted(set([r.solicitante for r in ruts if r.solicitante]))
-        options.append(solicitante_vals)
-        importe_bruto_vals = sorted(set([r.importe_bruto for r in ruts if r.importe_bruto]))
-        options.append(importe_bruto_vals)
-        importe_neto_vals = sorted(set([r.importe_neto for r in ruts if r.importe_neto]))
-        options.append(importe_neto_vals)
-        fec2_vals = sorted(set([r.fecha_envio_ut.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_envio_ut is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([r.fecha_envio_cc.strftime("%d/%m/%Y")
-                        for r in ruts if r.fecha_envio_cc is not None]))
-        options.append(fec3_vals)
-        firmada_vals = sorted(set([r.firmada for r in ruts if r.firmada]))
-        options.append(firmada_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
@@ -1695,62 +1442,38 @@ class SIList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = SI.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la SOT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(ejecutor__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(SIList, self).get_context_data(**kwargs)
-        sis = SI.objects.select_related()
 
-        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor',
+        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado',
                        'fecha_prevista', 'importe_neto']
         field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora',
-                        'Fecha Prevista', 'Arancel']
+                        'Fecha Realizada', 'Fecha Prevista', 'Arancel']
 
-        # SI en borrador
-        borrCount = len(sis.filter(estado='borrador'))
-        # SI finalizadas
-        finCount = len(sis.filter(estado='finalizada'))
-        # SI canceladas
-        canCount = len(sis.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'finalizada(' + str(finCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([s.codigo for s in sis]))
-        options.append(cod_vals)
-        solicitante_vals = sorted(set([s.solicitante for s in sis if s.solicitante]))
-        options.append(solicitante_vals)
-        ejecutor_vals = sorted(set([s.ejecutor for s in sis if s.ejecutor]))
-        options.append(ejecutor_vals)
-        fec_vals = sorted(set([s.fecha_prevista.strftime("%d/%m/%Y")
-                        for s in sis if s.fecha_prevista is not None]))
-        options.append(fec_vals)
-        importe_neto_vals = sorted(set([s.importe_neto for s in sis]))
-        options.append(importe_neto_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
@@ -1840,37 +1563,32 @@ class PresupuestoList(ListView):
 
     def get_queryset(self):
         queryset = Presupuesto.objects.select_related().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado' or key == 'fecha_aceptado' \
-                    or key == 'fecha_solicitado' or key == 'fecha_instrumento':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    # Este caso lo trato aparte ya que estos campos no forman parte del presupuesto
-                    kwargs['%s__in' % key] = vals
-                    if key.find('ofertatec__') != -1:
-                        ot_queryset = OfertaTec_Linea.objects.all()
-                        ofertatec_lineas = ot_queryset.filter(**kwargs)
-                        turnos = [ot.turno for ot in ofertatec_lineas]
-                        presup = [p.id for p in queryset if p.get_turno_activo() in turnos]
-                        p_queryset = queryset.filter(id__in=presup)
-                        return p_queryset
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion del presupuesto
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(usuario__nombre__icontains="%s" % arg) |
+                                    Q(usuario__nro_usuario__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(turno__area__icontains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         self._checkstate(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(PresupuestoList, self).get_context_data(**kwargs)
-
-        presupuestos = Presupuesto.objects.select_related()
-        turnos = [p.get_turno_activo() for p in presupuestos]
 
         presupuestos_by_page = context['object_list']
         turnos_by_page = [p.get_turno_activo() for p in presupuestos_by_page]
@@ -1889,47 +1607,8 @@ class PresupuestoList(ListView):
                         'Fecha de Aceptacion',
                         'Llegada del Instrumento',
                         'Nro Recepcion']
-        # Agregado para mostrar los campos ordenados
-        # Presup en borrador
-        borrCount = len(presupuestos.filter(estado='borrador'))
-        # Presup aceptados
-        acepCount = len(presupuestos.filter(estado='aceptado'))
-        # Presup finalizados
-        finCount = len(presupuestos.filter(estado='finalizado'))
-        # Presup finalizados
-        facCount = len(presupuestos.filter(estado='en_proceso_de_facturacion'))
-        # Presup cancelados
-        canCount = len(presupuestos.filter(estado='cancelado'))
-        options = []
-        estado_vals = ['borrador('+str(borrCount)+')', 'aceptado('+str(acepCount)+')', 'en_proceso_de_facturacion('+str(facCount)+')', 'finalizado('+str(finCount)+')', 'cancelado('+str(canCount)+')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([p.codigo for p in presupuestos]))
-        options.append(cod_vals)
-        usuario_vals = sorted(set([p.usuario.nombre for p in presupuestos]))
-        options.append(usuario_vals)
-        nro_usuario_vals = sorted(set([p.usuario.nro_usuario for p in presupuestos]))
-        options.append(nro_usuario_vals)
-        area_vals = sorted(set([t.area for t in turnos if t is not None]))
-        options.append(area_vals)
-        fec2_vals = sorted(set([p.fecha_realizado.strftime("%d/%m/%Y")
-                        for p in presupuestos if p.fecha_realizado is not None]))
-        options.append(fec2_vals)
-        fec3_vals = sorted(set([p.fecha_aceptado.strftime("%d/%m/%Y")
-                        for p in presupuestos if p.fecha_aceptado is not None]))
-        options.append(fec3_vals)
-        fec4_vals = sorted(set([p.fecha_instrumento.strftime("%d/%m/%Y")
-                      for p in presupuestos if p.fecha_instrumento is not None]))
-        options.append(fec4_vals)
-        nro_recepcion_vals = sorted(set([p.nro_recepcion for p in presupuestos]))
-        options.append(nro_recepcion_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion
@@ -2067,50 +1746,33 @@ class OfertaTecList(ListView):
 
     def get_queryset(self):
         queryset = OfertaTec.objects.all()
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        QList.append(Q(proveedor__contains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(rubro__icontains="%s" % arg) |
+                                    Q(subrubro__icontains="%s" % arg) |
+                                    Q(tipo_servicio__icontains="%s" % arg) |
+                                    Q(area__icontains="%s" % arg) |
+                                    Q(detalle__icontains="%s" % arg) |
+                                    Q(precio__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(OfertaTecList, self).get_context_data(**kwargs)
-        ofertas = OfertaTec.objects.all()
         field_names = ['proveedor', 'codigo', 'rubro', 'subrubro',
                        'tipo_servicio', 'area', 'detalle', 'precio']
         field_labels = ['Proveedor', 'Codigo', 'Rubro', 'Subrubro',
                         'Tipo de Servicio', 'Area', 'Detalle', 'Precio']
-        # Agregado para mostrar los campos ordenados
-        options = []
-        prov_vals = sorted(set([o.proveedor for o in ofertas]))
-        options.append(prov_vals)
-        cod_vals = sorted(set([o.codigo for o in ofertas]))
-        options.append(cod_vals)
-        rubro_vals = sorted(set([o.rubro for o in ofertas]))
-        options.append(rubro_vals)
-        subrubro_vals = sorted(set([o.subrubro for o in ofertas]))
-        options.append(subrubro_vals)
-        serv_vals = sorted(set([o.tipo_servicio for o in ofertas]))
-        options.append(serv_vals)
-        area_vals = sorted(set([o.area for o in ofertas]))
-        options.append(area_vals)
-        detalle_vals = sorted(set([o.detalle for o in ofertas]))
-        options.append(detalle_vals)
-        precio_vals = sorted(set([o.precio for o in ofertas]))
-        options.append(precio_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Para la paginacion
         if self.request.GET.has_key('order_by'):
             context['order_by'] = self.request.GET['order_by']
@@ -2209,44 +1871,30 @@ class UsuarioList(ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        #import pdb; pdb.set_trace()
         queryset = Usuario.objects.all()
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        QList.append(Q(nro_usuario__contains="%s" % arg) |
+                                    Q(nombre__icontains="%s" % arg) |
+                                    Q(cuit__contains="%s" % arg) |
+                                    Q(mail__icontains="%s" % arg) |
+                                    Q(rubro__icontains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(UsuarioList, self).get_context_data(**kwargs)
-        usuarios = Usuario.objects.all()
         field_names = ['nro_usuario', 'nombre', 'cuit', 'mail', 'rubro']
         field_labels = ['Nro. Usuario', 'Nombre', 'Cuit', 'Mail', 'Rubro']
-        # Agregado para mostrar los campos ordenados
-        options = []
-        nro_vals = sorted(set([u.nro_usuario for u in usuarios]))
-        options.append(nro_vals)
-        nombre_vals = sorted(set([u.nombre for u in usuarios]))
-        options.append(nombre_vals)
-        cuit_vals = sorted(set([u.cuit for u in usuarios]))
-        options.append(cuit_vals)
-        mail_vals = sorted(set([u.mail for u in usuarios if u.mail is not None]))
-        options.append(mail_vals)
-        rubro_vals = sorted(set([u.rubro for u in usuarios]))
-        options.append(rubro_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+
+        context['fields'] = list(zip(field_names, field_labels))
         # Para la paginacion
         if self.request.GET.has_key('order_by'):
             context['order_by'] = self.request.GET['order_by']

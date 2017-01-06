@@ -19,6 +19,8 @@ from django.views.generic import View
 from reversion.models import Version
 import reversion
 import re
+from django.db.models import Q
+import operator
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -58,7 +60,6 @@ class TurnoList(ListView):
         queryset = Turno.objects.all().order_by('-fecha_inicio')
         if self.lab:
             queryset = queryset.filter(area=self.lab)
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
@@ -68,36 +69,27 @@ class TurnoList(ListView):
                         queryset = queryset.order_by('-presupuesto__ot__codigo')
                     else:
                         queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_inicio' or\
-                     key == 'fecha_fin' or\
-                     key == 'presupuesto__fecha_instrumento' or\
-                     key == 'presupuesto__fecha_aceptado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                                              for v in vals]
-                elif key == 'ot__codigo':
-                    ots = OT.objects.filter(codigo__in=vals)
-                    presup = [o.presupuesto.get_turno_activo().id for o in ots]
-                    kwargs['id__in'] = presup
-                else:
-                    kwargs['%s__in' % key] = vals
-                    if key.find('ofertatec__') != -1:
-                        ot_queryset = OfertaTec_Linea.objects.all()
-                        ofertatec_lineas = ot_queryset.filter(**kwargs)
-                        turnos = [ot.turno.id for ot in ofertatec_lineas]
-                        queryset = queryset.filter(id__in=turnos)
-                        return queryset
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de inicio del turno
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_inicio__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(presupuesto__usuario__nombre__icontains="%s" % arg) |
+                                    Q(presupuesto__codigo__contains="%s" % arg) |
+                                    Q(presupuesto__ot__codigo__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         self._checkstate(queryset)
         #self._checkrev(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(TurnoList, self).get_context_data(**kwargs)
-        turnos = Turno.objects.filter(area=self.lab)
-        #turnos_by_page = context['turno_list']
         field_names = ['estado', 'presupuesto__usuario__nombre',
                        'fecha_inicio', 'fecha_fin',
                        'presupuesto__fecha_instrumento',
@@ -109,61 +101,7 @@ class TurnoList(ListView):
                         'Aceptacion Presupuesto',
                         #'Oferta Tec.',
                         'Nro. Presupuesto', 'Nro. OT']
-        # Turnos en espera
-        espCount = len(turnos.filter(estado='en_espera'))
-        # Turnos activos
-        actCount = len(turnos.filter(estado='activo'))
-        # Turnos finalizados
-        finCount = len(turnos.filter(estado='finalizado'))
-        # Turnos cancelados
-        canCount = len(turnos.filter(estado='cancelado'))
-        # Agregado para mostrar los campos ordenados
-        options = []
-        estado_vals = ['en_espera(' + str(espCount) + ')', 'activo(' + str(actCount) + ')',
-                       'finalizado(' + str(finCount) + ')', 'cancelado(' + str(canCount) + ')']
-        options.append(estado_vals)
-        usuario_vals = set([t.presupuesto.usuario.nombre
-                   for t in turnos if
-                   t.presupuesto is not None and
-                   t.presupuesto.usuario is not None])
-        options.append(usuario_vals)
-        finicio_vals = set([t.fecha_inicio.strftime("%d/%m/%Y") for t in turnos
-                            if t.fecha_inicio is not None])
-        options.append(finicio_vals)
-        ffin_vals = set([t.fecha_fin.strftime("%d/%m/%Y") for t in turnos
-                         if t.fecha_fin is not None])
-        options.append(ffin_vals)
-        finst_vals = set([t.presupuesto.fecha_instrumento.strftime("%d/%m/%Y")
-                          for t in turnos if
-                          t.presupuesto is not None and
-                          t.presupuesto.fecha_instrumento is not None])
-        options.append(finst_vals)
-        facept_vals = set([t.presupuesto.fecha_aceptado.strftime("%d/%m/%Y")
-                           for t in turnos if
-                           t.presupuesto is not None and
-                           t.presupuesto.fecha_aceptado is not None])
-        options.append(facept_vals)
-        # ofertatec es un campo many2one
-        #ofertatec_list = [t.ofertatec_linea_set for t in turnos]
-        #ofertatec_plist = reduce(lambda x, y: x + y,
-                                 #[[t for t in o.get_queryset()] for o in ofertatec_list], [])
-        #ofertatec_vals = set([o.ofertatec.codigo for o in ofertatec_plist])
-        #options.append(ofertatec_vals)
-        presup_vals = set([t.presupuesto.codigo for t in turnos if t.presupuesto])
-        options.append(presup_vals)
-        ot_list = [t.presupuesto.ot_set for t in turnos if t.presupuesto]
-        ot_plist = reduce(lambda x, y: x + y,
-                                 [[t for t in o.get_queryset()] for o in ot_list], [])
-        ot_vals = sorted(set([o.codigo for o in ot_plist if o.estado != 'cancelado']))
-        options.append(ot_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now()
         # Para la paginacion
