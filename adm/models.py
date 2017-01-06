@@ -579,6 +579,8 @@ class RUT(Contrato):
 pre_save.connect(toState_pendiente, sender=RUT)
 
 
+# Ultimo codigo disponible (teniendo en cuenta saltos,
+# empezando desde el 00007)
 def nextSICode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
@@ -592,7 +594,7 @@ def nextSICode():
         zeros = '0' * (5 - len(n))
         return zeros + n
     else:
-        return '00001'
+        return '00007'
 
 
 class SI(Contrato):

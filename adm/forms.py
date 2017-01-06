@@ -869,6 +869,11 @@ OT_LineaFormSet = generic_inlineformset_factory(OT_Linea,
 
 class Tarea_LineaForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(Tarea_LineaForm, self).__init__(*args, **kwargs)
+        for f in self.fields:
+            self.fields[f].required = False
+
     class Meta:
 
         model = Tarea_Linea
