@@ -961,7 +961,6 @@ class SOTList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = SOT.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
@@ -1443,62 +1442,38 @@ class SIList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = SI.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
                     queryset = queryset.order_by(vals[0])
-                elif key == 'estado':
-                    kwargs['%s__in' % key] = [x.split('(')[0] for x in vals]
-                elif key == 'fecha_realizado':
-                    kwargs['%s__in' % key] = [datetime.strptime(v, "%d/%m/%Y")
-                           for v in vals]
-                else:
-                    kwargs['%s__in' % key] = vals
-                if kwargs:
-                    queryset = queryset.filter(**kwargs)
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        # Busco solo por fecha de realizacion de la SOT
+                        if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            QList.append(Q(fecha_realizado__range=['%s' % start_date, '%s' % end_date]))
+                            continue
+                        QList.append(Q(estado__icontains="%s" % arg) |
+                                    Q(codigo__contains="%s" % arg) |
+                                    Q(ejecutor__icontains="%s" % arg) |
+                                    Q(solicitante__icontains="%s" % arg) |
+                                    Q(importe_neto__contains="%s" % arg))
+                    QList = reduce(operator.and_, QList)
+                    queryset = queryset.filter(QList)
         return queryset
 
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(SIList, self).get_context_data(**kwargs)
-        sis = SI.objects.select_related()
 
-        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor',
+        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado',
                        'fecha_prevista', 'importe_neto']
         field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora',
-                        'Fecha Prevista', 'Arancel']
+                        'Fecha Realizada', 'Fecha Prevista', 'Arancel']
 
-        # SI en borrador
-        borrCount = len(sis.filter(estado='borrador'))
-        # SI finalizadas
-        finCount = len(sis.filter(estado='finalizada'))
-        # SI canceladas
-        canCount = len(sis.filter(estado='cancelada'))
-        options = []
-        estado_vals = ['borrador(' + str(borrCount) + ')',
-                       'finalizada(' + str(finCount) + ')',
-                       'cancelada(' + str(canCount) + ')']
-        options.append(estado_vals)
-        cod_vals = sorted(set([s.codigo for s in sis]))
-        options.append(cod_vals)
-        solicitante_vals = sorted(set([s.solicitante for s in sis if s.solicitante]))
-        options.append(solicitante_vals)
-        ejecutor_vals = sorted(set([s.ejecutor for s in sis if s.ejecutor]))
-        options.append(ejecutor_vals)
-        fec_vals = sorted(set([s.fecha_prevista.strftime("%d/%m/%Y")
-                        for s in sis if s.fecha_prevista is not None]))
-        options.append(fec_vals)
-        importe_neto_vals = sorted(set([s.importe_neto for s in sis]))
-        options.append(importe_neto_vals)
-        context['fields'] = list(zip(field_names, field_labels, options))
-        # Chequeo los filtros seleccionados para conservar el estado de los
-        # checkboxes
-        checked_fields = []
-        for key, vals in self.request.GET.lists():
-            if key != 'order_by':
-                checked_fields += ["%s_%s" % (v, key) for v in vals]
-        context['checked_fields'] = checked_fields
+        context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now().strftime("%d/%m/%Y")
         # Para la paginacion

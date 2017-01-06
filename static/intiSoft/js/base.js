@@ -159,7 +159,8 @@ $(document).ready(function() {
     $('#otTable tbody td:not(:has(button)),\
        #presupuestoTable tbody td:not(:has(btton)),\
        #rutTable tbody td:not(:has(button)),\
-       #sotTable tbody td:not(:has(button))').wrapInTag({words: getParams});
+       #sotTable tbody td:not(:has(button)),\
+       #siTable tbody td:not(:has(button))').wrapInTag({words: getParams});
 
     // Reseteo las fechas cuando hago una nueva revision
     if (window.location.href.indexOf('revision') != -1) {
