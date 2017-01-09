@@ -243,7 +243,7 @@ post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
-                                    null=True, blank=False, on_delete=models.PROTECT)
+                                    null=True, blank=True, on_delete=models.PROTECT)
     importe_neto = models.FloatField(verbose_name='Importe Neto', blank=False, null=True, default=0)
     importe_bruto = models.FloatField(verbose_name='Importe Bruto', blank=False, null=True, default=0)
     descuento = models.FloatField(verbose_name='Descuento', blank=False, null=True, default=0)
