@@ -108,6 +108,7 @@ def nextCode():
                          NOT EXISTS
                             (SELECT t2.codigo FROM adm_presupuesto t2 WHERE t2.codigo = t1.codigo + 1)
                          AND t1.codigo > 5869
+                         AND LENGTH(t1.codigo) = 5
                      """)
     row = cursor.fetchone()
     if row:
@@ -215,7 +216,31 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_presupuestos = Presupuesto.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_presupuestos:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_presupuestos.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_presupuestos.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_presupuestos[0].delete(force=True)
+                for rut in deleted_presupuestos[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         # Borro todos los turnos asociados
         for t in self.turno_set.all():
@@ -262,6 +287,7 @@ def nextOTCode():
                      FROM adm_ot t1
                      WHERE NOT EXISTS
                         (SELECT t2.codigo FROM adm_ot t2 WHERE t2.codigo = t1.codigo + 1)
+                     AND LENGTH(t1.codigo) = 5
                      """)
     row = cursor.fetchone()
     if row:
@@ -325,7 +351,31 @@ class OT(Contrato):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_ot = OT.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_ot:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_ot.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_ot.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_ot[0].delete(force=True)
+                for rut in deleted_ot[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         return True
 
@@ -386,7 +436,31 @@ class OTML(Contrato):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_otml = OTML.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_otml:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_otml.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_otml.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_otml[0].delete(force=True)
+                for rut in deleted_otml[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         return True
 
@@ -404,6 +478,7 @@ def nextSOTCode():
                      WHERE
                          NOT EXISTS
                             (SELECT t2.codigo FROM adm_sot t2 WHERE t2.codigo = t1.codigo + 1)
+                         AND LENGTH(t1.codigo) = 5
                      """)
     row = cursor.fetchone()
     if row:
@@ -476,10 +551,33 @@ class SOT(Contrato):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_sot = SOT.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_sot:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_sot.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_sot.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_sot[0].delete(force=True)
+                for rut in deleted_sot[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         return True
-
     class Meta:
         permissions = (("cancel_sot", "Can cancel SOT"),
                        ("finish_sot", "Can finish SOT"),)
@@ -497,6 +595,7 @@ def nextRUTCode():
                      WHERE
                          NOT EXISTS
                             (SELECT t2.codigo FROM adm_rut t2 WHERE t2.codigo = t1.codigo + 1)
+                            AND LENGTH(t1.codigo) = 5
                      """)
     row = cursor.fetchone()
     if row:
@@ -567,7 +666,31 @@ class RUT(Contrato):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_ruts = RUT.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_ruts:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_ruts.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_ruts.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_ruts[0].delete(force=True)
+                for rut in deleted_ruts[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         return True
 
@@ -587,6 +710,7 @@ def nextSICode():
                      FROM adm_si t1
                      WHERE NOT EXISTS
                         (SELECT t2.codigo FROM adm_si t2 WHERE t2.codigo = t1.codigo + 1)
+                     AND LENGTH(t1.codigo) = 5
                      """)
     row = cursor.fetchone()
     if row:
@@ -645,7 +769,31 @@ class SI(Contrato):
         return True
 
     def _delete(self):
-        """Faltarian las validaciones"""
+        # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
+        # el mismo codigo para uno nuevo ya que no se admiten duplicados.
+        # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
+        # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
+        deleted_si = SI.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+        if deleted_si:
+            # Ya elimine un presupuesto con el mismo codigo.
+            if int(deleted_si.last().codigo[0]) < 9:
+                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
+                new_code = int(deleted_si.last().codigo) + 100000
+                self.codigo = str(new_code)
+                self.save()
+            else:
+                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
+                # la numeracion.
+                deleted_si[0].delete(force=True)
+                for rut in deleted_si[1:]:
+                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.save()
+                self.codigo = str(int(self.codigo) + 900000)
+                self.save()
+        else:
+            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+            self.codigo = str(int(self.codigo) + 100000)
+            self.save()
         self.delete()
         return True
 
