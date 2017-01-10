@@ -343,9 +343,9 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-5" style="text-align:left"
                                       for="id_ot">
-                                          OT / Expediente
+                                          OT
                                     </label>
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         {% if edit %}
                                             {{ form.ot }}
                                             {% for error in form.ot.errors %}
@@ -357,7 +357,13 @@
                                             {{ form.instance.ot }}
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-3">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id_expediente">
+                                          Expediente
+                                    </label>
+                                    <div class="col-md-6">
                                         {% if edit %}
                                             {{ form.expediente }}
                                             {% for error in form.expediente.errors %}
