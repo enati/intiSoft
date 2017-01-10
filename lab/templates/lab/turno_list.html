@@ -47,19 +47,23 @@
 <div class="row">
     <div class="col-md-12">
         <table id="turnoTable" class="table table-hover table-pointer row-eq-height">
+<!--
             <col style="width:5%">
             <col style="width:30%">
             <col style="width:10%">
             <col style="width:10%">
             <col style="width:10%">
+-->
 <!--
             <col style="width:10%">
 -->
+<!--
             <col style="width:10%">
             <col style="width:10%">
             <col style="width:5%">
             <col style="width:5%">
             <col style="width:5%">
+-->
             <caption>Planilla de turnos {{ area_value }} </caption>
             <thead>
                 {% for name, label in fields %}
@@ -111,6 +115,18 @@
                         <td>{% for ot in turno.presupuesto.ot_set.all %}
                                 {% if ot.estado != 'cancelado' %}
                                     {{ot.codigo}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{% for sot in turno.presupuesto.sot_set.all %}
+                                {% if sot.estado != 'cancelado' %}
+                                    {{sot.codigo}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{% for rut in turno.presupuesto.rut_set.all %}
+                                {% if rut.estado != 'cancelada' %}
+                                    {{rut.codigo}}</br>
                                 {% endif %}
                             {% endfor %}
                         </td>

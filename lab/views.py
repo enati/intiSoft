@@ -95,12 +95,13 @@ class TurnoList(ListView):
                        'presupuesto__fecha_instrumento',
                        'presupuesto__fecha_aceptado',
                        #'ofertatec__codigo',
-                       'presupuesto__codigo', 'ot__codigo']
+                       'presupuesto__codigo', 'ot__codigo', 'sot__codigo',
+                       'rut__codigo']
         field_labels = ['Estado', 'Usuario',
                         'Inicio', 'Finalizacion', 'Llegada del instrumento',
                         'Aceptacion Presupuesto',
                         #'Oferta Tec.',
-                        'Nro. Presupuesto', 'Nro. OT']
+                        'Nro. Presupuesto', 'Nro.  OT', 'Nro. SOT', 'Nro. RUT']
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now()
