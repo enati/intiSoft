@@ -430,7 +430,7 @@ class OTList(ListView):
                                     Q(factura_set__recibo__in=recibosFiltered) |
                                     Q(remito__numero__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         print "TIEMPO get_queryset: ", time() - t_inicial
         return queryset
 
