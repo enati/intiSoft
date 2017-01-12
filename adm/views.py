@@ -1018,12 +1018,25 @@ class SOTList(ListView):
                     response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
-        if 'Finalizar' in request.POST:
+        #Finalizo solo la SOT
+        if 'Finalizar1' in request.POST:
             if request.user.has_perm('adm.finish_sot'):
-                sot_id = request.POST.get('Finalizar')
+                sot_id = request.POST.get('Finalizar1')
                 sot_obj = SOT.objects.get(pk=sot_id)
                 try:
-                    sot_obj._toState_cobrada()
+                    sot_obj._toState_cobrada(False)
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        #Finalizo la SOT y el Presupuesto asociado
+        if 'Finalizar2' in request.POST:
+            if request.user.has_perm('adm.finish_sot'):
+                sot_id = request.POST.get('Finalizar2')
+                sot_obj = SOT.objects.get(pk=sot_id)
+                try:
+                    sot_obj._toState_cobrada(True)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -1037,7 +1050,7 @@ class SOTList(ListView):
                 response_dict['redirect'] = reverse_lazy('adm:sot-list').strip()
             else:
                 raise PermissionDenied
-            return JsonResponse(response_dict)
+        return JsonResponse(response_dict)
 
 #===========================================
 #================== RUT ====================
@@ -1252,12 +1265,25 @@ class RUTList(ListView):
                     response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
-        if 'Finalizar' in request.POST:
+        #Finalizo solo la RUT
+        if 'Finalizar1' in request.POST:
             if request.user.has_perm('adm.finish_rut'):
-                rut_id = request.POST.get('Finalizar')
+                rut_id = request.POST.get('Finalizar1')
                 rut_obj = RUT.objects.get(pk=rut_id)
                 try:
-                    rut_obj._toState_cobrada()
+                    rut_obj._toState_cobrada(False)
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
+            else:
+                raise PermissionDenied
+        #Finalizo la RUT y el Presupuesto asociado
+        if 'Finalizar2' in request.POST:
+            if request.user.has_perm('adm.finish_rut'):
+                rut_id = request.POST.get('Finalizar2')
+                rut_obj = RUT.objects.get(pk=rut_id)
+                try:
+                    rut_obj._toState_cobrada(True)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message

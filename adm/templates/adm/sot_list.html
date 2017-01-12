@@ -61,7 +61,7 @@
                                 onclick="if (trlink) {location.href='{% url 'adm:sot-update' sot.id %}'}"
                             {% endif %}
                             class = {% if sot.estado == 'borrador' %} "neutral"
-                                      {% elif sot.estado == 'cobrado' %} "success"
+                                      {% elif sot.estado == 'cobrada' %} "success"
                                       {% elif sot.estado == 'pendiente' %} "warning"
                                       {% elif sot.estado == 'cancelada' %} "danger"
                                     {% endif %}

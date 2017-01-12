@@ -539,11 +539,16 @@ class SOT(Contrato):
         self.save()
         return True
 
-    def _toState_cobrada(self):
+    def _toState_cobrada(self, flag):
+        # Antes de finalizar la SOT chequeo que el presupuesto pueda ser finalizado
+        if self.presupuesto.estado != 'en_proceso_de_facturacion':
+            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'cobrada'
         self.save()
-        self.presupuesto._toState_finalizado()
-        return True
+        if flag:
+            # Finalizo el presupuesto asociado
+            self.presupuesto._toState_finalizado()
+            return True
 
     def _toState_cancelada(self):
         if self.estado == 'cobrada':
@@ -653,13 +658,15 @@ class RUT(Contrato):
         self.save()
         return True
 
-    def _toState_cobrada(self):
+    def _toState_cobrada(self, flag):
         # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
         if self.presupuesto.estado != 'en_proceso_de_facturacion':
             raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'cobrada'
         self.save()
-        self.presupuesto._toState_finalizado()
+        if flag:
+            # Finalizo el presupuesto asociado
+            self.presupuesto._toState_finalizado()
         return True
 
     def _toState_cancelada(self):

@@ -61,7 +61,7 @@
                                 onclick="if (trlink) {location.href='{% url 'adm:rut-update' rut.id %}'}"
                             {% endif %}
                             class = {% if rut.estado == 'borrador' %} "neutral"
-                                      {% elif rut.estado == 'cobrado' %} "success"
+                                      {% elif rut.estado == 'cobrada' %} "success"
                                       {% elif rut.estado == 'pendiente' %} "warning"
                                       {% elif rut.estado == 'cancelada' %} "danger"
                                     {% endif %}
