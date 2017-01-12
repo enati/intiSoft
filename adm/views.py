@@ -729,7 +729,7 @@ class OTMLList(ListView):
                                      Q(factura_set__importe__contains="%s" % arg) |
                                      Q(factura_set__recibo__in=recibosFiltered))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -981,7 +981,7 @@ class SOTList(ListView):
                                     Q(importe_bruto__contains="%s" % arg) |
                                     Q(importe_neto__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1216,7 +1216,7 @@ class RUTList(ListView):
                                     Q(importe_bruto__contains="%s" % arg) |
                                     Q(importe_neto__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1461,7 +1461,7 @@ class SIList(ListView):
                                     Q(solicitante__icontains="%s" % arg) |
                                     Q(importe_neto__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1583,7 +1583,7 @@ class PresupuestoList(ListView):
                                     Q(codigo__contains="%s" % arg) |
                                     Q(turno__area__icontains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         self._checkstate(queryset)
         return queryset
 
@@ -1763,7 +1763,7 @@ class OfertaTecList(ListView):
                                     Q(detalle__icontains="%s" % arg) |
                                     Q(precio__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1886,7 +1886,7 @@ class UsuarioList(ListView):
                                     Q(mail__icontains="%s" % arg) |
                                     Q(rubro__icontains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         return queryset
 
     def get_context_data(self, **kwargs):

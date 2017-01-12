@@ -83,7 +83,7 @@ class TurnoList(ListView):
                                     Q(presupuesto__codigo__contains="%s" % arg) |
                                     Q(presupuesto__ot__codigo__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
-                    queryset = queryset.filter(QList)
+                    queryset = queryset.filter(QList).distinct()
         self._checkstate(queryset)
         #self._checkrev(queryset)
         return queryset
