@@ -228,7 +228,7 @@ class OTCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_ot
             back_url_ot = http_referer
@@ -315,7 +315,7 @@ class OTUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_ot
             back_url_ot = http_referer
@@ -548,7 +548,7 @@ class OTMLCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_otml
             back_url_otml = http_referer
@@ -629,7 +629,7 @@ class OTMLUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_otml
             back_url_otml = http_referer
@@ -818,7 +818,7 @@ class SOTCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_sot
             back_url_sot = http_referer
@@ -891,7 +891,7 @@ class SOTUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_sot
             back_url_sot = http_referer
@@ -1052,7 +1052,7 @@ class RUTCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_rut
             back_url_rut = http_referer
@@ -1125,7 +1125,7 @@ class RUTUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_rut
             back_url_rut = http_referer
@@ -1286,7 +1286,7 @@ class SICreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_si
             back_url_si = http_referer
@@ -1366,7 +1366,7 @@ class SIUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_si
             back_url_si = http_referer
@@ -1531,7 +1531,7 @@ class PresupuestoCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_presupuesto
             back_url_presupuesto = http_referer
@@ -1697,7 +1697,7 @@ class PresupuestoUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_presupuesto
             back_url_presupuesto = http_referer
@@ -1804,7 +1804,7 @@ class OfertaTecCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_ofertatec
             back_url_ofertatec = http_referer
@@ -1846,7 +1846,7 @@ class OfertaTecUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_ofertatec
             back_url_ofertatec = http_referer
@@ -1925,7 +1925,7 @@ class UsuarioCreate(CreateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_usuario
             back_url_usuario = http_referer
@@ -1967,7 +1967,7 @@ class UsuarioUpdate(UpdateView):
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
         if pattern.match(http_referer):
             global back_url_usuario
             back_url_usuario = http_referer
