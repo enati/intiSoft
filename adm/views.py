@@ -87,7 +87,8 @@ def viewWord(request, *args, **kwargs):
 
     if turno_activo:
         for o in turno_activo.ofertatec_linea_set.get_queryset():
-            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle, o.precio_total))
+            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle,\
+                                      o.cant_horas, o.precio, o.precio_total))
     return genWord(vals)
 
 

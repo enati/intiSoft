@@ -71,13 +71,23 @@ def genWord(vals):
 
     # OT's
     if vals['ofertatec']:
-        cod, det, precio = vals['ofertatec'][0]
+        cod, det, horas, precio, precio_total = vals['ofertatec'][0]
+
+        # Si es por cantidad, va el precio unitario.
+        # Si es por horas, va horas*precio unitario
+        precio = horas * precio if horas and horas > 0.0 else precio
+
         table.column_cells(1)[7].paragraphs[0].add_run(det or '', 'OT_TableStyle')
         table.column_cells(1)[7].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
         table.column_cells(5)[7].paragraphs[0].add_run(cod or '', 'OT_TableStyle')
         table.column_cells(9)[7].paragraphs[0].add_run(str(precio) or '', 'OT_TableStyle')
 
-        for n, (cod, det, precio) in enumerate(vals['ofertatec'][1:]):
+        for n, (cod, det, horas, precio, precio_total) in enumerate(vals['ofertatec'][1:]):
+
+            # Si es por cantidad, va el precio unitario.
+            # Si es por horas, va horas*precio unitario
+            precio = horas * precio if horas and horas > 0.0 else precio
+
             # Creo y completo una fila en el documento temporal
             nrow = ot_table.add_row()
             # Ajusto el width
