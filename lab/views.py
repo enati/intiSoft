@@ -29,17 +29,19 @@ import operator
 thismonth = str(datetime.now().month)
 thisyear = str(datetime.now().year)
 
-back_url_lia = reverse_lazy('lab:lia-list')
-back_url_lim1 = reverse_lazy('lab:lia-lim1')
-back_url_lim2 = reverse_lazy('lab:lia-lim2')
-back_url_lim3 = reverse_lazy('lab:lia-lim3')
-back_url_lim6 = reverse_lazy('lab:lia-lim6')
-back_url_ext = reverse_lazy('lab:lia-ext')
-back_url_sis = reverse_lazy('lab:lia-sis')
-back_url_des = reverse_lazy('lab:lia-des')
-back_url_cal = reverse_lazy('lab:lia-cal')
-back_url_mec = reverse_lazy('lab:lia-mec')
-back_url_ml = reverse_lazy('lab:lia-ml')
+back_url_lia = reverse_lazy('lab:LIA-list')
+back_url_lim1 = reverse_lazy('lab:LIM1-list')
+back_url_lim2 = reverse_lazy('lab:LIM2-list')
+back_url_lim3 = reverse_lazy('lab:LIM3-list')
+back_url_lim4 = reverse_lazy('lab:LIM4-list')
+back_url_lim5 = reverse_lazy('lab:LIM5-list')
+back_url_lim6 = reverse_lazy('lab:LIM6-list')
+back_url_ext = reverse_lazy('lab:EXT-list')
+back_url_sis = reverse_lazy('lab:SIS-list')
+back_url_des = reverse_lazy('lab:DES-list')
+back_url_cal = reverse_lazy('lab:CAL-list')
+back_url_mec = reverse_lazy('lab:MEC-list')
+back_url_ml = reverse_lazy('lab:ML-list')
 
 
 class TurnoList(ListView):
@@ -162,6 +164,16 @@ class LIM2List(TurnoList):
 class LIM3List(TurnoList):
     template_name = 'lab/LIM3_list.html'
     lab = 'LIM3'
+
+
+class LIM4List(TurnoList):
+    template_name = 'lab/LIM4_list.html'
+    lab = 'LIM4'
+
+
+class LIM5List(TurnoList):
+    template_name = 'lab/LIM5_list.html'
+    lab = 'LIM5'
 
 
 class LIM6List(TurnoList):
@@ -357,6 +369,56 @@ class LIM3Create(TurnoCreate):
 
     def get_initial(self):
         return {'area': 'LIM3'}
+
+
+class LIM4Create(TurnoCreate):
+    template_name = 'lab/LIM4_form.html'
+
+    @method_decorator(permission_required('lab.add_turno_LIM4',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim4
+            back_url_lim4 = http_referer
+        return super(LIM4Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM4Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim4
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM4-update', kwargs={'pk': self.object.id})
+
+    def get_initial(self):
+        return {'area': 'LIM4'}
+
+
+class LIM5Create(TurnoCreate):
+    template_name = 'lab/LIM5_form.html'
+
+    @method_decorator(permission_required('lab.add_turno_LIM5',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim5
+            back_url_lim5 = http_referer
+        return super(LIM5Create, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM5Create, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim5
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM5-update', kwargs={'pk': self.object.id})
+
+    def get_initial(self):
+        return {'area': 'LIM5'}
 
 
 class LIM6Create(TurnoCreate):
@@ -744,6 +806,50 @@ class LIM3Update(TurnoUpdate):
         return reverse_lazy('lab:LIM3-update', kwargs={'pk': self.object.id})
 
 
+class LIM4Update(TurnoUpdate):
+    template_name = 'lab/LIM4_form.html'
+
+    @method_decorator(permission_required('lab.change_turno_LIM4',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim4
+            back_url_lim4 = http_referer
+        return super(LIM4Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM4Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim4
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM4-update', kwargs={'pk': self.object.id})
+
+
+class LIM5Update(TurnoUpdate):
+    template_name = 'lab/LIM5_form.html'
+
+    @method_decorator(permission_required('lab.change_turno_LIM5',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+        pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]+&{0,1})+)*$")
+        if pattern.match(http_referer):
+            global back_url_lim5
+            back_url_lim5 = http_referer
+        return super(LIM5Update, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LIM5Update, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_lim5
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('lab:LIM5-update', kwargs={'pk': self.object.id})
+
+
 class LIM6Update(TurnoUpdate):
     template_name = 'lab/LIM6_form.html'
 
@@ -992,6 +1098,24 @@ class LIM3Delete(TurnoDelete):
         return super(LIM3Delete, self).dispatch(request, *args, **kwargs)
 
 
+class LIM4Delete(TurnoDelete):
+    success_url = reverse_lazy('lab:turnos-list')
+
+    @method_decorator(permission_required('lab.delete_turno_LIM4',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(LIM4Delete, self).dispatch(request, *args, **kwargs)
+
+
+class LIM5Delete(TurnoDelete):
+    success_url = reverse_lazy('lab:turnos-list')
+
+    @method_decorator(permission_required('lab.delete_turno_LIM5',
+                      raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(LIM5Delete, self).dispatch(request, *args, **kwargs)
+
+
 class LIM6Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
@@ -1089,6 +1213,16 @@ class LIM2CalendarView(CalendarView):
 class LIM3CalendarView(CalendarView):
     template_name = 'lab/LIM3_calendar.html'
     lab = 'LIM3'
+
+
+class LIM4CalendarView(CalendarView):
+    template_name = 'lab/LIM4_calendar.html'
+    lab = 'LIM4'
+
+
+class LIM5CalendarView(CalendarView):
+    template_name = 'lab/LIM5_calendar.html'
+    lab = 'LIM5'
 
 
 class LIM6CalendarView(CalendarView):
