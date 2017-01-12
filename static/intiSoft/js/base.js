@@ -619,6 +619,36 @@ $(document).ready(function() {
             submitButton2.value = id;
             $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
         }
+        //En SOTs agrego opcion para finalizar solo SOT u SOT y presupuesto
+        else if (model=='SOT' && action=='Finalizar') {
+            $(submitButton).text('Finalizar SOT');
+            submitButton.name = 'Finalizar1';
+            submitButton.value = id;
+            $(submitButton).attr('onclick', "$('#inputField').attr('name', 'Finalizar1').attr('value', " + id + ")");
+            $('#submitButton2').remove();
+            var btn = $("<button id='submitButton2' type='submit' class='btn btn-primary' name='name' value='value'></button>");
+            $("#myForm").append(btn);
+            submitButton2 = document.getElementById('submitButton2');
+            $(submitButton2).text('Finalizar SOT y Presupuesto');
+            submitButton2.name = 'Finalizar1';
+            submitButton2.value = id;
+            $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
+        }
+        //En RUTs agrego opcion para finalizar solo RUT u RUT y presupuesto
+        else if (model=='RUT' && action=='Finalizar') {
+            $(submitButton).text('Finalizar RUT');
+            submitButton.name = 'Finalizar1';
+            submitButton.value = id;
+            $(submitButton).attr('onclick', "$('#inputField').attr('name', 'Finalizar1').attr('value', " + id + ")");
+            $('#submitButton2').remove();
+            var btn = $("<button id='submitButton2' type='submit' class='btn btn-primary' name='name' value='value'></button>");
+            $("#myForm").append(btn);
+            submitButton2 = document.getElementById('submitButton2');
+            $(submitButton2).text('Finalizar RUT y Presupuesto');
+            submitButton2.name = 'Finalizar1';
+            submitButton2.value = id;
+            $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
+        }
         else {
             $(submitButton).text('Aceptar');
             $(submitButton).removeAttr('onclick');
