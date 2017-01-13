@@ -65,12 +65,7 @@ class TurnoList(ListView):
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
-                    if vals[0] == 'ot__codigo':
-                        queryset = queryset.order_by('presupuesto__ot__codigo')
-                    elif vals[0] == '-ot__codigo':
-                        queryset = queryset.order_by('-presupuesto__ot__codigo')
-                    else:
-                        queryset = queryset.order_by(vals[0])
+                    queryset = queryset.order_by(vals[0])
                 if key == 'search':
                     searchArgs = vals[0].split(",")
                     QList = []
@@ -94,15 +89,13 @@ class TurnoList(ListView):
         context = super(TurnoList, self).get_context_data(**kwargs)
         field_names = ['estado', 'presupuesto__usuario__nombre',
                        'fecha_inicio', 'fecha_fin',
-                       'presupuesto__fecha_instrumento',
+                       'presupuesto__instrumento__fecha_llegada',
                        'presupuesto__fecha_aceptado',
-                       #'ofertatec__codigo',
-                       'presupuesto__codigo', 'ot__codigo', 'sot__codigo',
+                       'presupuesto__codigo', 'presupuesto__ot__codigo', 'sot__codigo',
                        'rut__codigo']
         field_labels = ['Estado', 'Usuario',
                         'Inicio', 'Finalizacion', 'Llegada del instrumento',
                         'Aceptacion Presupuesto',
-                        #'Oferta Tec.',
                         'Nro. Presupuesto', 'Nro.  OT', 'Nro. SOT', 'Nro. RUT']
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas

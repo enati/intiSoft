@@ -1675,7 +1675,7 @@ class PresupuestoList(ListView):
                        'ofertatec__area',
                        'fecha_realizado',
                        'fecha_aceptado',
-                       'fecha_instrumento',
+                       'instrumento__fecha_llegada',
                        'nro_recepcion']
         field_labels = ['Estado', 'Nro.', 'Usuario', 'Nro Usuario',
                         'Area',
