@@ -189,7 +189,6 @@
                         {% else %}
                             <input name="edit" type="hidden" value="1">
                         {% endif %}
-                        <!-- Separador -->
                         </br>
                         <div id="plantilla" class="col-md-12">
                             <label class="col-md-2" style="text-align:left"
@@ -273,7 +272,7 @@
                            {% endif %}
                             <!-- Fecha de Solicitud -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                  for="id_fecha_solicitud">
                                     Fecha de Solicitud
                                 </label>
@@ -292,7 +291,7 @@
                             </div>
                             <!-- Fecha de Realizacion -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id_fecha_realizado">
                                     Fecha de Realización
                                 </label>
@@ -311,7 +310,7 @@
                             </div>
                             <!-- Fecha de Aceptacion -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id_fecha_aceptado">
                                     Fecha de Aceptación
                                 </label>
@@ -333,7 +332,7 @@
                             <h3 class="text-danger">Usuario</h3>
                             <!-- Usuario -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id_usuario">
                                       Usuario
                                 </label>
@@ -352,7 +351,7 @@
                             </div>
                             <!-- Numero de Usuario -->
                             <div class="form-group">
-                                <label class="col-md-4" style="text-align:left"
+                                <label class="col-md-5" style="text-align:left"
                                   for="id_usuario__nro_usuario">
                                     Número
                                 </label>
@@ -362,7 +361,7 @@
                             </div>
                             <!-- Cuit de Usuario -->
                             <div class="form-group">
-                                <label class="col-md-4" style="text-align:left"
+                                <label class="col-md-5" style="text-align:left"
                                   for="id_usuario__cuit">
                                     Cuit
                                 </label>
@@ -372,7 +371,7 @@
                             </div>
                             <!-- Rubro de Usuario -->
                             <div class="form-group">
-                                <label class="col-md-4" style="text-align:left"
+                                <label class="col-md-5" style="text-align:left"
                                   for="id_usuario__rubro">
                                     Rubro
                                 </label>
@@ -389,7 +388,7 @@
                             </h3>
                             <!-- Fecha de Inicio -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id__turno_fecha_inicio">
                                       Fecha de Inicio
                                 </label>
@@ -399,7 +398,7 @@
                             </div>
                             <!-- Fecha de Finalizacion -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id__turno_fecha_fin">
                                       Fecha de Finalización
                                 </label>
@@ -409,7 +408,7 @@
                             </div>
                              <!-- Cantidad -->
                             <div class="form-group">
-                                <label class="control-label col-md-4" style="text-align:left"
+                                <label class="control-label col-md-5" style="text-align:left"
                                   for="id__turno_area">
                                       Area
                                 </label>
@@ -437,7 +436,7 @@
                                         {% if edit %}
                                             {{ formInstrumento.id }}
                                         {% endif %}
-                                        <tr {% if form.instance.estado == 'borrador' %}
+                                        <tr {% if form.instance.estado in "['borrador', 'aceptado']" %}
                                             class="inline {{ instrumento_linea_form.prefix }}"
                                             {% endif %}>
                                             <td>
@@ -535,25 +534,85 @@
                     <div class="col-md-12">
                         <form class="form-horizontal" action="" method="">
                             </br>
-                            </br>
-                            <div class="col-md-6">
+                            <div id="plantilla" class="col-md-12">
+                                <label class="col-md-2" style="text-align:left"
+                                 for="id_asistencia">Asistencia</label>
+                                <div class="col-md-1">
+                                    {% if edit %}
+                                        {{ form.asistencia }}
+                                        {% for error in form.asistencia.errors %}
+                                           <div class="alert alert-error">
+                                               <strong>{{ error|escape }}</strong>
+                                           </div>
+                                       {% endfor %}
+                                    {% else %}
+                                        {{ form.asistencia|disable }}
+                                    {% endif %}
+                                </div>
+                                <label class="col-md-2" style="text-align:left"
+                                     for="id_calibracion">Calibración</label>
+                                <div class="col-md-1">
+                                    {% if edit %}
+                                        {{ form.calibracion }}
+                                       {% for error in form.calibracion.errors %}
+                                           <div class="alert alert-error">
+                                               <strong>{{ error|escape }}</strong>
+                                           </div>
+                                       {% endfor %}
+                                    {% else %}
+                                        {{ form.calibracion|disable }}
+                                    {% endif %}
+                                </div>
+                                <label class="col-md-2" style="text-align:left"
+                                     for="id_in_situ">In Situ</label>
+                                <div class="col-md-1">
+                                    {% if edit %}
+                                        {{ form.in_situ }}
+                                        {% for error in form.in_situ.errors %}
+                                           <div class="alert alert-error">
+                                               <strong>{{ error|escape }}</strong>
+                                           </div>
+                                       {% endfor %}
+                                    {% else %}
+                                        {{ form.in_situ|disable }}
+                                    {% endif %}
+                                </div>
+                                <label class="col-md-2" style="text-align:left"
+                                     for="id_lia">LIA</label>
+                                <div class="col-md-1">
+                                    {% if edit %}
+                                        {{ form.lia }}
+                                        {% for error in form.lia.errors %}
+                                           <div class="alert alert-error">
+                                               <strong>{{ error|escape }}</strong>
+                                           </div>
+                                       {% endfor %}
+                                    {% else %}
+                                        {{ form.lia|disable }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Separador -->
+                            <div class="col-md-12" style="border-top: 1.5px solid #eee;margin:15px"></div>
+                            <div class="col-md-4">
+                                <h3 class="text-danger">Presupuesto</h3>
                                 <!-- Fecha de Solicitud -->
                                 <div class="form-group">
                                     <label class="control-label col-md-5" style="text-align:left"
                                      for="id_fecha_solicitud">
                                         Fecha de Solicitud
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                        {{ pv.field_dict.fecha_solicitado | default_if_none:"" }}
                                     </div>
                                 </div>
-                                <!-- Fecha de Realizacion -->
+                                 <!-- Fecha de Realizacion -->
                                 <div class="form-group">
                                     <label class="control-label col-md-5" style="text-align:left"
                                       for="id_fecha_realizado">
                                         Fecha de Realización
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         {{ pv.field_dict.fecha_realizado | default_if_none:"" }}
                                     </div>
                                 </div>
@@ -563,86 +622,12 @@
                                       for="id_fecha_aceptado">
                                         Fecha de Aceptación
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         {{ pv.field_dict.fecha_aceptado | default_if_none:"" }}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <!-- Fecha de Instrumento -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-6" style="text-align:left"
-                                      for="id_fecha_instrumento">
-                                        Llegada del Instrumento
-                                    </label>
-                                    <div class="col-md-6">
-                                        {{ pv.field_dict.fecha_instrumento | default_if_none:"" }}
-                                    </div>
-                                </div>
-                                <!-- Nro Recibo Recepcion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-6" style="text-align:left"
-                                      for="id_nro_recibo">
-                                        Recibo de Recepcion
-                                    </label>
-                                    <div class="col-md-6">
-                                        {{ pv.field_dict.nro_recepcion }}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Separador -->
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
-                            <div class="col-md-6">
-                                <h3 class="text-danger">Turno
-                                    {% if tActv.0.field_dict.nro_revision > 0 %}
-                                        rev{{ tActv.field_dict.nro_revision }}
-                                    {% endif %}
-                                </h3>
-                                <!-- Fecha de Inicio -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id__turno_fecha_inicio">
-                                          Fecha de Inicio
-                                    </label>
-                                    <div class="col-md-6">
-                                       {{ tActv.0.field_dict.fecha_inicio | default_if_none:'' }}
-                                    </div>
-                                </div>
-                                <!-- Fecha de Finalizacion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id__turno_fecha_fin">
-                                          Fecha de Finalización
-                                    </label>
-                                    <div class="col-md-6">
-            <!--
-                                       {{ turno_activo.fecha_fin | plus_five | default_if_none:'' }}
-            -->
-                                       {{ tActv.0.field_dict.fecha_fin | default_if_none:'' }}
-                                    </div>
-                                </div>
-                                 <!-- Cantidad -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id__turno_cantidad">
-                                          Cantidad
-                                    </label>
-                                    <div class="col-md-6">
-                                       {{ tActv.0.field_dict.cantidad }}
-                                    </div>
-                                </div>
-                                 <!-- Observaciones -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id__turno_observaciones">
-                                          Observaciones
-                                    </label>
-                                    <div class="col-md-6">
-                                       {{ tActv.0.field_dict.observaciones }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <h3 class="text-danger">Usuario</h3>
                                 <!-- Usuario -->
                                 <div class="form-group">
@@ -650,7 +635,7 @@
                                       for="id_usuario">
                                           Usuario
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         {{ uv.0.field_dict.nombre }}
                                     </div>
                                 </div>
@@ -660,7 +645,7 @@
                                       for="id_usuario__nro_usuario">
                                         Número
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                        <p id="id_nro_usuario">
                                            {{ uv.0.field_dict.nro_usuario }}
                                        </p>
@@ -672,7 +657,7 @@
                                       for="id_usuario__cuit">
                                         Cuit
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                        <p id="id_cuit">{{ uv.0.field_dict.cuit }}</p>
                                     </div>
                                 </div>
@@ -682,65 +667,102 @@
                                       for="id_usuario__rubro">
                                         Rubro
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                        <p id="id_rubro">{{ uv.0.field_dict.rubro }}</p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                            </br>
-                            <div id="plantilla" class="col-md-12">
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_asistencia">Asistencia</label>
-                                <div class="col-md-1">
-                                    {{ form.asistencia|disable }}
+                            <div class="col-md-4">
+                                <h3 class="text-danger">Turno
+                                    {% if tActv.0.field_dict.nro_revision > 0 %}
+                                        rev{{ tActv.field_dict.nro_revision }}
+                                    {% endif %}
+                                </h3>
+                                <!-- Fecha de Inicio -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id__turno_fecha_inicio">
+                                          Fecha de Inicio
+                                    </label>
+                                    <div class="col-md-7">
+                                       {{ tActv.0.field_dict.fecha_inicio | default_if_none:'' }}
+                                    </div>
                                 </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_calibracion">Calibración</label>
-                                <div class="col-md-1">
-                                    {{ form.calibracion|disable }}
+                                <!-- Fecha de Finalizacion -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id__turno_fecha_fin">
+                                          Fecha de Finalización
+                                    </label>
+                                    <div class="col-md-7">
+            <!--
+                                       {{ turno_activo.fecha_fin | plus_five | default_if_none:'' }}
+            -->
+                                       {{ tActv.0.field_dict.fecha_fin | default_if_none:'' }}
+                                    </div>
                                 </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_in_situ">In Situ</label>
-                                <div class="col-md-1">
-                                    {{ form.in_situ|disable }}
-                                </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_lia">LIA</label>
-                                <div class="col-md-1">
-                                    {{ form.lia|disable }}
+                                 <!-- Cantidad -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id__turno_area">
+                                          Area
+                                    </label>
+                                    <div class="col-md-7">
+                                       {{ tActv.0.field_dict.area }}
+                                    </div>
                                 </div>
                             </div>
-                            </br>
-                            </br>
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
-                                <h3 class="text-danger">Oferta Tecnológica</h3>
+                            <!-- Separador -->
+                            <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
                                 <div class="col-md-12">
-                                    <table id="ofertatec_table" class="table">
+                                    <h3 class="text-danger">Instrumentos</h3>
+                                    <table id="instrumento_formtable" class="table">
                                         <thead>
-                                            <td>Código</td>
-                                            <td>Detalle</td>
-                                            <td>Tipo de Servicio</td>
-                                            <td>Cantidad</td>
-                                            <td>Observaciones</td>
-                                            <td>Horas</td>
-                                            <td>Precio Unitario</td>
+                                            <td>Llegada del instrumento</td>
+                                            <td>Recibo de recepcion</td>
                                         </thead>
                                         <tbody>
-                                            {% for ot in otList %}
+                                            {% for instr in instrumento_linea_form %}
                                                 <tr>
-                                                    <td>{{ ot.field_dict.ofertatec }}</td>
-                                                    <td>{{ ot.field_dict.detalle}}</td>
-                                                    <td>{{ ot.field_dict.tipo_servicio}}</td>
-                                                    <td>{{ ot.field_dict.cantidad }}</td>
-                                                    <td>{{ ot.field_dict.observaciones }}</td>
-                                                    <td>{{ ot.field_dict.cant_horas | default_if_none:""}}</td>
-                                                    <td>{{ ot.field_dict.precio }}</td>
+                                                    <td>
+                                                        {{ instr.fecha_llegada.value | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ instr.nro_recepcion.value }}
+                                                    </td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+                            <h3 class="text-danger">Oferta Tecnológica</h3>
+                            <div class="col-md-12">
+                                <table id="ofertatec_table" class="table">
+                                    <thead>
+                                        <td>Código</td>
+                                        <td>Detalle</td>
+                                        <td>Tipo de Servicio</td>
+                                        <td>Cantidad</td>
+                                        <td>Observaciones</td>
+                                        <td>Horas</td>
+                                        <td>Precio Unitario</td>
+                                    </thead>
+                                    <tbody>
+                                        {% for ot in otList %}
+                                            <tr>
+                                                <td>{{ ot.field_dict.ofertatec }}</td>
+                                                <td>{{ ot.field_dict.detalle}}</td>
+                                                <td>{{ ot.field_dict.tipo_servicio}}</td>
+                                                <td>{{ ot.field_dict.cantidad }}</td>
+                                                <td>{{ ot.field_dict.observaciones }}</td>
+                                                <td>{{ ot.field_dict.cant_horas | default_if_none:""}}</td>
+                                                <td>{{ ot.field_dict.precio }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </form>
                     </div>

@@ -84,8 +84,8 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             if self.estado in ['en_espera', 'activo'] and hoy > self.fecha_fin:
                 return True
             elif self.presupuesto:
-                if self.presupuesto.fecha_instrumento:
-                    if self.presupuesto.fecha_instrumento > fecha_limite:
+                if self.presupuesto.instrumento_set.all():
+                    if self.presupuesto.instrumento_set.last().fecha_instrumento > fecha_limite:
                         # El instrumento llego pasados 2 dias habiles a la fecha de inicio
                         return True
                     else:
@@ -108,7 +108,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         try:
             if self.estado in ['en_espera', 'activo']:
                 if self.presupuesto and\
-                    (not (self.presupuesto.fecha_instrumento and self.presupuesto.fecha_aceptado)
+                    (not (self.presupuesto.instrumento_set.last().fecha_instrumento and self.presupuesto.fecha_aceptado)
                     and pasado_manana >= self.fecha_inicio)\
                     and not (self.presupuesto.in_situ)\
                     and not (self.presupuesto.asistencia):

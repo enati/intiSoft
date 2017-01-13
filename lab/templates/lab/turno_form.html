@@ -577,7 +577,7 @@
                                     </label>
                                     <div class="col-md-6">
                                        <p id="id_fecha_instrumento">
-                                           {{ pv.0.field_dict.fecha_instrumento | default_if_none:""}}
+                                           {{ pv.0.field_dict.instrumento_set.last.fecha_instrumento | default_if_none:""}}
                                        </p>
                                     </div>
                                 </div>

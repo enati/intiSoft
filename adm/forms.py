@@ -8,7 +8,7 @@ from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 
-editable_fields = ['fecha_instrumento', 'fecha_realizado', 'fecha_aceptado', 'nro_recepcion', 'asistencia', 'calibracion', 'in_situ', 'lia']
+editable_fields = ['fecha_realizado', 'fecha_aceptado', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
 
 def bootstrap_format(f, **kwargs):
@@ -925,8 +925,6 @@ Instrumento_LineaFormSet = inlineformset_factory(Presupuesto,
 class PresupuestoForm(forms.ModelForm):
     formfield_callback = bootstrap_format
 
-    __fecha_instrumento_orig = None
-
     def __init__(self, *args, **kwargs):
         super(PresupuestoForm, self).__init__(*args, **kwargs)
         # El nro de presup no tiene que tener form-control
@@ -959,13 +957,6 @@ class PresupuestoForm(forms.ModelForm):
         else:
             return self.cleaned_data['fecha_realizado']
 
-    def clean_fecha_instrumento(self):
-        if self.instance and self.instance.estado not in \
-                           ('borrador', 'aceptado'):
-            return self.instance.fecha_instrumento
-        else:
-            return self.cleaned_data['fecha_instrumento']
-
     def clean_fecha_solicitado(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.fecha_solicitado
@@ -990,13 +981,6 @@ class PresupuestoForm(forms.ModelForm):
             return self.instance.estado
         else:
             return self.cleaned_data['estado']
-
-    def clean_nro_recepcion(self):
-        if self.instance and self.instance.estado not in \
-                           ('borrador', 'aceptado'):
-            return self.instance.nro_recepcion
-        else:
-            return self.cleaned_data['nro_recepcion']
 
     #def clean_asistencia(self):
         #if self.instance and self.instance.estado != 'borrador':
@@ -1039,9 +1023,7 @@ class PresupuestoForm(forms.ModelForm):
                   'usuario',
                   'fecha_realizado',
                   'fecha_aceptado',
-                  'fecha_instrumento',
                   'estado',
-                  'nro_recepcion',
                   'asistencia',
                   'calibracion',
                   'in_situ',
@@ -1063,14 +1045,6 @@ class PresupuestoForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
                 'invalid': 'Fecha invalida.',
             },
-            'fecha_instrumento': {
-                'required': 'Campo obligatorio.',
-                'invalid': 'Fecha invalida.',
-            },
-            'nro_recepcion': {
-                'required': 'Campo obligatorio.',
-                'max_length': 'Largo permitido excedido.',
-            },
         }
         widgets = {
                 'fecha_solicitado': forms.DateInput(attrs={'class':
@@ -1082,9 +1056,6 @@ class PresupuestoForm(forms.ModelForm):
                 'fecha_aceptado': forms.DateInput(attrs={'class':
                                                                'datepicker',
                                                          'readonly': True},),
-                'fecha_instrumento': forms.DateInput(attrs={'class':
-                                                               'datepicker',
-                                                            'readonly': True},),
             }
 
 

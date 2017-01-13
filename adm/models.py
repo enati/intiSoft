@@ -137,12 +137,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
                                        blank=True, null=True)
     fecha_aceptado = models.DateField(verbose_name='Fecha de Aceptacion',
                                       blank=True, null=True)
-    fecha_instrumento = models.DateField('Llegada de instrumento',
-                                         blank=True, null=True)
     usuario = models.ForeignKey(Usuario, verbose_name='Usuario',
                                 on_delete=models.PROTECT)
-    nro_recepcion = models.CharField(max_length=15, verbose_name='Nro. Recibo de Recepcion',
-                                     blank=True, null=True)
     revisionar = models.BooleanField(default=False)
     nro_revision = models.IntegerField(default=0)
     asistencia = models.BooleanField('Asistencia')
@@ -255,6 +251,7 @@ pre_save.connect(check_state, sender=Presupuesto)
 post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
+@reversion.register(follow=["instrumento"])
 class Instrumento(TimeStampedModel, AuthStampedModel):
 
     detalle = models.CharField(max_length=150, blank=True, null=True)

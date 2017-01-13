@@ -1799,10 +1799,9 @@ class PresupuestoUpdate(UpdateView):
                 # Todos los usuarios versionados en la revision revId
                 uv = objectsVersiones.filter(content_type__model='usuario')
                 usuarioVersByRevision.append(uv)
-                # Todos las lineas de ot versionados en la revision revId
+                # Todas las lineas de ot versionados en la revision revId
                 ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
                 otLineaVersByRevision.append(ot)
-
         context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
