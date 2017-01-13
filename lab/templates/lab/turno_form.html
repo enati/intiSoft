@@ -391,7 +391,7 @@
                                     Llegada del Instrumento
                                 </label>
                                 <div class="col-md-6">
-                                   <p id="id_fecha_instrumento">{{ form.instance.presupuesto.fecha_instrumento | default_if_none:""}}</p>
+                                   <p id="id_fecha_instrumento">{{ form.instance.presupuesto.instrumento_set.last.fecha_llegada | default_if_none:""}}</p>
                                 </div>
                             </div>
                         </div>
