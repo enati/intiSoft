@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura,\
+                    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -890,6 +891,35 @@ Tarea_LineaFormSet = generic_inlineformset_factory(Tarea_Linea,
                                                    form=Tarea_LineaForm,
                                                    formset=BaseGenericInlineFormSet,
                                                   )
+
+
+class Instrumento_LineaForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(Instrumento_LineaForm, self).__init__(*args, **kwargs)
+        for f in self.fields:
+            self.fields[f].required = False
+
+    class Meta:
+
+        model = Instrumento
+        fields = ['detalle',
+                  'fecha_llegada',
+                  'nro_recepcion']
+
+        widgets = {
+            'fecha_llegada': forms.DateInput(attrs={'class': 'datepicker',
+                                                      'readonly': True},),
+            }
+
+Instrumento_LineaFormSet = inlineformset_factory(Presupuesto,
+                                                Instrumento,
+                                                min_num=1,
+                                                extra=0,
+                                                formfield_callback=bootstrap_format,
+                                                form=Instrumento_LineaForm,
+                                                formset=BaseInlineFormSet,
+                                               )
 
 
 class PresupuestoForm(forms.ModelForm):

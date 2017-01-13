@@ -89,17 +89,6 @@ class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
         ordering = ['codigo']
 
 
-# Ultimo codigo disponible (sin tener en cuenta saltos)
-#def nextCode():
-    #lastCode = Presupuesto.objects.order_by('codigo').last()
-    #if lastCode:
-        #n = str(int(lastCode.codigo) + 1)
-        #zeros = '0' * (5 - len(n))
-        #return zeros + n
-    #return '00001'
-
-# Ultimo codigo disponible (teniendo en cuenta saltos,
-# empezando desde el 05869)
 def nextCode():
     cursor = connection.cursor()
     cursor.execute("""SELECT (t1.codigo + 1)
@@ -264,6 +253,17 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 # Signals
 pre_save.connect(check_state, sender=Presupuesto)
 post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
+
+
+class Instrumento(TimeStampedModel, AuthStampedModel):
+
+    detalle = models.CharField(max_length=150, blank=True, null=True)
+    fecha_llegada = models.DateField('Fecha de Llegada')
+    nro_recepcion = models.CharField(max_length=15, verbose_name='Nro. Recibo de Recepcion')
+    presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['fecha_llegada']
 
 
 class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):

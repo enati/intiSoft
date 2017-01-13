@@ -47,23 +47,6 @@
 <div class="row">
     <div class="col-md-12">
         <table id="turnoTable" class="table table-hover table-pointer row-eq-height">
-<!--
-            <col style="width:5%">
-            <col style="width:30%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:10%">
--->
-<!--
-            <col style="width:10%">
--->
-<!--
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:5%">
-            <col style="width:5%">
-            <col style="width:5%">
--->
             <caption>Planilla de turnos {{ area_value }} </caption>
             <thead>
                 {% for name, label in fields %}
@@ -103,13 +86,8 @@
                         <td>{{turno.presupuesto.usuario}}</td>
                         <td>{{turno.fecha_inicio | date }}</td>
                         <td>{{turno.fecha_fin | date }}</td>
-                        <td>{{turno.presupuesto.fecha_instrumento | date }}</td>
+                        <td>{{turno.presupuesto.instrumento_set.last.fecha_llegada | date | default_if_none:""}}</td>
                         <td>{{turno.presupuesto.fecha_aceptado | date }}</td>
-<!--
-                        <td>{% for o in turno.ofertatec_linea_set.all %}
-                                {{ o.ofertatec.codigo }}
-                            {% endfor %}
--->
                         </td>
                         <td>{{turno.presupuesto.codigo}}</td>
                         <td>{% for ot in turno.presupuesto.ot_set.all %}

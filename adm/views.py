@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm,\
-                   Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm, Tarea_LineaFormSet
+                   Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm,\
+                   Tarea_LineaFormSet, Instrumento_LineaFormSet
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -1572,6 +1573,54 @@ class PresupuestoCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
 
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        instrumento_linea_form = Instrumento_LineaFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  instrumento_linea_form=instrumento_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        instrumento_linea_form = Instrumento_LineaFormSet(self.request.POST)
+        if (form.is_valid() and instrumento_linea_form.is_valid()):
+            return self.form_valid(form, instrumento_linea_form)
+        else:
+            return self.form_invalid(form, instrumento_linea_form)
+
+    def form_valid(self, form, instrumento_linea_form):
+        """
+        Called if all forms are valid. Creates a Turno instance along with
+        associated OfertaTec_Lineas and then redirects to a
+        success page.
+        """
+        self.object = form.save()
+        instrumento_linea_form.instance = self.object
+        instrumento_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, instrumento_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  instrumento_linea_form=instrumento_linea_form))
+
 
 class PresupuestoList(ListView):
     model = Presupuesto
@@ -1761,6 +1810,53 @@ class PresupuestoUpdate(UpdateView):
     def get_success_url(self):
         #import pdb; pdb.set_trace()
         return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates filled versions of the form
+        and its inline formsets.
+        """
+        self.object = Presupuesto.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        instrumento_linea_form = Instrumento_LineaFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  instrumento_linea_form=instrumento_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = Presupuesto.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        instrumento_linea_form = Instrumento_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and instrumento_linea_form.is_valid()):
+            return self.form_valid(form, instrumento_linea_form)
+        else:
+            return self.form_invalid(form, instrumento_linea_form)
+
+    def form_valid(self, form, instrumento_linea_form):
+        """
+        Called if all forms are valid. Creates a Turno instance along with
+        associated OfertaTec_Lineas and then redirects to a
+        success page.
+        """
+        form.save()
+        instrumento_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, instrumento_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  instrumento_linea_form=instrumento_linea_form))
 
 #=================================================
 #========= VISTAS OFERTA TECNOLOGICA =============
