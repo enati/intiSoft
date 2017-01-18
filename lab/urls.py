@@ -128,5 +128,6 @@ urlpatterns = [
     url(r'^turnos/ML/update/(?P<pk>\d+)/rollback/', 'lab.views.rollBackRevision', name='ML-rollback'),
     url(r'^turnos/get_price/$', 'lab.views.get_price', name='ot-getprice'),
     url(r'^turnos/get_presup/$', 'lab.views.get_presup', name='presup-getdata'),
+    url(r'^turnos/get_si/$', 'lab.views.get_si', name='si-getdata'),
 
 ]

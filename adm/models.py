@@ -582,6 +582,7 @@ class SOT(Contrato):
             self.save()
         self.delete()
         return True
+
     class Meta:
         permissions = (("cancel_sot", "Can cancel SOT"),
                        ("finish_sot", "Can finish SOT"),)
@@ -729,6 +730,7 @@ def nextSICode():
         return '00007'
 
 
+@reversion.register()
 class SI(Contrato):
 
     ESTADOS = (
@@ -765,7 +767,13 @@ class SI(Contrato):
     # Campos para la relacion inversa
     tarea_linea_set = GenericRelation('Tarea_Linea')
 
+    def __str__(self):
+        return self.codigo
+
     def _toState_finalizada(self):
+        # Si la SI esta asociada a un turno, se finaliza automaticamente al finalizar el turno.
+        if self.turno_set.all():
+            raise StateError('La SI tiene turnos asociados. Se finalizara automaticamente al finalizar dichos turnos.', '')
         self.estado = 'finalizada'
         self.fecha_fin_real = datetime.now().date()
         self.save()
@@ -774,6 +782,9 @@ class SI(Contrato):
     def _toState_cancelada(self):
         if self.estado == 'finalizada':
             raise StateError('No se pueden cancelar las SI finalizadas.', '')
+        # Cancelo los turnos asociados
+        for turno in self.turno_set.all():
+            turno._toState_cancelado()
         self.estado = 'cancelada'
         self.save()
         return True

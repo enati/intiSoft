@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-from adm.models import Presupuesto, Usuario, OfertaTec
+from adm.models import Presupuesto, Usuario, OfertaTec, SI
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
@@ -30,7 +30,7 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
     return res
 
 
-@reversion.register(follow=["ofertatec_linea_set", "presupuesto"])
+@reversion.register(follow=["ofertatec_linea_set", "presupuesto", "si"])
 class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     #_fecha_inicio_orig = None
@@ -64,6 +64,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                                   #                                'aceptado']),
                                                          blank=True,
                                                          null=True)
+    si = models.ForeignKey(SI, blank=True, null=True)
     fecha_inicio = models.DateField('Inicio estimado', blank=True, null=True)
     fecha_fin = models.DateField('Finalizacion estimada', blank=True, null=True)
     fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
@@ -81,22 +82,17 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         try:
             hoy = datetime.now().date()
             fecha_limite = sumarDiasHabiles(self.fecha_inicio, 2)
-            if self.estado in ['en_espera', 'activo'] and hoy > self.fecha_fin:
-                return True
-            elif self.presupuesto:
+            if self.presupuesto:
                 if self.presupuesto.instrumento_set.all():
                     if self.presupuesto.instrumento_set.last().fecha_instrumento > fecha_limite:
                         # El instrumento llego pasados 2 dias habiles a la fecha de inicio
                         return True
-                    else:
-                        return False
                 elif (hoy > fecha_limite):
-                    if (self.presupuesto.in_situ or self.presupuesto.asistencia):
-                        return False
-                    else:
-                        # El instrumento no haya llegado pasados 2 dias habiles a la fecha de inicio
-                        # y no es in_situ ni asistencia
+                    # El instrumento no llego pasados 2 dias habiles a la fecha de inicio
+                    # y no es in_situ ni asistencia
+                    if not (self.presupuesto.in_situ or self.presupuesto.asistencia):
                         return True
+            return False
         except:
             return False
 
@@ -124,9 +120,16 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.estado = 'finalizado'
         self.fecha_fin_real = datetime.now().date()
         self.save()
-        # Cambio de estado el presupuesto asociado
-        self.presupuesto.estado = 'en_proceso_de_facturacion'
-        self.presupuesto.save()
+        # Cambio de estado el presupuesto o la si asociado, segun corresponda.
+        if self.presupuesto:
+            self.presupuesto.estado = 'en_proceso_de_facturacion'
+            self.presupuesto.save()
+        elif self.si:
+            # Si todavia quedan turnos pendientes no finalizo la SI
+            turnos_pendientes = Turno.objects.filter(si_id=self.si.id, estado__in=['en_espera', 'activo'])
+            if not turnos_pendientes:
+                self.si.estado = 'finalizada'
+                self.si.save()
         return True
 
     def _toState_cancelado(self):
@@ -138,8 +141,10 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
     def _delete(self):
         """Faltarian las validaciones"""
         # Si tiene un presupuesto asociado en estado en proceso de facturacion,
-        # finalizado o cancelado, no lo elimino
+        # finalizado o cancelado, no lo elimino. Lo mismo con SI.
         if self.presupuesto and self.presupuesto.estado in ['en_proceso_de_facturacion', 'finalizado', 'cancelado']:
+            return False
+        elif self.si and self.si.estado in ['finalizada', 'cancelada']:
             return False
         else:
             self.delete()
@@ -214,6 +219,9 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                        ("cancel_turno_MEC", "Can cancel turno MEC"),
                        ("cancel_turno_ML", "Can cancel turno ML"),
                        )
+
+# Signals
+pre_save.connect(check_state, sender=Turno)
 
 
 @reversion.register(follow=["ofertatec"])

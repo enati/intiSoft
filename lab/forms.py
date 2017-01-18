@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from adm.models import OfertaTec, Presupuesto
+from adm.models import OfertaTec, Presupuesto, SI
 from .models import Turno, OfertaTec_Linea
 from django.forms.models import inlineformset_factory
 from django.forms import formsets
@@ -35,10 +35,11 @@ class TurnoForm(forms.ModelForm):
         elif self.instance:
             initArea = self.instance.area
 
-        #import pdb; pdb.set_trace()
         if self.instance and self.instance.estado == 'en_espera':
             # Filtro los presupuestos que no estan en borrador
             self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado='borrador')
+            # Filtro las solicitudes internas que corresponden al lab actual
+            self.fields['si'].queryset = SI.objects.filter(ejecutor=initArea)
         self.fields['area'].widget.attrs['style'] = "visibility:hidden"
         if self.instance and self.instance.estado in \
                  ('finalizado', 'cancelado'):
@@ -47,6 +48,7 @@ class TurnoForm(forms.ModelForm):
                 self.fields[f].required = False
         if self.instance and self.instance.estado != 'en_espera':
             self.fields['presupuesto'].widget.attrs['disabled'] = True
+            self.fields['si'].widget.attrs['disabled'] = True
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -77,6 +79,13 @@ class TurnoForm(forms.ModelForm):
             return self.instance.presupuesto
         else:
             return self.cleaned_data['presupuesto']
+
+    def clean_si(self):
+        if self.instance and self.instance.estado in \
+                 ('activo', 'finalizado', 'cancelado'):
+            return self.instance.si
+        else:
+            return self.cleaned_data['si']
 
     def clean_fecha_inicio(self):
         if self.instance and self.instance.estado in \
@@ -110,14 +119,12 @@ class TurnoForm(forms.ModelForm):
 
         model = Turno
         fields = ['presupuesto',
+                  'si',
                   'fecha_inicio',
                   'fecha_fin',
                   'estado',
                   'area']
         error_messages = {
-            'presupuesto': {
-                'required': 'Campo obligatorio.',
-            },
             'fecha_inicio': {
                 'required': 'Campo obligatorio.',
                 'invalid': 'Fecha invalida.',

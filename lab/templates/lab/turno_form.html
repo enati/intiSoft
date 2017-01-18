@@ -25,6 +25,58 @@
             $(".inline.{{ ofertatec_linea_form.prefix }}").formset({
                 prefix: "{{ ofertatec_linea_form.prefix }}",
             })
+
+            $("#datos_si input.checkbox").on('change', function() {
+                if ($(this).is(':checked')) {
+                    $("#datos_si select").removeAttr('disabled');
+                    <!-- Borro todos los datos que vienen del presupuesto -->
+                    $("#datos_presup input.checkbox").removeAttr('checked');
+                    $("select[id=id_presupuesto]").attr('disabled', 'disabled');
+                    $("#datos_presup select option:first").attr('selected', 'selected');
+                    $("#datos_presup p").text("");
+                    $("#datos_usuario p").text("");
+
+                }
+                else {
+                    $("select[id=id_si]").attr('disabled', 'disabled');
+                    <!-- Borro todos los datos que vienen de la SI -->
+                    $("#datos_presup select option:first").attr('selected', 'selected');
+                    $("#datos_si p").text("");
+                    $("#ofertatec_formtable_turno a.delete-row").click();
+
+                }
+            });
+            $("#datos_presup input.checkbox").on('change', function() {
+                if ($(this).is(':checked')) {
+                    $("#datos_presup select").removeAttr('disabled');
+                    <!-- Borro todos los datos que vienen de la SI -->
+                    $("#datos_si input.checkbox").removeAttr('checked');
+                    $("#datos_si select option:first").attr('selected', 'selected');
+                    $("#datos_si p").text("");
+                    $("#ofertatec_formtable_turno a.delete-row").click();
+                }
+                else {
+                    $("select[id=id_presup]").attr('disabled', 'disabled');
+                    <!-- Borro todos los datos que vienen del presupuesto -->
+                    $("#datos_presup input.checkbox").removeAttr('checked');
+                    $("select[id=id_presupuesto]").attr('disabled', 'disabled');
+                    $("#datos_presup select option:first").attr('selected', 'selected');
+                    $("#datos_presup p").text("");
+                    $("#datos_usuario p").text("");
+
+                }
+            });
+
+            var presup = "{{form.instance.presupuesto}}",
+                si = "{{form.instance.si}}";
+            if (si !== 'None') {
+                $("#datos_si .checkbox").click();
+            }
+            else {
+                $("#datos_presup .checkbox").click();
+            };
+
+
         });
     </script>
 {% endblock %}
@@ -229,6 +281,158 @@
                                 {{ form.area }}
                             {% endif %}
                         </div>
+                        <!-- Separador -->
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                        <div class="col-md-6" id="datos_presup">
+                            <h3 class="text-danger">Presupuesto
+                                <input type="checkbox" class="checkbox" name="presupuesto"
+                                {% if form.instance.estado in "['activo', 'finalizado, 'cancelado']" %}
+                                disabled
+                                {% endif %}>
+                            </h3>
+                            <!-- Numero de Presupuesto -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_presupuesto"> Número</label>
+                                 <div class="col-md-5">
+                                     {% if edit %}
+                                         {{ form.presupuesto }}
+                                         {% for error in form.presupuesto.errors %}
+                                             <div class="alert alert-error">
+                                                 <strong>{{ error|escape }}</strong>
+                                             </div>
+                                         {% endfor %}
+                                     {% else %}
+                                         {{ form.instance.presupuesto.codigo }}
+                                     {% endif %}
+                                 </div>
+                            </div>
+                            <!-- Fecha de Solicitud del Presupuesto -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_presupuesto__fecha_solicitado">
+                                    Fecha de Solicitud
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_fecha_solicitado">{{ form.instance.presupuesto.fecha_solicitado }}</p>
+                                </div>
+                            </div>
+                            <!-- Fecha de Realizacion del Presupuesto -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_presupuesto__fecha_realizado">
+                                    Fecha de Realización
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_fecha_realizado">{{ form.instance.presupuesto.fecha_realizado | default_if_none:"" }}</p>
+                                </div>
+                            </div>
+                            <!-- Fecha de Aceptacion del Presupuesto -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_presupuesto__fecha_aceptacion">
+                                    Fecha de Aceptación
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_fecha_aceptado">{{ form.instance.presupuesto.fecha_aceptado | default_if_none:"" }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_presupuesto__fecha_instrmento">
+                                    Llegada del Instrumento
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_fecha_instrumento">{{ form.instance.presupuesto.instrumento_set.last.fecha_llegada | default_if_none:""}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="datos_si">
+                            <h3 class="text-danger">SI
+                                <input type="checkbox" class="checkbox" name="si"
+                                {% if form.instance.estado in "['activo', 'finalizado, 'cancelado']" %}
+                                disabled
+                                {% endif %}>
+                            </h3>
+                            <!-- Numero de SI -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_si"> Número</label>
+                                 <div class="col-md-5">
+                                     {% if edit %}
+                                         {{ form.si }}
+                                         {% for error in form.si.errors %}
+                                             <div class="alert alert-error">
+                                                 <strong>{{ error|escape }}</strong>
+                                             </div>
+                                         {% endfor %}
+                                     {% else %}
+                                         {{ form.instance.si.codigo }}
+                                     {% endif %}
+                                 </div>
+                            </div>
+                            <!-- Solicitante -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_si__solicitante">
+                                    UT Solicitante
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_si__solicitante">{{ form.instance.si.solicitante }}</p>
+                                </div>
+                            </div>
+                            <!-- Fecha de Realizacion -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_si__fecha_realizado">
+                                    Fecha de Realizacion
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_si__fecha_realizado">{{ form.instance.si.fecha_realizado | default_if_none:"" }}</p>
+                                </div>
+                            </div>
+                            <!-- Fecha de Prevista -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_si__fecha_prevista">
+                                    Fecha Prevista
+                                </label>
+                                <div class="col-md-5">
+                                   <p id="id_si__fecha_prevista">{{ form.instance.si.fecha_prevista | default_if_none:"" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                        <div class="col-md-12" id="datos_usuario">
+                            <h3 class="text-danger">Usuario</h3>
+                            <!-- Nombre del Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-1" style="text-align:left"
+                                  for="id_presupuesto__usuario__nombre">
+                                    Nombre
+                                </label>
+                                <div class="col-md-3">
+                                   <p id="id_usuario">{{ form.instance.presupuesto.usuario.nombre }}</p>
+                                </div>
+                                <!-- Mail del Usuario -->
+                                <label class="col-md-1" style="text-align:left"
+                                  for="id_presupuesto__usuario__mail">
+                                    Email
+                                </label>
+                                <div class="col-md-3">
+                                   <p id="id_mail">{{ form.instance.presupuesto.usuario.mail | default_if_none:""}}</p>
+                                </div>
+                                <!-- Rubro del Usuario -->
+                                <label class="col-md-1" style="text-align:left"
+                                  for="id_presupuesto__usuario__rubro">
+                                    Rubro
+                                </label>
+                                <div class="col-md-3">
+                                   <p id="id_rubro">{{ form.instance.presupuesto.usuario.rubro }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
                         <div class="col-md-12">
                             <div>
                                 <h3 class="text-danger">Oferta Tecnológica</h3>
@@ -334,100 +538,7 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- Separador -->
-                        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
-                        <div class="col-md-6" id="datos_presup">
-                            <h3 class="text-danger">Presupuesto</h3>
-                            <!-- Numero de Presupuesto -->
-                            <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
-                                 for="id_presupuesto"> Número</label>
-                                 <div class="col-md-7">
-                                     {% if edit %}
-                                         {{ form.presupuesto }}
-                                         {% for error in form.presupuesto.errors %}
-                                             <div class="alert alert-error">
-                                                 <strong>{{ error|escape }}</strong>
-                                             </div>
-                                         {% endfor %}
-                                     {% else %}
-                                         {{ form.instance.presupuesto.codigo }}
-                                     {% endif %}
-                                 </div>
-                            </div>
-                            <!-- Fecha de Solicitud del Presupuesto -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__fecha_solicitado">
-                                    Fecha de Solicitud
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_fecha_solicitado">{{ form.instance.presupuesto.fecha_solicitado }}</p>
-                                </div>
-                            </div>
-                            <!-- Fecha de Realizacion del Presupuesto -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__fecha_realizado">
-                                    Fecha de Realización
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_fecha_realizado">{{ form.instance.presupuesto.fecha_realizado | default_if_none:"" }}</p>
-                                </div>
-                            </div>
-                            <!-- Fecha de Aceptacion del Presupuesto -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__fecha_aceptacion">
-                                    Fecha de Aceptación
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_fecha_aceptado">{{ form.instance.presupuesto.fecha_aceptado | default_if_none:"" }}</p>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__fecha_instrmento">
-                                    Llegada del Instrumento
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_fecha_instrumento">{{ form.instance.presupuesto.instrumento_set.last.fecha_llegada | default_if_none:""}}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6" id="datos_usuario">
-                            <h3 class="text-danger">Usuario</h3>
-                            <!-- Nombre del Usuario -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__usuario__nombre">
-                                    Nombre
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_usuario">{{ form.instance.presupuesto.usuario.nombre }}</p>
-                                </div>
-                            </div>
-                            <!-- Mail del Usuario -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__usuario__mail">
-                                    Email
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_mail">{{ form.instance.presupuesto.usuario.mail | default_if_none:""}}</p>
-                                </div>
-                            </div>
-                            <!-- Rubro del Usuario -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_presupuesto__usuario__rubro">
-                                    Rubro
-                                </label>
-                                <div class="col-md-6">
-                                   <p id="id_rubro">{{ form.instance.presupuesto.usuario.rubro }}</p>
-                                </div>
-                            </div>
-                        </div>
+
                         <br/>
                         {% if form.errors %}
                             {% for error in form.non_field_errors %}
@@ -440,7 +551,7 @@
                 </div>
             </div>
 
-            {% for tv, pv, uv, otList in turnoVersions %}
+            {% for tv, pv, uv, otList, si in turnoVersions %}
                 <div role="tabpanel" class="tab-pane" id="{{ tv.revision.comment }}">
                     <div class="col-md-12">
                         <form class="form-horizontal" style="padding-top:5%" action="" method="">
@@ -468,64 +579,12 @@
                                      </div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div>
-                                    <h3 class="text-danger">Oferta Tecnológica</h3>
-                                    <table id="ofertatec_formtable_turno" class="table">
-                                        <col style="width:20%">
-                                        <col style="width:20%">
-                                        <col style="width:5%">
-                                        <col style="width:10%">
-                                        <col style="width:12%">
-                                        <thead>
-                                            <td>Código</td>
-                                            <td style="display:none">Detalle</td>
-                                            <td>Tipo De Servicio</td>
-                                            <td>Cantidad</td>
-                                            <td>Horas</td>
-                                            <td>Precio Unitario</td>
-                                            <td>Precio Total</td>
-                                            <td>Observaciones</td>
-                                        </thead>
-                                        <tbody>
-                                            {% for ot in otList %}
-                                                <tr>
-                                                    <td>
-                                                        {{ ot.field_dict.ofertatec_id | getOTCode}}
-                                                    </td>
-                                                    <td style="display:none">
-                                                        {{ ot.field_dict.detalle }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.tipo_servicio  | default_if_none:"" }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.cantidad }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.cant_horas | default_if_none:"" }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.precio | default_if_none:"" }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.precio_total | default_if_none:"" }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ot.field_dict.observaciones | default_if_none:"" }}
-                                                    </td>
-                                                    <td>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
                             <!-- Separador -->
                             <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
                             <div class="col-md-6" id="datos_presup">
-                                <h3 class="text-danger">Presupuesto</h3>
+                                <h3 class="text-danger">Presupuesto
+                                    <input type="checkbox" class="checkbox" name="si" disabled>
+                                </h3>
                                 <!-- Numero de Presupuesto -->
                                 <div class="form-group">
                                     <label class="control-label col-md-5" style="text-align:left"
@@ -582,43 +641,139 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6" id="datos_usuario">
+                            <div class="col-md-6" id="datos_si">
+                                <h3 class="text-danger">SI
+                                    <input type="checkbox" class="checkbox" name="si" disabled>
+                                </h3>
+                                <!-- Numero de SI -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_si"> Número</label>
+                                     <div class="col-md-5">
+                                         {{ si.0.field_dict.codigo }}
+                                     </div>
+                                </div>
+                                <!-- Solicitante -->
+                                <div class="form-group">
+                                    <label class="col-md-5" style="text-align:left"
+                                      for="id_si__solicitante">
+                                        UT Solicitante
+                                    </label>
+                                    <div class="col-md-5">
+                                       <p id="id_si__solicitante">{{ si.0.field_dict.solicitante }}</p>
+                                    </div>
+                                </div>
+                                <!-- Fecha de Realizacion -->
+                                <div class="form-group">
+                                    <label class="col-md-5" style="text-align:left"
+                                      for="id_si__fecha_realizado">
+                                        Fecha de Realizacion
+                                    </label>
+                                    <div class="col-md-5">
+                                       <p id="id_si__fecha_realizado">{{ si.0.field_dict.fecha_realizado | default_if_none:"" }}</p>
+                                    </div>
+                                </div>
+                                <!-- Fecha de Prevista -->
+                                <div class="form-group">
+                                    <label class="col-md-5" style="text-align:left"
+                                      for="id_si__fecha_prevista">
+                                        Fecha Prevista
+                                    </label>
+                                    <div class="col-md-5">
+                                       <p id="id_si__fecha_prevista">{{ si.0.field_dict.fecha_prevista | default_if_none:"" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                            <div class="col-md-12" id="datos_usuario">
                                 <h3 class="text-danger">Usuario</h3>
                                 <!-- Nombre del Usuario -->
                                 <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
+                                    <label class="col-md-1" style="text-align:left"
                                       for="id_presupuesto__usuario__nombre">
                                         Nombre
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                        <p id="id_usuario">
                                            {{ uv.0.field_dict.nombre }}
                                        </p>
                                     </div>
-                                </div>
-                                <!-- Mail del Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
+                                    <!-- Mail del Usuario -->
+                                    <label class="col-md-1" style="text-align:left"
                                       for="id_presupuesto__usuario__mail">
                                         Email
                                     </label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                        <p id="id_mail">
                                            {{ uv.0.field_dict.mail | default_if_none:""}}
                                        </p>
                                     </div>
-                                </div>
-                                <!-- Rubro del Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_presupuesto__usuario__rubro">
-                                        Rubro
-                                    </label>
-                                    <div class="col-md-6">
-                                       <p id="id_rubro">
-                                           {{ uv.0.field_dict.rubro }}
-                                       </p>
+                                    <!-- Rubro del Usuario -->
+                                    <div class="form-group">
+                                        <label class="col-md-1" style="text-align:left"
+                                          for="id_presupuesto__usuario__rubro">
+                                            Rubro
+                                        </label>
+                                        <div class="col-md-3">
+                                           <p id="id_rubro">
+                                               {{ uv.0.field_dict.rubro }}
+                                           </p>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div>
+                                    <h3 class="text-danger">Oferta Tecnológica</h3>
+                                    <table id="ofertatec_formtable_turno" class="table">
+                                        <col style="width:20%">
+                                        <col style="width:20%">
+                                        <col style="width:5%">
+                                        <col style="width:10%">
+                                        <col style="width:12%">
+                                        <thead>
+                                            <td>Código</td>
+                                            <td style="display:none">Detalle</td>
+                                            <td>Tipo De Servicio</td>
+                                            <td>Cantidad</td>
+                                            <td>Horas</td>
+                                            <td>Precio Unitario</td>
+                                            <td>Precio Total</td>
+                                            <td>Observaciones</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for ot in otList %}
+                                                <tr>
+                                                    <td>
+                                                        {{ ot.field_dict.ofertatec_id | getOTCode}}
+                                                    </td>
+                                                    <td style="display:none">
+                                                        {{ ot.field_dict.detalle }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.tipo_servicio  | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.cantidad }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.cant_horas | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.precio | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.precio_total | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ ot.field_dict.observaciones | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </form>

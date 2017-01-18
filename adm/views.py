@@ -21,6 +21,7 @@ from time import time
 import re
 from django.db.models import Q
 import operator
+from django.core import serializers
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -58,6 +59,11 @@ def less_five(orig_date):
 #===========================================
 #======= FUNCIONES ROUTEABLES ==============
 #===========================================
+
+def filterOT(request, area):
+    ofertatec = OfertaTec.objects.all().filter(area__in=[area, 'TODAS'])
+    json_ofertatec = serializers.serialize("json", ofertatec)
+    return HttpResponse(json_ofertatec, content_type="text/json")
 
 
 def viewWord(request, *args, **kwargs):

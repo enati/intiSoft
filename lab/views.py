@@ -4,7 +4,7 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse_lazy, reverse
 from .models import Turno, OfertaTec_Linea
-from adm.models import OfertaTec, Presupuesto, OT
+from adm.models import OfertaTec, Presupuesto, OT, SI
 from datetime import datetime
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -17,6 +17,7 @@ from django.utils.safestring import mark_safe
 from labCalendar import WorkoutCalendar
 from django.views.generic import View
 from reversion.models import Version
+from reversion import RegistrationError
 import reversion
 import re
 from django.db.models import Q
@@ -65,7 +66,10 @@ class TurnoList(ListView):
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
-                    queryset = queryset.order_by(vals[0])
+                    if vals[0] == 'usuario__nombre':
+                        queryset = queryset.extra(select={"usuario": "COALESCE('presupuesto__usuario__nombre', 'si__solicitante')"}, order_by=["usuario"])
+                    else:
+                        queryset = queryset.order_by(vals[0])
                 if key == 'search':
                     searchArgs = vals[0].split(",")
                     QList = []
@@ -78,7 +82,11 @@ class TurnoList(ListView):
                         QList.append(Q(estado__icontains="%s" % arg) |
                                     Q(presupuesto__usuario__nombre__icontains="%s" % arg) |
                                     Q(presupuesto__codigo__contains="%s" % arg) |
-                                    Q(presupuesto__ot__codigo__contains="%s" % arg))
+                                    Q(presupuesto__ot__codigo__contains="%s" % arg) |
+                                    Q(si__solicitante__icontains="%s" % arg) |
+                                    Q(si__codigo__contains="%s" % arg) |
+                                    Q(presupuesto__sot__codigo__contains="%s" % arg) |
+                                    Q(presupuesto__rut__codigo__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
                     queryset = queryset.filter(QList).distinct()
         self._checkstate(queryset)
@@ -87,16 +95,16 @@ class TurnoList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TurnoList, self).get_context_data(**kwargs)
-        field_names = ['estado', 'presupuesto__usuario__nombre',
+        field_names = ['estado', 'usuario__nombre',
                        'fecha_inicio', 'fecha_fin',
                        'presupuesto__instrumento__fecha_llegada',
                        'presupuesto__fecha_aceptado',
-                       'presupuesto__codigo', 'presupuesto__ot__codigo', 'sot__codigo',
-                       'rut__codigo']
+                       'presupuesto__codigo', 'presupuesto__ot__codigo', 'presupuesto__sot__codigo',
+                       'presupuesto__rut__codigo', 'presupuesto__si__codigo']
         field_labels = ['Estado', 'Usuario',
                         'Inicio', 'Finalizacion', 'Llegada del instrumento',
                         'Aceptacion Presupuesto',
-                        'Nro. Presupuesto', 'Nro.  OT', 'Nro. SOT', 'Nro. RUT']
+                        'Nro. Presupuesto', 'Nro.  OT', 'Nro. SOT', 'Nro. RUT', 'Nro. SI']
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
         context['today'] = datetime.now()
@@ -650,6 +658,7 @@ class TurnoUpdate(UpdateView):
         presupVersByRevision = []
         usuarioVersByRevision = []
         otLineaVersByRevision = []
+        siLineaVersByRevision = []
         if turnoVers:
             for tv in turnoVers:
                 revId = tv.revision.id
@@ -664,8 +673,12 @@ class TurnoUpdate(UpdateView):
                 # Todos las lineas de ot versionados en la revision revId
                 ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
                 otLineaVersByRevision.append(ot)
+                # Todass las SI versionadas en la revision revId
+                si = objectsVersiones.filter(content_type__model='si').order_by('object_id')
+                siLineaVersByRevision.append(si)
 
-        context['turnoVersions'] = zip(turnoVers, presupVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
+        context['turnoVersions'] = zip(turnoVers, presupVersByRevision, usuarioVersByRevision,
+                                       otLineaVersByRevision, siLineaVersByRevision)
         return context
 
 
@@ -692,8 +705,8 @@ def createRevision(request, *args, **kwargs):
             obj.presupuesto.revisionar = True
             obj.presupuesto.save()
         return JsonResponse({'ok': 'ok'})
-    except:
-        return JsonResponse({'err': 'err'})
+    except RegistrationError as e:
+        raise e
 
 
 def rollBackRevision(request, *args, **kwargs):
@@ -1040,16 +1053,37 @@ def get_presup(request, *args, **kwargs):
         data['usuario'] = presup_obj.usuario.nombre
         data['mail'] = presup_obj.usuario.mail
         data['rubro'] = presup_obj.usuario.rubro
-        data['area'] = presup_obj.get_turno_activo().area
-        data['fecha_turno'] = turno_activo.fecha_fin.strftime("%d/%m/%Y")
         data['ofertatec'] = []
-        for ot in turno_activo.ofertatec_linea_set.all():
+        if turno_activo:
+            data['area'] = turno_activo.area
+            data['fecha_turno'] = turno_activo.fecha_fin.strftime("%d/%m/%Y")
+            for ot in turno_activo.ofertatec_linea_set.all():
+                data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
+                                          'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
+                                          'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
+                                          'precio': ot.precio, 'precio_total': ot.precio_total,
+                                          'detalle': ot.detalle, 'observaciones': ot.observaciones})
+
+    except:
+        data = {}
+    return HttpResponse(json.dumps(data), content_type="text/json")
+
+
+def get_si(request, *args, **kwargs):
+    data = {}
+    try:
+        si_id = request.GET['si_id']
+        si_obj = SI.objects.get(pk=si_id)
+        data['solicitante'] = si_obj.solicitante
+        data['fecha_realizado'] = si_obj.fecha_realizado.strftime("%d/%m/%Y") if si_obj.fecha_realizado else ''
+        data['fecha_prevista'] = si_obj.fecha_prevista.strftime("%d/%m/%Y") if si_obj.fecha_prevista else ''
+        data['ofertatec'] = []
+        for ot in si_obj.ot_linea_set.all():
             data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
                                       'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                       'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
                                       'precio': ot.precio, 'precio_total': ot.precio_total,
                                       'detalle': ot.detalle, 'observaciones': ot.observaciones})
-
     except:
         data = {}
     return HttpResponse(json.dumps(data), content_type="text/json")

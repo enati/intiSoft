@@ -3,6 +3,7 @@
 {% block head %}
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/smart_filter.js' %}"></script>
     <script>
         $(function() {
             $(".datepicker#id_fecha_realizado").datepicker("option", "maxDate", '0');
@@ -12,6 +13,7 @@
         $(function() {
             $(".inline.{{ ot_linea_form.prefix }}").formset({
                 prefix: "{{ ot_linea_form.prefix }}",
+                added: smart_filter,
             });
             $(".inline.{{ tarea_linea_form.prefix }}").formset({
                 prefix: "{{ tarea_linea_form.prefix }}",
@@ -156,7 +158,7 @@
                         <div class="col-md-6">
                             <!-- Fecha de Realizacion -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-6" style="text-align:left"
                                  for="id_fecha_realizado">
                                     Fecha de Realizacion
                                 </label>
@@ -175,7 +177,7 @@
                             </div>
                             <!-- UT Solicitante -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-6" style="text-align:left"
                                  for="id_solicitante">
                                     UT Solicitante
                                 </label>
@@ -193,11 +195,10 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="col-md-6">
                             <!-- Fecha Prevista -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-6" style="text-align:left"
                                   for="id_fecha_prevista">
                                       Fecha Prevista
                                 </label>
@@ -216,7 +217,7 @@
                             </div>
                             <!-- UT Ejecutora -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-6" style="text-align:left"
                                  for="id_ejecutor">
                                     UT Ejecutora
                                 </label>
@@ -233,6 +234,33 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <!-- Estado del Turno -->
+                        <div class="col-md-12">
+                            <h3 class="text-danger">Turnos asociados</h3>
+                        </div>
+                        <div class="col-md-12">
+                            <table id="turnos_formtable" class="table">
+                                <thead>
+                                    <td>Fecha de Inicio</td>
+                                    <td>Fecha de Fin</td>
+                                    <td>Oferta Tecnologica</td>
+                                </thead>
+                                <tbody>
+                                    {% for turno in form.instance.turno_set.all %}
+                                        <tr>
+                                            <td>{{ turno.fecha_inicio | date }}</td>
+                                            <td>{{ turno.fecha_fin | date }}</td>
+                                            <td>{% for ot in turno.ofertatec_linea_set.all %}
+                                                    {{ ot.codigo }}</br>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
