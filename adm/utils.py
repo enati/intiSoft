@@ -277,7 +277,7 @@ def genRUT(vals):
         table.column_cells(5)[8].paragraphs[0].add_run(str(cantidad) or '')
         table.column_cells(6)[8].paragraphs[0].add_run(str(precio) or '')
         table.column_cells(9)[8].paragraphs[0].add_run(str(precio_total) or '')
-        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:]):
+        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:], 2):
             # Creo y completo una fila en el documento temporal
             nrow = ot_table.add_row()
             # Ajusto el width
@@ -300,14 +300,14 @@ def genRUT(vals):
             nrow.cells[9].paragraphs[0].add_run(str(precio_total) or '')
             nrow.cells[9].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
             ## Inserto la fila en el documento original
-            table_xml.insert(n + 11, nrow._tr)
+            table_xml.insert(n + 9, nrow._tr)
 
-        table.column_cells(13)[n + 10].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
-        table.column_cells(13)[n + 28].paragraphs[0].add_run(str(vals['importe_bruto']) or '')
-        table.column_cells(13)[n + 29].paragraphs[0].add_run(str(vals['descuento']) or '')
-        table.column_cells(13)[n + 30].paragraphs[0].add_run(str(vals['importe_neto']) or '')
+        table.column_cells(13)[n + 8].paragraphs[0].add_run(str(vals['arancel_previsto']) or '')
+        table.column_cells(13)[n + 26].paragraphs[0].add_run(str(vals['importe_bruto']) or '')
+        table.column_cells(13)[n + 27].paragraphs[0].add_run(str(vals['descuento']) or '')
+        table.column_cells(13)[n + 28].paragraphs[0].add_run(str(vals['importe_neto']) or '')
 
-    table.column_cells(1)[n + 10].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+    table.column_cells(1)[n + 8].paragraphs[0].add_run(vals['fecha_prevista'] or '')
 
     f = StringIO()
     document.save(f)
@@ -363,7 +363,7 @@ def genSI(vals):
         table.column_cells(0)[9].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
         table.column_cells(7)[9].paragraphs[0].add_run(tipo_servicio or '')
         table.column_cells(26)[9].paragraphs[0].add_run(str(cantidad) or '')
-        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:]):
+        for n, (cod, det, tipo_servicio, cantidad, precio, precio_total) in enumerate(vals['ofertatec'][1:], 2):
             # Creo y completo una fila en el documento temporal
             nrow = ot_table.add_row()
             # Ajusto el width
@@ -381,15 +381,15 @@ def genSI(vals):
             nrow.cells[26].paragraphs[0].add_run(str(cantidad) or '')
             nrow.cells[26].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
             # Inserto la fila en el documento original
-            table_xml.insert(n + 12, nrow._tr)
+            table_xml.insert(n + 10, nrow._tr)
 
-    table.column_cells(1)[n + 11].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+    table.column_cells(1)[n + 9].paragraphs[0].add_run(vals['fecha_prevista'] or '')
 
-    for n, (tarea, horas) in enumerate(vals['tarea']):
-        table.column_cells(0)[n + 20].paragraphs[0].add_run(tarea)
-        table.column_cells(0)[n + 20].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-        table.column_cells(20)[n + 20].paragraphs[0].add_run(str(horas))
-        table.column_cells(20)[n + 20].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for m, (tarea, horas) in enumerate(vals['tarea']):
+        table.column_cells(0)[n + m + 18].paragraphs[0].add_run(tarea)
+        table.column_cells(0)[n + m + 18].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        table.column_cells(20)[n + m + 18].paragraphs[0].add_run(str(horas))
+        table.column_cells(20)[n + m + 18].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     f = StringIO()
     document.save(f)
