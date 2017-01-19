@@ -474,7 +474,7 @@ $(document).ready(function() {
         importe_neto.val(total - descuento_val);
     });
 
-    $("#id_codigo").on('change keyup', function (e) {
+    $("select#id_codigo").on('change keyup', function (e) {
         var presup_id = $(this).val()
         if (presup_id != "") {
             $.ajax({
