@@ -713,7 +713,6 @@ class OTMLList(ListView):
     def get_queryset(self):
         # Por defecto los ordeno por codigo (desc)
         queryset = OTML.objects.all().order_by('-codigo')
-        kwargs = {}
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
@@ -731,6 +730,11 @@ class OTMLList(ListView):
                                                                 Q(comprobante_cobro__contains="%s" % arg) |
                                                                 Q(importe__contains="%s" % arg))
                         QList.append(Q(estado__icontains="%s" % arg) |
+                                     Q(vpe__contains="%s" % arg) |
+                                     Q(vpu__contains="%s" % arg) |
+                                     Q(vpuu__contains="%s" % arg) |
+                                     Q(usuario__nombre__icontains="%s" % arg) |
+                                     Q(usuarioRep__nombre__icontains="%s" % arg) |
                                      Q(codigo__contains="%s" % arg) |
                                      Q(importe_bruto__contains="%s" % arg) |
                                      Q(factura_set__numero__icontains="%s" % arg) |
@@ -744,12 +748,12 @@ class OTMLList(ListView):
         t_inicial = time()
         context = super(OTMLList, self).get_context_data(**kwargs)
 
-        field_names = ['estado', 'codigo', 'fecha_realizado', 'importe_bruto', 'factura', 'factura__fecha',
-                       'factura__importe', 'factura__fecha_aviso',
-                       'recibo', 'recibo__tipo', 'recibo__fecha', 'recibo__importe']
-        field_labels = ['Estado', 'Nro. OT', 'Fecha', 'Imp. Bruto',
-                        'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
-                        'Recibo', 'Tipo', 'Fecha', 'Imp.']
+        field_names = ['estado', 'vpe', 'vpu', 'vpuu', 'usuario', 'usuarioRep', 'codigo', 'fecha_realizado',
+                       'importe_bruto', 'factura', 'factura__fecha', 'factura__importe',
+                       'recibo__comprobante_cobro', 'recibo__numero', 'recibo__fecha', 'recibo__importe']
+        field_labels = ['Estado', 'VPE', 'VPU', 'VPUU', 'Usuario', 'Usuario Representado', 'Nro. OT', 'Fecha',
+                        'Imp. Bruto', 'Nro. Factura', 'Fecha', 'Imp.',
+                        'Comprobante', 'Nro.', 'Fecha', 'Imp.']
 
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas

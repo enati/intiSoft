@@ -67,6 +67,11 @@
                                     {% endif %}
                         >
                         <td style="text-align: center">{% if otml.estado = 'sin_facturar' %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+                        <td>{{ otml.vpe | default_if_none:"" }}</td>
+                        <td>{{ otml.vpu | default_if_none:"" }}</td>
+                        <td>{{ otml.vpuu | default_if_none:"" }}</td>
+                        <td>{{ otml.usuario }}</td>
+                        <td>{{ otml.usuarioRep }}</td>
                         <td>{{ otml.codigo }}</td>
                         <td>{{ otml.fecha_realizado | date | default_if_none:"" }}</td>
                         <td>${{ otml.importe_bruto | floatformat }}</td>
@@ -101,11 +106,6 @@
                                 {% endfor %}
                             {% endfor %}
                         </td>
-                        <td>
-                            {% for f in otml.factura_set.all %}
-                                {{ f.fecha_aviso | date | default_if_none:"" }}</br>
-                            {% endfor %}
-                        </td>
                         <!-- RECIBOS -->
                         <td>
                             {% for f in otml.factura_set.all %}
@@ -113,7 +113,12 @@
                                     </br>
                                 {% endif %}
                                 {% for r in f.recibo_set.all %}
-                                    {{ r.numero }}</br>
+                                    {% if r.comprobante_cobro == 'recibo' %}
+                                        Recibo</br>
+                                    {% endif %}
+                                    {% if r.comprobante_cobro == 'nota_credito' %}
+                                        Nota de credito</br>
+                                    {% endif %}
                                 {% endfor %}
                             {% endfor %}
                         </td>
@@ -123,12 +128,7 @@
                                     </br>
                                 {% endif %}
                                 {% for r in f.recibo_set.all %}
-                                    {% if r.comprobante_cobro == 'recibo' %}
-                                        R</br>
-                                    {% endif %}
-                                    {% if r.comprobante_cobro == 'nota_credito' %}
-                                        NC</br>
-                                    {% endif %}
+                                    {{ r.numero }}</br>
                                 {% endfor %}
                             {% endfor %}
                         </td>

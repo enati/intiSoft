@@ -111,9 +111,10 @@ $.fn.wrapInTag = function(opts) {
     , words = opts.words || []
     , regex = RegExp(words.join('|'), 'gi') // case insensitive
     , replacement = '<'+ tag +'>$&</'+ tag +'>';
-
   return this.html(function() {
-    return $(this).text().replace(regex, replacement);
+      if (words != "") {
+        return $(this).text().replace(regex, replacement);
+      }
   });
 };
 
@@ -156,11 +157,11 @@ $(document).ready(function() {
             //getParams.splice(i, 1);
         //}
     }
-    $('#otTable tbody td:not(:has(button)) td:not(:first),\
-       #presupuestoTable tbody td:not(:has(button)) td:not(:first),\
-       #rutTable tbody td:not(:has(button)) td:not(:first),\
-       #sotTable tbody td:not(:has(button)) td:not(:first),\
-       #siTable tbody td:not(:has(button)) td:not(:first),\
+    $('#otTable tbody td:not(:first):not(:has(button)),\
+       #presupuestoTable tbody td:not(:first):not(:has(button)),\
+       #rutTable tbody td:not(:first):not(:has(button)),\
+       #sotTable tbody td:not(:first):not(:has(button)),\
+       #siTable tbody td:not(:first):not(:has(button)),\
        #ofertatecTable tbody td:not(:has(button)),\
        #usuarioTable tbody td:not(:has(button)),\
        #turnoTable tbody td:not(:has(button))').wrapInTag({words: getParams});
