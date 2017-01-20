@@ -114,7 +114,7 @@ def nextCode():
                      #HAVING gap_ends_at IS NOT NULL""")
 
 
-@reversion.register(follow=["usuario", "turno_set"])
+@reversion.register(follow=["usuario", "turno_set", "instrumento_set"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     old_fecha_aceptado = None
@@ -251,7 +251,7 @@ pre_save.connect(check_state, sender=Presupuesto)
 post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 
 
-@reversion.register(follow=["instrumento"])
+@reversion.register()
 class Instrumento(TimeStampedModel, AuthStampedModel):
 
     detalle = models.CharField(max_length=150, blank=True, null=True)

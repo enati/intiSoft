@@ -529,7 +529,7 @@
                     </form>
                 </div>
             </div>
-            {% for pv, tActv, uv, otList in presupVersions %}
+            {% for pv, tActv, uv, otList, instrList in presupVersions %}
                 <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
                     <div class="col-md-12">
                         <form class="form-horizontal" action="" method="">
@@ -722,13 +722,13 @@
                                             <td>Recibo de recepcion</td>
                                         </thead>
                                         <tbody>
-                                            {% for instr in instrumento_linea_form %}
+                                            {% for instr in instrList %}
                                                 <tr>
                                                     <td>
-                                                        {{ instr.fecha_llegada.value | default_if_none:"" }}
+                                                        {{ instr.field_dict.fecha_llegada | default_if_none:"" }}
                                                     </td>
                                                     <td>
-                                                        {{ instr.nro_recepcion.value }}
+                                                        {{ instr.field_dict.nro_recepcion | default_if_none:"" }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}

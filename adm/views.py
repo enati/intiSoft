@@ -1798,6 +1798,7 @@ class PresupuestoUpdate(UpdateView):
         turnoVersByRevision = []
         usuarioVersByRevision = []
         otLineaVersByRevision = []
+        instrLineaVersByRevision = []
         if presupVers:
             for pv in presupVers:
                 revId = pv.revision.id
@@ -1812,7 +1813,10 @@ class PresupuestoUpdate(UpdateView):
                 # Todas las lineas de ot versionados en la revision revId
                 ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
                 otLineaVersByRevision.append(ot)
-        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision)
+                # Todas las lineas de instrumento versionados en la revision revId
+                instr = objectsVersiones.filter(content_type__model='instrumento').order_by('object_id')
+                instrLineaVersByRevision.append(instr)
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision, instrLineaVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
 
