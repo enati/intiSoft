@@ -398,8 +398,8 @@ class OTML(Contrato):
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     vpe = models.CharField(max_length=5, verbose_name='VPE', blank=True, null=True)
-    vpr = models.CharField(max_length=10, verbose_name='VPR', blank=True, null=True)
-    vpuu = models.CharField(max_length=10, verbose_name='VPUU', blank=True, null=True)
+    vpr = models.CharField(max_length=8, verbose_name='VPR', blank=True, null=True)
+    vpuu = models.CharField(max_length=8, verbose_name='VPUU', blank=True, null=True)
     usuario = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT)
     usuarioRep = models.ForeignKey(Usuario, verbose_name='Usuario Representado', on_delete=models.PROTECT,
                                    related_name='usuarioRep_set')
