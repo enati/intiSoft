@@ -731,7 +731,7 @@ class OTMLList(ListView):
                                                                 Q(importe__contains="%s" % arg))
                         QList.append(Q(estado__icontains="%s" % arg) |
                                      Q(vpe__contains="%s" % arg) |
-                                     Q(vpu__contains="%s" % arg) |
+                                     Q(vpr__contains="%s" % arg) |
                                      Q(vpuu__contains="%s" % arg) |
                                      Q(usuario__nombre__icontains="%s" % arg) |
                                      Q(usuarioRep__nombre__icontains="%s" % arg) |
@@ -748,10 +748,10 @@ class OTMLList(ListView):
         t_inicial = time()
         context = super(OTMLList, self).get_context_data(**kwargs)
 
-        field_names = ['estado', 'vpe', 'vpu', 'vpuu', 'usuario', 'usuarioRep', 'codigo', 'fecha_realizado',
+        field_names = ['estado', 'vpe', 'vpr', 'vpuu', 'usuario', 'usuarioRep', 'codigo', 'fecha_realizado',
                        'importe_bruto', 'factura', 'factura__fecha', 'factura__importe',
                        'recibo__comprobante_cobro', 'recibo__numero', 'recibo__fecha', 'recibo__importe']
-        field_labels = ['Estado', 'VPE', 'VPU', 'VPUU', 'Usuario', 'Usuario Representado', 'Nro. OT', 'Fecha',
+        field_labels = ['Estado', 'VPE', 'VPR', 'VPUU', 'Usuario', 'Usuario Representado', 'Nro. OT', 'Fecha',
                         'Imp. Bruto', 'Nro. Factura', 'Fecha', 'Imp.',
                         'Comprobante', 'Nro.', 'Fecha', 'Imp.']
 

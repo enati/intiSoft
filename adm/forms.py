@@ -170,11 +170,11 @@ class OTMLForm(forms.ModelForm):
         else:
             return self.cleaned_data['vpe']
 
-    def clean_vpu(self):
+    def clean_vpr(self):
         if self.instance and self.instance.estado != 'sin_facturar':
-            return self.instance.vpu
+            return self.instance.vpr
         else:
-            return self.cleaned_data['vpu']
+            return self.cleaned_data['vpr']
 
     def clean_vpuu(self):
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -203,7 +203,7 @@ class OTMLForm(forms.ModelForm):
                   'importe_neto',
                   'descuento',
                   'vpe',
-                  'vpu',
+                  'vpr',
                   'vpuu',
                   'usuario',
                   'usuarioRep']
@@ -226,11 +226,6 @@ class OTMLForm(forms.ModelForm):
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
-            'vpu': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-            'vpuu': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-
             'importe_bruto': forms.TextInput(),
         }
 

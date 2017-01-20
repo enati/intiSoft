@@ -68,7 +68,7 @@
                         >
                         <td style="text-align: center">{% if otml.estado = 'sin_facturar' %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                         <td>{{ otml.vpe | default_if_none:"" }}</td>
-                        <td>{{ otml.vpu | default_if_none:"" }}</td>
+                        <td>{{ otml.vpr | default_if_none:"" }}</td>
                         <td>{{ otml.vpuu | default_if_none:"" }}</td>
                         <td>{{ otml.usuario }}</td>
                         <td>{{ otml.usuarioRep }}</td>
