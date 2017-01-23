@@ -98,7 +98,7 @@
                     </li>
                     {% endif %}
                     <li role="separator" class="divider" />
-                    {% if 'adm.add_sot' in user.get_all_permissions %}
+                    {% if 'adm.add_rut' in user.get_all_permissions %}
                         <li>
                             <a id="viewRUT" href="{% url 'adm:rut-viewRUT' object.id %}" data-id="{{object.id}}">Generar RUT</a>
                         </li>
