@@ -24,7 +24,7 @@
         $(function() {
             $(".inline.{{ ofertatec_linea_form.prefix }}").formset({
                 prefix: "{{ ofertatec_linea_form.prefix }}",
-            })
+            });
 
             $("#datos_si input.checkbox").on('change', function() {
                 if ($(this).is(':checked')) {
@@ -35,6 +35,7 @@
                     $("#datos_presup select option:first").attr('selected', 'selected');
                     $("#datos_presup p").text("");
                     $("#datos_usuario p").text("");
+                    $("#ofertatec_formtable_turno a.delete-row").click();
 
                 }
                 else {
@@ -42,10 +43,9 @@
                     <!-- Borro todos los datos que vienen de la SI -->
                     $("#datos_presup select option:first").attr('selected', 'selected');
                     $("#datos_si p").text("");
-                    $("#ofertatec_formtable_turno a.delete-row").click();
-
                 }
             });
+
             $("#datos_presup input.checkbox").on('change', function() {
                 if ($(this).is(':checked')) {
                     $("#datos_presup select").removeAttr('disabled');
@@ -70,10 +70,10 @@
             var presup = "{{form.instance.presupuesto}}",
                 si = "{{form.instance.si}}";
             if (si !== 'None') {
-                $("#datos_si .checkbox").click();
+                $("#datos_si input.checkbox").attr('checked', 'checked');
             }
             else {
-                $("#datos_presup .checkbox").click();
+                $("#datos_presup input.checkbox").attr('checked', 'checked');
             };
 
 
