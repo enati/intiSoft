@@ -137,11 +137,12 @@ class TurnoList(ListView):
             if request.user.has_perm('lab.delete_turno_' + self.lab):
                 turno_id = request.POST.get('Eliminar')
                 turno_obj = Turno.objects.get(pk=turno_id)
-                if not turno_obj._delete():
-                    response_dict['ok'] = False
-                    response_dict['msg'] = 'El turno no se puede eliminar ya que esta asociado a un presupuesto finalizado/cancelado'
-                else:
+                try:
+                    turno_obj._delete()
                     response_dict['redirect'] = reverse("lab:%s-list" % self.lab)
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)

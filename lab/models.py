@@ -140,12 +140,14 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     def _delete(self):
         """Faltarian las validaciones"""
+        if self.estado != 'en_espera':
+            raise StateError('Solo se pueden borrar turnos que esten en espera', '')
         # Si tiene un presupuesto asociado en estado en proceso de facturacion,
         # finalizado o cancelado, no lo elimino. Lo mismo con SI.
         if self.presupuesto and self.presupuesto.estado in ['en_proceso_de_facturacion', 'finalizado', 'cancelado']:
-            return False
+            raise StateError('El turno no se puede borrar ya que esta asociado a un presupuesto que no se encuentra en estado Borrador', '')
         elif self.si and self.si.estado in ['finalizada', 'cancelada']:
-            return False
+            raise StateError('El turno no se puede borrar ya que esta asociado a una SI que se encuentra finalizada/cancelada', '')
         else:
             self.delete()
             return True
