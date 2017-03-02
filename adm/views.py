@@ -535,8 +535,12 @@ class OTList(ListView):
             if request.user.has_perm('adm.delete_ot'):
                 ot_id = request.POST.get('Eliminar')
                 ot_obj = OT.objects.get(pk=ot_id)
-                ot_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:ot-list').strip()
+                try:
+                    ot_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:ot-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
@@ -810,8 +814,12 @@ class OTMLList(ListView):
             if request.user.has_perm('adm.delete_otml'):
                 otml_id = request.POST.get('Eliminar')
                 otml_obj = OTML.objects.get(pk=otml_id)
-                otml_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:otml-list').strip()
+                try:
+                    otml_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:otml-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
@@ -1057,8 +1065,12 @@ class SOTList(ListView):
             if request.user.has_perm('adm.delete_sot'):
                 sot_id = request.POST.get('Eliminar')
                 sot_obj = SOT.objects.get(pk=sot_id)
-                sot_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:sot-list').strip()
+                try:
+                    sot_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:sot-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
@@ -1304,8 +1316,12 @@ class RUTList(ListView):
             if request.user.has_perm('adm.delete_rut'):
                 rut_id = request.POST.get('Eliminar')
                 rut_obj = RUT.objects.get(pk=rut_id)
-                rut_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:rut-list').strip()
+                try:
+                    rut_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:rut-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
@@ -1548,8 +1564,12 @@ class SIList(ListView):
             if request.user.has_perm('adm.delete_si'):
                 si_id = request.POST.get('Eliminar')
                 si_obj = SI.objects.get(pk=si_id)
-                si_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
+                try:
+                    si_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
@@ -1739,8 +1759,12 @@ class PresupuestoList(ListView):
             if request.user.has_perm('adm.delete_presupuesto'):
                 presup_id = request.POST.get('Eliminar')
                 presup_obj = Presupuesto.objects.get(pk=presup_id)
-                presup_obj._delete()
-                response_dict['redirect'] = reverse_lazy('adm:presup-list').strip()
+                try:
+                    presup_obj._delete()
+                    response_dict['redirect'] = reverse_lazy('adm:presup-list').strip()
+                except StateError as e:
+                    response_dict['ok'] = False
+                    response_dict['msg'] = e.message
             else:
                 raise PermissionDenied
         if 'Actualizar' in request.POST:

@@ -201,6 +201,9 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         return True
 
     def _delete(self):
+        # Solo se pueden borrar los presupuestos en estado borrador
+        if self.estado != 'borrador':
+            raise StateError('Solo se pueden borrar presupuestos en estado Borrador', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -348,6 +351,8 @@ class OT(Contrato):
         return True
 
     def _delete(self):
+        if self.estado != 'sin_facturar':
+            raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -433,6 +438,8 @@ class OTML(Contrato):
         return True
 
     def _delete(self):
+        if self.estado != 'sin_facturar':
+            raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -555,6 +562,8 @@ class SOT(Contrato):
         return True
 
     def _delete(self):
+        if self.estado != 'borrador':
+            raise StateError('Solo se pueden borrar SOTs en estado Borrador', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -675,6 +684,8 @@ class RUT(Contrato):
         return True
 
     def _delete(self):
+        if self.estado != 'borrador':
+            raise StateError('Solo se pueden borrar RUTs en estado Borrador', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -790,6 +801,8 @@ class SI(Contrato):
         return True
 
     def _delete(self):
+        if self.estado != 'borrador':
+            raise StateError('Solo se pueden borrar SIs en estado Borrador', '')
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
