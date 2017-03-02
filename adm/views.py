@@ -79,7 +79,12 @@ def viewWord(request, *args, **kwargs):
     vals['solicitante'] = presup_obj.usuario.nombre
     vals['contacto'] = presup_obj.usuario.nombre
     vals['ofertatec'] = []
-    vals['fecha_inicio'] = less_five(turno_activo.fecha_inicio) if turno_activo else ''
+    # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision
+    less_five = turno_activo.fecha_inicio - timedelta(days=7)
+    if turno_activo and less_five <= presup_obj.fecha_realizado:
+        vals['fecha_inicio'] = turno_activo.fecha_inicio.strftime('%d/%m/%Y')
+    else:
+        vals['fecha_inicio'] = less_five(turno_activo.fecha_inicio) if turno_activo else ''
     vals['fecha_fin'] = plus_five(turno_activo.fecha_fin) if turno_activo else ''
     vals['plantilla'] = ''
 
