@@ -641,7 +641,7 @@ class OTMLUpdate(UpdateView):
     template_name_suffix = '_form'
     success_url = reverse_lazy('adm:otml-list')
 
-    @method_decorator(permission_required('adm.change_ot',
+    @method_decorator(permission_required('adm.change_otml',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
