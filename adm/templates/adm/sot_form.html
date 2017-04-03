@@ -5,11 +5,16 @@
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
         $(function() {
-            $(".datepicker").datepicker("option", "minDate", '0');
-            $(".datepicker#id_fecha_realizado").datepicker("option", "maxDate", '0');
-            $(".datepicker#id_fecha_realizado").datepicker("option", "minDate", '');
+            //$(".datepicker#id_fecha_realizado").datepicker("option", "maxDate", "0");
+            //$(".datepicker#id_fecha_realizado").datepicker({
+            //          maxDate: '0',
+            //          onSelect: function() {
+            //             $(".datepicker#id_fecha_prevista").datepicker("option","minDate",
+            //             $(".datepicker#id_fecha_realizado").datepicker("getDate"));
+            //          }
+            //  })
+              $(".datepicker").datepicker();
         });
-
         $(function() {
             $(".inline.{{ ot_linea_form.prefix }}").formset({
                 prefix: "{{ ot_linea_form.prefix }}",
@@ -611,3 +616,4 @@
 {% url 'adm:sot-list' as action_url %}
 {% include "intiSoft/modals.html" with postUrl=action_url %}
 {% endblock %}
+
