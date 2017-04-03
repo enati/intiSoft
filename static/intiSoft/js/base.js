@@ -24,7 +24,7 @@ function deseleccionar_todo(f_name){
 function revisionarTurno() {
     $.ajax({
         url: 'revision/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -45,7 +45,7 @@ function revisionarTurno() {
 function rollBackTurno() {
     $.ajax({
         url: 'rollback/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -66,7 +66,7 @@ function rollBackTurno() {
 function revisionarPresupuesto() {
     $.ajax({
         url: 'revision/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -87,7 +87,7 @@ function revisionarPresupuesto() {
 function rollBackPresupuesto() {
     $.ajax({
         url: 'rollback/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
