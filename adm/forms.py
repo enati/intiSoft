@@ -865,11 +865,6 @@ OT_LineaFormSet = generic_inlineformset_factory(OT_Linea,
 
 class Tarea_LineaForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super(Tarea_LineaForm, self).__init__(*args, **kwargs)
-        for f in self.fields:
-            self.fields[f].required = False
-
     class Meta:
 
         model = Tarea_Linea
@@ -877,11 +872,20 @@ class Tarea_LineaForm(forms.ModelForm):
                   'horas',
                   'arancel']
 
+        error_messages = {
+            'tarea': {
+                'required': 'Campo obligatorio.',
+            },
+            'horas': {
+                'required': 'Campo obligatorio.',
+            }
+        }
+
 
 Tarea_LineaFormSet = generic_inlineformset_factory(Tarea_Linea,
-                                                   min_num=1,
+                                                   min_num=0,
                                                    max_num=9,
-                                                   extra=0,
+                                                   extra=1,
                                                    formfield_callback=bootstrap_format,
                                                    form=Tarea_LineaForm,
                                                    formset=BaseGenericInlineFormSet,
