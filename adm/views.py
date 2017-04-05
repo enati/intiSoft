@@ -1667,9 +1667,11 @@ class PresupuestoList(ListView):
         Chequeo los presupuestos que hay que cancelar.
         Seran cancelados los presupuestos que no hayan sido aceptados pasados 21 dias corridos
         de la fecha de realizacion del mismo.
+        Para las asistencias el plazo es 60 dias corridos.
         """
         for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
-            if presup.fecha_realizado + timedelta(days=21) < datetime.now().date():
+            if ((presup.fecha_realizado + timedelta(days=21) < datetime.now().date() and not(presup.asistencia)) or
+               (presup.fecha_realizado + timedelta(days=60) < datetime.now().date() and presup.asistencia)):
                 presup._toState_cancelado()
 
     def get_queryset(self):
