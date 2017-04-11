@@ -398,6 +398,12 @@ class RUTForm(forms.ModelForm):
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
+    def clean_presupuesto(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.presupuesto
+        else:
+            return self.cleaned_data['presupuesto']
+
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'borrador':
             return self.instance.codigo
