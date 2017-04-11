@@ -72,7 +72,11 @@
                         <td>{{ ot.codigo }}</td>
                         <td>{{ ot.fecha_realizado | date | default_if_none:"" }}</td>
                         <td>${{ ot.importe_bruto | floatformat }}</td>
-                        <td>{{ ot.presupuesto.get_turno_activo.area }}</td>
+                        <td>
+                            {% for t in ot.presupuesto.get_turnos_activos %}
+                                {{ t.area }}</br>
+                            {% endfor %}
+                        </td>
                         <!-- FACTURAS -->
                         <td>
                             {% for f in ot.factura_set.all %}

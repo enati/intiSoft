@@ -323,7 +323,7 @@ $(document).ready(function() {
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
-                    $("select#id_solicitante").val(data['area']);
+                    $("select#id_solicitante").val(data['solicitante']);
                     $("#id_fecha_prevista").val(data['fecha_turno']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
                     $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);

@@ -122,8 +122,11 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.save()
         # Cambio de estado el presupuesto o la si asociado, segun corresponda.
         if self.presupuesto:
-            self.presupuesto.estado = 'en_proceso_de_facturacion'
-            self.presupuesto.save()
+            # Si todava quedan turnos pendientes no cambio de estado el presupuesto
+            turnos_pendientes = Turno.objects.filter(presupuesto_id=self.presupuesto.id, estado__in=['en_espera', 'activo'])
+            if not turnos_pendientes:
+                self.presupuesto.estado = 'en_proceso_de_facturacion'
+                self.presupuesto.save()
         elif self.si:
             # Si todavia quedan turnos pendientes no finalizo la SI
             turnos_pendientes = Turno.objects.filter(si_id=self.si.id, estado__in=['en_espera', 'activo'])

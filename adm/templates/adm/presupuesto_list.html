@@ -66,7 +66,7 @@
             <td></td>
             </thead>
             <tbody>
-                {% for presup, turno_activo in tuple_paginated_list %}
+                {% for presup, turnos_activos in tuple_paginated_list %}
                         <tr
                             {% if 'adm.change_presupuesto' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:presup-update' presup.id %}'}"
@@ -78,16 +78,15 @@
                                       {% elif presup.estado == 'cancelado' %} "danger"
                                     {% endif %}
                         >
-                        <td style="text-align: center">{% if turno_activo and presup.estado == 'borrador' and not presup.fecha_realizado %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+                        <td style="text-align: center">{% if turnos_activos and presup.estado == 'borrador' and not presup.fecha_realizado %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                         <td>{{presup.codigo}}</td>
                         <td>{{presup.usuario}}</td>
                         <td>{{presup.usuario.nro_usuario}}</td>
-<!--
-                        <td>{% for o in turno_activo.ofertatec_linea_set.all %}
-                                {{o.ofertatec.area}}
-                            {% endfor %}</td>
--->
-                        <td>{{turno_activo.area}}</td>
+                        <td>
+                            {% for turno in turnos_activos %}
+                                {{turno.area}}</br>
+                            {% endfor %}
+                        </td>
                         <td>{{presup.fecha_realizado | date | default_if_none:""}}</td>
                         <td>{{presup.fecha_aceptado | date | default_if_none:""}}</td>
                         <td>{{presup.instrumento_set.last.fecha_llegada | date | default_if_none:""}}</td>
