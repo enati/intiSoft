@@ -1057,10 +1057,8 @@ def get_presup(request, *args, **kwargs):
         data['ofertatec'] = []
         turnos_activos = turnos_activos.order_by('-fecha_fin')
         if turnos_activos:
-            import pdb; pdb.set_trace()
             data['area'] = '-'.join([t.area for t in turnos_activos])
             data['solicitante'] = turnos_activos[0].area
-            print "---------_>",turnos_activos[0].area
             data['fecha_turno'] = turnos_activos[0].fecha_fin.strftime("%d/%m/%Y")
             for turno in turnos_activos:
                 for ot in turno.ofertatec_linea_set.all():
