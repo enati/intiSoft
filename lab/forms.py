@@ -59,12 +59,6 @@ class TurnoForm(forms.ModelForm):
                        se encuentra cancelado"
                 self._errors['presupuesto'] = self.error_class([msg])
                 del cleaned_data['presupuesto']
-            elif presup.get_turno_activo() and\
-                    presup.get_turno_activo() != self.instance:
-                    msg = "El presupuesto seleccionado ya tiene un turno\
-                               activo/finalizado asociado"
-                    self._errors['presupuesto'] = self.error_class([msg])
-                    del cleaned_data['presupuesto']
             else:
                 # Cambio el estado del turno segun el presupuesto seleccionado
                 if presup.estado == 'borrador':

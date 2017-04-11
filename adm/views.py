@@ -70,8 +70,8 @@ def viewWord(request, *args, **kwargs):
     presup_id = kwargs.get('pk')
     presup_obj = Presupuesto.objects.get(id=presup_id)
     vals = {}
-    turno_activo = presup_obj.get_turno_activo()
-    vals['area'] = turno_activo.area if turno_activo else ''
+    turnos_activos = presup_obj.get_turnos_activos()
+    vals['area'] = '-'.join([t.area for t in turnos_activos])
     vals['codigo'] = presup_obj.codigo + '-R' + str(presup_obj.nro_revision)
     vals['fecha'] = presup_obj.fecha_realizado.strftime('%d/%m/%Y') \
                     if presup_obj.fecha_realizado else ''
@@ -79,13 +79,24 @@ def viewWord(request, *args, **kwargs):
     vals['solicitante'] = presup_obj.usuario.nombre
     vals['contacto'] = presup_obj.usuario.nombre
     vals['ofertatec'] = []
-    # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision
-    date_less_five = turno_activo.fecha_inicio - timedelta(days=7) if turno_activo else ''
-    if date_less_five and date_less_five <= presup_obj.fecha_realizado:
-        vals['fecha_inicio'] = turno_activo.fecha_inicio.strftime('%d/%m/%Y')
+    # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision del primer turno
+    if turnos_activos:
+        # Si todavia no esta completa la fecha_realizado del presupuesto pongo la fecha de hoy
+        fecha_realizado = presup_obj.fecha_realizado or datetime.now().date()
+        turnos_activos = turnos_activos.order_by('fecha_inicio')
+        turnoFechaInicioAnterior = turnos_activos[0]
+        turnos_activos = turnos_activos.order_by('-fecha_fin')
+        turnoFechaFinPosterior = turnos_activos[0]
+        date_less_five = turnoFechaInicioAnterior.fecha_inicio - timedelta(days=7)
+        if date_less_five <= fecha_realizado:
+            vals['fecha_inicio'] = turnoFechaInicioAnterior.fecha_inicio.strftime('%d/%m/%Y')
+        else:
+            vals['fecha_inicio'] = less_five(turnoFechaInicioAnterior.fecha_inicio)
+        vals['fecha_fin'] = plus_five(turnoFechaFinPosterior.fecha_fin)
     else:
-        vals['fecha_inicio'] = less_five(turno_activo.fecha_inicio) if turno_activo else ''
-    vals['fecha_fin'] = plus_five(turno_activo.fecha_fin) if turno_activo else ''
+        vals['fecha_inicio'] = ''
+        vals['fecha_fin'] = ''
+
     vals['plantilla'] = ''
 
     if presup_obj.asistencia:
@@ -97,9 +108,9 @@ def viewWord(request, *args, **kwargs):
     elif presup_obj.lia:
         vals['plantilla'] = 'Presupuesto LIA.docx'
 
-    if turno_activo:
-        for o in turno_activo.ofertatec_linea_set.get_queryset():
-            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle,\
+    for turno in turnos_activos:
+        for o in turno.ofertatec_linea_set.get_queryset():
+            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle,
                                       o.cant_horas, o.precio, o.precio_total))
     return genWord(vals)
 
@@ -335,8 +346,8 @@ class OTUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(OTUpdate, self).get_context_data(**kwargs)
-        turno = (context['object']).presupuesto.get_turno_activo()
-        context['turno_activo'] = turno
+        turnoList = (context['object']).presupuesto.get_turnos_activos()
+        context['turnos_activos'] = turnoList
         context['edit'] = self.request.GET.get('edit', False)
         context['back_url'] = back_url_ot
         return context
@@ -1702,7 +1713,7 @@ class PresupuestoList(ListView):
         context = super(PresupuestoList, self).get_context_data(**kwargs)
 
         presupuestos_by_page = context['object_list']
-        turnos_by_page = [p.get_turno_activo() for p in presupuestos_by_page]
+        turnos_by_page = [p.get_turnos_activos() for p in presupuestos_by_page]
 
         context['tuple_paginated_list'] = list(zip(presupuestos_by_page, turnos_by_page))
 
@@ -1731,10 +1742,10 @@ class PresupuestoList(ListView):
         """Retorna True si se actualizaron los precios de las OTs"""
         obj_presup = Presupuesto.objects.get(pk=presup_id)
         if not obj_presup._vigente():
-            obj_turno = obj_presup.get_turno_activo()
-            if obj_turno:
+            turnoList = obj_presup.get_turnos_activos()
+            for turno in turnoList:
                 kwargs['pk'] = presup_id
-                for linea in obj_turno.ofertatec_linea_set.all():
+                for linea in turno.ofertatec_linea_set.all():
                     obj_ofertatec = OfertaTec.objects.get(pk=linea.ofertatec.id)
                     if linea.precio != obj_ofertatec.precio:
                         linea.precio = obj_ofertatec.precio
@@ -1820,7 +1831,7 @@ class PresupuestoUpdate(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(PresupuestoUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
-        context['turno_activo'] = (context['object']).get_turno_activo()
+        context['turnos_activos'] = (context['object']).get_turnos_activos()
         context['revision'] = self.request.GET.get('revision', False)
         # Revisionado
         presupVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='T_')

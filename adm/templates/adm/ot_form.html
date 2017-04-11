@@ -209,7 +209,11 @@
                                       Area
                                 </label>
                                 <div class="col-md-6">
-                                   <p id="id_presupuesto__area">{{ turno_activo.area }}</p>
+                                   <p id="id_presupuesto__area">
+                                       {% for turno in turnos_activos %}
+                                           {{ turno.area }}</br>
+                                       {% endfor %}
+                                   </p>
                                 </div>
                             </div>
                             <!-- Usuario -->

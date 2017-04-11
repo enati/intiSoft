@@ -149,21 +149,20 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     def __str__(self):
         return self.codigo
 
-    def get_turno_activo(self):
+    def get_turnos_activos(self):
         if self.estado == 'cancelado':
-            turno = self.turno_set.order_by('-created')
+            return self.turno_set.order_by('-created')
         else:
-            turno = self.turno_set.select_related().filter(estado__in=['en_espera',
+            return self.turno_set.select_related().filter(estado__in=['en_espera',
                                                                         'activo',
                                                                         'finalizado'])
-        return turno[0] if turno else None
 
     def _toState_aceptado(self):
         """Faltarian las validaciones"""
         self.estado = 'aceptado'
         self.save()
-        turno = self.get_turno_activo()
-        if turno:
+        turnoList = self.get_turnos_activos()
+        for turno in turnoList:
             turno.estado = 'activo'
             turno.save()
         return True
@@ -172,8 +171,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.estado = 'borrador'
         self.save()
         # Paso a borrador el turno asociado
-        turno = self.get_turno_activo()
-        if turno:
+        turnoList = self.get_turnos_activos()
+        for turno in turnoList:
             turno.estado = 'en_espera'
             turno.save()
         return True
@@ -194,10 +193,10 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.estado = 'cancelado'
         self.save()
         # Cancelo el turno activo asociado, de haberlo
-        turno = self.get_turno_activo()
-        if turno and turno.estado != 'cancelado':
-            turno.estado = 'cancelado'
-            turno.save()
+        turnoList = self.get_turnos_activos()
+        for turno in turnoList:
+                turno.estado = 'cancelado'
+                turno.save()
         return True
 
     def _delete(self):
