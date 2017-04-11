@@ -279,11 +279,12 @@ class LIACreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lia
-            back_url_lia = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lia
+                back_url_lia = http_referer
         return super(LIACreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -304,11 +305,12 @@ class LIM1Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim1
-            back_url_lim1 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim1
+                back_url_lim1 = http_referer
         return super(LIM1Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -329,11 +331,12 @@ class LIM2Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim2
-            back_url_lim2 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim2
+                back_url_lim2 = http_referer
         return super(LIM2Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -354,11 +357,12 @@ class LIM3Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim3
-            back_url_lim3 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim3
+                back_url_lim3 = http_referer
         return super(LIM3Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -379,11 +383,12 @@ class LIM4Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM4',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim4
-            back_url_lim4 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim4
+                back_url_lim4 = http_referer
         return super(LIM4Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -404,11 +409,12 @@ class LIM5Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM5',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim5
-            back_url_lim5 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim5
+                back_url_lim5 = http_referer
         return super(LIM5Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -429,11 +435,12 @@ class LIM6Create(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim6
-            back_url_lim6 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim6
+                back_url_lim6 = http_referer
         return super(LIM6Create, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -454,11 +461,12 @@ class EXTCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ext
-            back_url_ext = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ext
+                back_url_ext = http_referer
         return super(EXTCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -479,11 +487,12 @@ class SISCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_sis
-            back_url_sis = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_sis
+                back_url_sis = http_referer
         return super(SISCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -504,11 +513,12 @@ class DESCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_des
-            back_url_des = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_des
+                back_url_des = http_referer
         return super(DESCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -529,11 +539,12 @@ class CALCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_CAL',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_cal
-            back_url_cal = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_cal
+                back_url_cal = http_referer
         return super(CALCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -554,11 +565,12 @@ class MECCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_MEC',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_mec
-            back_url_mec = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_mec
+                back_url_mec = http_referer
         return super(MECCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -579,11 +591,12 @@ class MLCreate(TurnoCreate):
     @method_decorator(permission_required('lab.add_turno_ML',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ml
-            back_url_ml = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ml
+                back_url_ml = http_referer
         return super(MLCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -731,11 +744,12 @@ class LIAUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIA',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lia
-            back_url_lia = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIA-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lia
+                back_url_lia = http_referer
         return super(LIAUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -753,11 +767,12 @@ class LIM1Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM1',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim1
-            back_url_lim1 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM1-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim1
+                back_url_lim1 = http_referer
         return super(LIM1Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -775,11 +790,12 @@ class LIM2Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM2',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim2
-            back_url_lim2 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM2-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim2
+                back_url_lim2 = http_referer
         return super(LIM2Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -797,11 +813,12 @@ class LIM3Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM3',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim3
-            back_url_lim3 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM3-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim3
+                back_url_lim3 = http_referer
         return super(LIM3Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -819,11 +836,12 @@ class LIM4Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM4',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim4
-            back_url_lim4 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM4-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim4
+                back_url_lim4 = http_referer
         return super(LIM4Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -841,11 +859,12 @@ class LIM5Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM5',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim5
-            back_url_lim5 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM5-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim5
+                back_url_lim5 = http_referer
         return super(LIM5Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -863,11 +882,12 @@ class LIM6Update(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_LIM6',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_lim6
-            back_url_lim6 = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:LIM6-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_lim6
+                back_url_lim6 = http_referer
         return super(LIM6Update, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -885,11 +905,12 @@ class EXTUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_EXT',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ext
-            back_url_ext = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:EXT-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ext
+                back_url_ext = http_referer
         return super(EXTUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -907,11 +928,12 @@ class SISUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_SIS',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_sis
-            back_url_sis = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_sis
+                back_url_sis = http_referer
         return super(SISUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -929,11 +951,12 @@ class DESUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_DES',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_des
-            back_url_des = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:DES-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_des
+                back_url_des = http_referer
         return super(DESUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -951,11 +974,12 @@ class CALUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_CAL',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_cal
-            back_url_cal = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:CAL-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_cal
+                back_url_cal = http_referer
         return super(CALUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -973,11 +997,12 @@ class MECUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_MEC',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_mec
-            back_url_mec = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:MEC-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_mec
+                back_url_mec = http_referer
         return super(MECUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -995,11 +1020,12 @@ class MLUpdate(TurnoUpdate):
     @method_decorator(permission_required('lab.change_turno_ML',
                       raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ml
-            back_url_ml = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('lab:ML-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ml
+                back_url_ml = http_referer
         return super(MLUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

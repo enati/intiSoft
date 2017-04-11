@@ -250,11 +250,12 @@ class OTCreate(CreateView):
     @method_decorator(permission_required('adm.add_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ot
-            back_url_ot = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ot
+                back_url_ot = http_referer
         return super(OTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -337,11 +338,12 @@ class OTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ot
-            back_url_ot = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:ot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ot
+                back_url_ot = http_referer
         return super(OTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -574,11 +576,12 @@ class OTMLCreate(CreateView):
     @method_decorator(permission_required('adm.add_otml',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_otml
-            back_url_otml = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_otml
+                back_url_otml = http_referer
         return super(OTMLCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -655,11 +658,12 @@ class OTMLUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_otml',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_otml
-            back_url_otml = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:otml-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_otml
+                back_url_otml = http_referer
         return super(OTMLUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -852,11 +856,12 @@ class SOTCreate(CreateView):
     @method_decorator(permission_required('adm.add_sot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_sot
-            back_url_sot = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_sot
+                back_url_sot = http_referer
         return super(SOTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -925,11 +930,12 @@ class SOTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_sot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_sot
-            back_url_sot = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:sot-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_sot
+                back_url_sot = http_referer
         return super(SOTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1103,11 +1109,12 @@ class RUTCreate(CreateView):
     @method_decorator(permission_required('adm.add_rut',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_rut
-            back_url_rut = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_rut
+                back_url_rut = http_referer
         return super(RUTCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1176,11 +1183,12 @@ class RUTUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_rut',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_rut
-            back_url_rut = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:rut-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_rut
+                back_url_rut = http_referer
         return super(RUTUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1354,11 +1362,12 @@ class SICreate(CreateView):
     @method_decorator(permission_required('adm.add_si',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_si
-            back_url_si = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_si
+                back_url_si = http_referer
         return super(SICreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1434,11 +1443,12 @@ class SIUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_si',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_si
-            back_url_si = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:si-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_si
+                back_url_si = http_referer
         return super(SIUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1603,11 +1613,12 @@ class PresupuestoCreate(CreateView):
     @method_decorator(permission_required('adm.add_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_presupuesto
-            back_url_presupuesto = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_presupuesto
+                back_url_presupuesto = http_referer
         return super(PresupuestoCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1678,11 +1689,9 @@ class PresupuestoList(ListView):
         Chequeo los presupuestos que hay que cancelar.
         Seran cancelados los presupuestos que no hayan sido aceptados pasados 21 dias corridos
         de la fecha de realizacion del mismo.
-        Para las asistencias el plazo es 60 dias corridos.
         """
         for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
-            if ((presup.fecha_realizado + timedelta(days=21) < datetime.now().date() and not(presup.asistencia)) or
-               (presup.fecha_realizado + timedelta(days=60) < datetime.now().date() and presup.asistencia)):
+            if presup.fecha_realizado + timedelta(days=21) < datetime.now().date():
                 presup._toState_cancelado()
 
     def get_queryset(self):
@@ -1823,11 +1832,12 @@ class PresupuestoUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_presupuesto
-            back_url_presupuesto = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:presup-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_presupuesto
+                back_url_presupuesto = http_referer
         return super(PresupuestoUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1980,11 +1990,12 @@ class OfertaTecCreate(CreateView):
     @method_decorator(permission_required('adm.add_ofertatec',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ofertatec
-            back_url_ofertatec = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ofertatec
+                back_url_ofertatec = http_referer
         return super(OfertaTecCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -2022,11 +2033,12 @@ class OfertaTecUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_ofertatec',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_ofertatec
-            back_url_ofertatec = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:ofertatec-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_ofertatec
+                back_url_ofertatec = http_referer
         return super(OfertaTecUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -2101,11 +2113,12 @@ class UsuarioCreate(CreateView):
     @method_decorator(permission_required('adm.add_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_usuario
-            back_url_usuario = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_usuario
+                back_url_usuario = http_referer
         return super(UsuarioCreate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -2143,11 +2156,12 @@ class UsuarioUpdate(UpdateView):
     @method_decorator(permission_required('adm.change_usuario',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-        pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
-        if pattern.match(http_referer):
-            global back_url_usuario
-            back_url_usuario = http_referer
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:usuarios-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_usuario
+                back_url_usuario = http_referer
         return super(UsuarioUpdate, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
