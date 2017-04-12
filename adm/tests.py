@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test import Client
 from django.utils import timezone
 import datetime
 from .models import Presupuesto, Usuario, OfertaTec
@@ -7,77 +8,74 @@ from django.contrib.auth.models import Permission, Group, User
 from django.test.utils import setup_test_environment
 
 
-def get_or_create_admin_group():
-    group, created = Group.objects.get_or_create(name='Administracion')
-    for p in Permission.objects.filter(content_type__app_label__in=
-                                                              ['adm', 'lab']):
+#========================================================
+#================= FUNCIONES AUXILIARES =================
+#========================================================
+
+
+def create_admin_group():
+    group = Group.objects.create(name='Administracion')
+    for p in Permission.objects.filter(content_type__app_label__in=['adm']):
         group.permissions.add(p)
     return group
 
 
-def get_or_create_lab_group():
-    group, created = Group.objects.get_or_create(name='Laboratorista')
-    for p in Permission.objects.filter(content_type__app_label='lab'):
+def create_lab_group(lab):
+    group = Group.objects.create(name=lab)
+    for p in Permission.objects.filter(content_type__app_label=lab):
         group.permissions.add(p)
     return group
 
 
-def create_adm_user():
-    user = User.objects.create_user('admin',
-                                    'admin@gmail.com',
-                                    'admin')
-    adm_group = get_or_create_admin_group()
-    user.groups.add(adm_group)
-    return user
-
-
-def create_lab_user():
-    user = User.objects.create_user('lab',
-                                    'lab@gmail.com',
-                                    'lab')
-    lab_group = get_or_create_lab_group()
-    user.groups.add(lab_group)
+def create_user(name, pwd, mail, group):
+    user = User.objects.create_user(name, mail, pwd)
+    user.groups.add(group)
     return user
 
 
 class PresupuestoTest(TestCase):
+    labs = ['LIM1', 'LIM2', 'LIM3', 'LIM4', 'LIM5', 'LIM6', 'LIA', 'EXT', 'SIS', 'CAL', 'MEC', 'ML']
+    fixtures = ['users.json']
 
-    def setUp_adm_env(self):
-        # Busco/creo un usuario del grupo 'Administracion'
-        try:
-            user = User.objects.get(username='admin')
-        except:
-            user = create_adm_user()
-        # Login
-        self.client.login(username=user.username,
-                          password=user.natural_key()[0])
+    @classmethod
+    def setUpTestData(cls):
+        # Creo un usuario correspondiente a cada area
+        cls.users = {}
+        adminGroup = create_admin_group()
+        cls.users['admin'] = create_user('admin', 'admin', '', adminGroup)
+        for lab in cls.labs:
+            labGroup = create_lab_group(lab)
+            cls.users[lab] = create_user(lab, lab, '', labGroup)
 
-    def setUp_lab_env(self):
-        # Busco/creo un usuario del grupo 'Laboratorista'
-        try:
-            user = User.objects.get(username='lab')
-        except:
-            user = create_lab_user()
-        # Login
-        self.client.login(username=user.username,
+    def setUp(self):
+        # Creo un usuario
+        self.user = Usuario(nro_usuario='0001',
+                            nombre='Juan',
+                            cuit='30349342406',
+                            rubro='Autopartista')
+
+    def setUp_env(self, group):
+        """
+        Me logueo al cliente con un usuario del grupo 'group'
+        """
+        #import pdb; pdb.set_trace()
+        user = self.users[group]
+        loginOk = self.client.login(username=user.username,
                           password=user.natural_key()[0])
+        self.assertTrue(loginOk, "Error en el login")
 
     def test_passed_to_aceptado_in_create(self):
         """
         El presupuesto debe pasar a estado aceptado cuando se crea con
         fecha de aceptacion.
         """
-        self.setUp_adm_env()
+        self.setUp_env('admin')
 
-        usuario = Usuario(nro_usuario='0001',
-                          nombre='Juan',
-                          cuit='30349342406',
-                          rubro='Autopartista')
-        usuario.save()
-
+        usuario = Usuario.objects.all()[0]
         #Creo un presupuesto con fecha de aceptacion desde el formulario web
+        #import pdb; pdb.set_trace()
         vals = {
-            'codigo': '0001',
+            'codigo': '00001',
             'fecha_solicitado': (timezone.now() -
                               datetime.timedelta(days=10)).strftime('%d/%m/%Y'),
             'fecha_realizado': (timezone.now() -
@@ -87,115 +85,144 @@ class PresupuestoTest(TestCase):
             'usuario': usuario.id,
             'estado': 'borrador',
         }
-        response = self.client.post(reverse('adm:presup-create'), vals)
+        response = self.client.post(reverse('adm:presup-create'), vals, follow=True)
         self.assertEqual(response.status_code, 200)
-        presup = Presupuesto.objects.get(codigo='0001')
+        presup = Presupuesto.objects.get(codigo='00001')
         self.assertEqual(presup.estado, 'aceptado')
 
-    def test_init_state_borrador(self):
-        """
-        El presupuesto debe estar en estado borrador cuando se crea sin
-        fecha de aceptacion.
-        """
-        self.setUp_adm_env()
+    #def test_init_state_borrador(self):
+        #"""
+        #El presupuesto debe estar en estado borrador cuando se crea sin
+        #fecha de aceptacion.
+        #"""
+        #self.setUp_env('admin')
 
-        usuario = Usuario(nro_usuario='0002',
-                          nombre='Juan',
-                          cuit='30349342406',
-                          rubro='Autopartista')
-        usuario.save()
+        #usuario = Usuario(nro_usuario='0002',
+                          #nombre='Juan',
+                          #cuit='30349342406',
+                          #rubro='Autopartista')
+        #usuario.save()
 
-        #Creo un presupuesto sin fecha de aceptacion desde el formulario web
-        vals = {
-            'codigo': '0002',
-            'fecha_solicitado': (timezone.now() -
-                              datetime.timedelta(days=10)).strftime('%d/%m/%Y'),
-            'fecha_realizado': (timezone.now() -
-                             datetime.timedelta(days=10)).strftime('%d/%m/%Y'),
-            'usuario': usuario.id,
-            'estado': 'borrador',
-        }
-        response = self.client.post(reverse('adm:presup-create'), vals)
-        self.assertEqual(response.status_code, 200)
-        presup = Presupuesto.objects.get(codigo='0002')
-        self.assertEqual(presup.estado, 'borrador')
+        ##Creo un presupuesto sin fecha de aceptacion desde el formulario web
+        #vals = {
+            #'codigo': '0002',
+            #'fecha_solicitado': (timezone.now() -
+                              #datetime.timedelta(days=10)).strftime('%d/%m/%Y'),
+            #'fecha_realizado': (timezone.now() -
+                             #datetime.timedelta(days=10)).strftime('%d/%m/%Y'),
+            #'usuario': usuario.id,
+            #'estado': 'borrador',
+        #}
+        #response = self.client.post(reverse('adm:presup-create'), vals)
+        #self.assertEqual(response.status_code, 302)
+        #presup = Presupuesto.objects.get(codigo='0002')
+        #self.assertEqual(presup.estado, 'borrador')
 
-    def test_perm_required_create(self):
-        """
-        Solo los usuarios logueados y  con permisos de creacion en presupuestos
-        pueden crear presupuestos.
-        """
-        # Sin login (redirecciona a la pagina de login, por eso el 302)
-        response = self.client.get(reverse('adm:presup-create'))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        response = self.client.post(reverse('adm:presup-create'), {})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        # Sin permisos
-        self.setUp_lab_env()
-        response = self.client.get(reverse('adm:presup-create'))
-        self.assertEqual(response.status_code, 403)
-        response = self.client.post(reverse('adm:presup-create'), {})
-        self.assertEqual(response.status_code, 403)
+    #def test_perm_required_create(self):
+        #"""
+        #Solo los usuarios logueados y  con permisos de creacion en presupuestos
+        #pueden crear presupuestos.
+        #"""
+        ## Sin login (redirecciona a la pagina de login, por eso el 302)
+        #response = self.client.get(reverse('adm:presup-create'))
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        #response = self.client.post(reverse('adm:presup-create'), {})
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        ## Sin permisos (para cualquier laboratorio)
+        #for lab in self.labs:
+            #self.setUp_env(lab)
+            #response = self.client.get(reverse('adm:presup-create'))
+            #self.assertEqual(response.status_code, 403)
+            #response = self.client.post(reverse('adm:presup-create'), {})
+            #self.assertEqual(response.status_code, 403)
+            #self.client.logout()
 
-    def test_perm_required_update(self):
-        """
-        Solo los usuarios logueados y  con permisos de modificacion en
-        presupuestos pueden modificar presupuestos.
-        """
-        # Sin login (redirecciona a la pagina de login, por eso el 302)
-        response = self.client.get(reverse('adm:presup-update',
-                                           kwargs={'pk': '1'}))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        response = self.client.post(reverse('adm:presup-update',
-                                            kwargs={'pk': '1'}), {})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        # Sin permisos
-        self.setUp_lab_env()
-        response = self.client.get(reverse('adm:presup-update',
-                                           kwargs={'pk': '1'}))
-        self.assertEqual(response.status_code, 403)
-        response = self.client.post(reverse('adm:presup-update',
-                                            kwargs={'pk': '1'}), {})
-        self.assertEqual(response.status_code, 403)
+    #def test_perm_required_update(self):
+        #"""
+        #Solo los usuarios logueados y  con permisos de modificacion en
+        #presupuestos pueden modificar presupuestos.
+        #"""
+        ## Sin login (redirecciona a la pagina de login, por eso el 302)
+        #response = self.client.get(reverse('adm:presup-update',
+                                           #kwargs={'pk': '1'}))
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        #response = self.client.post(reverse('adm:presup-update',
+                                            #kwargs={'pk': '1'}), {})
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        ## Sin permisos (para cualquier laboratorio)
+        #for lab in self.labs:
+            #self.setUp_env(lab)
+            #response = self.client.get(reverse('adm:presup-update',
+                                               #kwargs={'pk': '1'}))
+            #self.assertEqual(response.status_code, 403)
+            #response = self.client.post(reverse('adm:presup-update',
+                                                #kwargs={'pk': '1'}), {})
+            #self.assertEqual(response.status_code, 403)
+            #self.client.logout()
 
-    def test_perm_required_delete(self):
-        """
-        Solo los usuarios logueados y  con permisos de eliminacion en
-        presupuestos pueden eliminar presupuestos.
-        """
-        # Sin login (redirecciona a la pagina de login, por eso el 302)
-        response = self.client.get(reverse('adm:presup-list'))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Eliminar': '1'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        # Sin permisos
-        self.setUp_lab_env()
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Eliminar': '1'})
-        self.assertEqual(response.status_code, 403)
+    #def test_perm_required_delete(self):
+        #"""
+        #Solo los usuarios logueados y  con permisos de eliminacion en
+        #presupuestos pueden eliminar presupuestos.
+        #"""
+        ## Sin login (redirecciona a la pagina de login, por eso el 302)
+        #response = self.client.get(reverse('adm:presup-list'))
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        #response = self.client.post(reverse('adm:presup-list'),
+                                            #{'Eliminar': '1'})
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        ## Sin permisos (para cualquier laboratorio)
+        #for lab in self.labs:
+            #self.setUp_env(lab)
+            #response = self.client.post(reverse('adm:presup-list'),
+                                                #{'Eliminar': '1'})
+            #self.assertEqual(response.status_code, 403)
+            #self.client.logout()
 
-    def test_perm_required_cancel(self):
-        """
-        Solo los usuarios logueados y  con permisos de cancelacion en
-        presupuestos pueden cancelar presupuestos.
-        """
-        # Sin login (redirecciona a la pagina de login, por eso el 302)
-        response = self.client.get(reverse('adm:presup-list'))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Cancelar': '1'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.content, '')
-        # Sin permisos
-        self.setUp_lab_env()
-        response = self.client.post(reverse('adm:presup-list'),
-                                            {'Cancelar': '1'})
-        self.assertEqual(response.status_code, 403)
+    #def test_perm_required_finish(self):
+        #"""
+        #Solo los usuarios logueados y  con permisos de finalizacion en
+        #presupuestos pueden finalizar presupuestos.
+        #"""
+        ## Sin login (redirecciona a la pagina de login, por eso el 302)
+        #response = self.client.get(reverse('adm:presup-list'))
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        #response = self.client.post(reverse('adm:presup-list'),
+                                            #{'Finalizar': '1'})
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        ## Sin permisos (para cualquier laboratorio)
+        #for lab in self.labs:
+            #self.setUp_env(lab)
+            #response = self.client.post(reverse('adm:presup-list'),
+                                                #{'Finalizar': '1'})
+            #self.assertEqual(response.status_code, 403)
+            #self.client.logout()
+
+    #def test_perm_required_cancel(self):
+        #"""
+        #Solo los usuarios logueados y  con permisos de cancelacion en
+        #presupuestos pueden cancelar presupuestos.
+        #"""
+        ## Sin login (redirecciona a la pagina de login, por eso el 302)
+        #response = self.client.get(reverse('adm:presup-list'))
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        #response = self.client.post(reverse('adm:presup-list'),
+                                            #{'Cancelar': '1'})
+        #self.assertEqual(response.status_code, 302)
+        #self.assertEqual(response.content, '')
+        ## Sin permisos (para cualquier laboratorio)
+        #for lab in self.labs:
+            #self.setUp_env(lab)
+            #response = self.client.post(reverse('adm:presup-list'),
+                                                #{'Cancelar': '1'})
+            #self.assertEqual(response.status_code, 403)
+            #self.client.logout()
