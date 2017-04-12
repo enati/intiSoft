@@ -1,0 +1,548 @@
+{% extends "intiSoft/base.html" %}
+
+{% block head %}
+    {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/smart_filter.js' %}"></script>
+    <script>
+        $(function() {
+            //$(".datepicker#id_fecha_realizado").datepicker("option", "maxDate", '0');
+            //$(".datepicker#id_fecha_prevista").datepicker("option", "minDate", '0');
+            $(".datepicker").datepicker();
+        });
+
+        $(function() {
+            $(".inline.{{ ot_linea_form.prefix }}").formset({
+                prefix: "{{ ot_linea_form.prefix }}",
+                added: smart_filter,
+            });
+            $(".inline.{{ tarea_linea_form.prefix }}").formset({
+                prefix: "{{ tarea_linea_form.prefix }}",
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+{% load intiSoft_filters %}
+<div class="col-md-offset-3 col-md-9">
+    <div class="btn-group" role="group" aria-label="..." style="float:right">
+        {% for choice in form.estado.field.choices %}
+            <button class="btn btn-default state {% if form.estado.value == choice.0 %}active{% endif %}">
+                {{ choice.1 }}
+            </button>
+        {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-1 col-md-6">
+        <!-- Solo muestro las acciones disponibles si la ot ya fue guardada -->
+        {% if object %}
+            {% if form.instance.estado not in "['cancelada', 'finalizada']" %}
+                {% if edit %}
+                    <div class="col-md-2">
+                        <input type="submit" value="Guardar" class="btn btn-danger" form="SIForm">
+                    </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="cancel btn btn-default" href="{% url 'adm:si-update' object.id %}">
+                            Cancelar
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="col-md-2">
+                        <input type="submit" value="Editar" class="btn btn-danger" form="SIForm">
+                    </div>
+                    <div class="col-md-2" style="padding-left: 0px">
+                        <a class="btn btn-default" href="{{ back_url }}">
+                            Volver
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="col-md-2" style="padding-left: 0px">
+                    <a class="btn btn-default" href="{{ back_url }}">
+                        Volver
+                    </a>
+                </div>
+            {% endif %}
+            <div class="btn-group col-md-2"">
+                <button type="button" class="btn btn-default dropdown-toggle
+                                            {% if not edit %} disabled {% endif %}"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Acciones
+                    <span class="caret" />
+                </button>
+                <ul class="dropdown-menu">
+                    {% if 'adm.delete_si' in user.get_all_permissions %}
+                    <li>
+                        <a href="#" data-action="Eliminar" data-model="SI" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Borrar SI</a>
+                    </li>
+                    {% endif %}
+                    <li role="separator" class="divider" />
+                    {% if 'adm.finish_si' in user.get_all_permissions and object.estado = 'borrador' %}
+                    <li>
+                        <a href="#" data-action="Finalizar" data-model="SI" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Finalizar SI</a>
+                    </li>
+                    {% endif %}
+                    {% if 'adm.cancel_si' in user.get_all_permissions and object.estado not in "['finalizada', 'cancelada']" %}
+                    <li>
+                        <a href="#" data-action="Cancelar" data-model="SI" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Cancelar SI</a>
+                    </li>
+                    {% endif %}
+                    <li role="separator" class="divider" />
+                    {% if 'adm.add_si' in user.get_all_permissions %}
+                        <li>
+                            <a id="viewSI" href="{% url 'adm:si-viewSI' object.id %}" data-id="{{object.id}}">Generar SI</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="col-md-2">
+                <input type="submit" value="Guardar" class="btn btn-danger" form="SIForm">
+            </div>
+            <div class="col-md-2" style="padding-left: 0px">
+                <a class="btn btn-default" href="{{ back_url }}">
+                    Volver
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<br/>
+<br/>
+<div class="row">
+    <div class="col-md-offset-1 col-md-10">
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 3px solid #eee"/>
+        <!-- Titulo -->
+        <div class="col-md-12">
+            <label id="title" for="id_codigo" class="col-md-1 text-danger" style="text-align:left">SI</label>
+            <div class="col-md-2">
+                {% if edit %}
+                    {{ form.codigo }}
+                    {% for error in form.codigo.errors %}
+                       <div class="alert alert-error">
+                           <strong>{{ error|escape }}</strong>
+                       </div>
+                    {% endfor %}
+                {% else %}
+                    {{ form.codigo | disable }}
+                {% endif %}
+           </div>
+        </div>
+
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+        <div class="col-md-12">
+            <form id="SIForm" class="form-horizontal" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+                {% if edit %}
+                    {% csrf_token %}
+                {% else %}
+                    <input name="edit" type="hidden" value="1">
+                {% endif %}
+                </br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Estado de la SI -->
+                        {% if edit %}
+                            {{ form.estado.as_hidden }}
+                        {% else %}
+                            {{ form.estado.value.as_hidden }}
+                        {% endif %}
+                        <div class="col-md-12">
+                            <h3 class="text-danger">SI</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Fecha de Realizacion -->
+                            <div class="form-group">
+                                <label class="control-label col-md-6" style="text-align:left"
+                                 for="id_fecha_realizado">
+                                    Fecha de Realizacion
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.fecha_realizado }}
+                                        {% for error in form.fecha_realizado.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.fecha_realizado.value | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- UT Solicitante -->
+                            <div class="form-group">
+                                <label class="control-label col-md-6" style="text-align:left"
+                                 for="id_solicitante">
+                                    UT Solicitante
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.solicitante }}
+                                        {% for error in form.solicitante.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.solicitante }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Fecha Prevista -->
+                            <div class="form-group">
+                                <label class="control-label col-md-6" style="text-align:left"
+                                  for="id_fecha_prevista">
+                                      Fecha Prevista
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.fecha_prevista }}
+                                        {% for error in form.fecha_prevista.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.fecha_prevista | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- UT Ejecutora -->
+                            <div class="form-group">
+                                <label class="control-label col-md-6" style="text-align:left"
+                                 for="id_ejecutor">
+                                    UT Ejecutora
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        {{ form.ejecutor }}
+                                        {% for error in form.ejecutor.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.ejecutor }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <!-- Estado del Turno -->
+                        <div class="col-md-12">
+                            <h3 class="text-danger">Turnos asociados</h3>
+                        </div>
+                        <div class="col-md-12">
+                            <table id="turnos_formtable" class="table">
+                                <thead>
+                                    <td>Fecha de Inicio</td>
+                                    <td>Fecha de Fin</td>
+                                    <td>Oferta Tecnologica</td>
+                                </thead>
+                                <tbody>
+                                    {% for turno in form.instance.turno_set.all %}
+                                        <tr>
+                                            <td>{{ turno.fecha_inicio | date }}</td>
+                                            <td>{{ turno.fecha_fin | date }}</td>
+                                            <td>{% for ot in turno.ofertatec_linea_set.all %}
+                                                    {{ ot.codigo }}</br>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Separador -->
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                <!-- Separador -->
+                <div class="col-md-12">
+                    <h3 class="text-danger">Oferta Tecnológica</h3>
+                    {% if edit %}
+                        {{ ot_linea_form.management_form }}
+                        {{ ot_linea_form.non_form_errors }}
+                    {% endif %}
+                    <table id="ofertatec_formtable" class="table">
+                    <col style="width:20%">
+<!--
+                        <col style="width:30%">
+                        <col style="width:20%">
+                        <col style="width:5%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+-->
+                        <thead>
+                            <td>Código</td>
+                            <td style="display:none">Detalle</td>
+                            <td>Tipo De Servicio</td>
+                            <td>Cantidad</td>
+                            <td>Horas</td>
+                            <td>Precio Unitario</td>
+                            <td>Precio Total</td>
+                            <td>Observaciones</td>
+                        </thead>
+                        <tbody>
+                            {% for formOt in ot_linea_form %}
+                                {% if edit %}
+                                    {{ formOt.id }}
+                                {% endif %}
+                                <tr {% if form.instance.estado == 'borrador' %}
+                                    class="inline {{ ot_linea_form.prefix }}"
+                                    {% endif %}>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.ofertatec.codigo }}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
+                                            {{ formOt.codigo }} {{ formOt.codigo.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.codigo}}
+                                        {% endif %}
+                                    </td>
+                                    <td style="display:none">
+                                        {% if edit %}
+                                            {{ formOt.detalle }} {{ formOt.detalle.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.detalle }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.tipo_servicio }} {{ formOt.tipo_servicio.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.tipo_servicio | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.cantidad }} {{ formOt.cantidad.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.cantidad }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.cant_horas }} {{ formOt.cant_horas.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.cant_horas | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.precio }} {{ formOt.precio.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.precio | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.precio_total }} {{ formOt.precio_total.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.precio_total | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.observaciones }} {{ formOt.observaciones.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.observaciones }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit and form.instance.estado == 'borrador' %}
+                                            {% if formOt.instance.pk %}
+                                                {{ formOt.DELETE }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    {% if formOt.errors %}
+                                        {% for error in formOt.non_field_errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Separador -->
+                <div class="col-md-12">
+                    <h3 class="text-danger">Detalle de Aranceles</h3>
+                    {% if edit %}
+                        {{ tarea_linea_form.management_form }}
+                        {{ tarea_linea_form.non_form_errors }}
+                    {% endif %}
+                    <table id="tareas_formtable" class="table">
+                    <col style="width:80%">
+<!--
+                        <col style="width:30%">
+                        <col style="width:20%">
+                        <col style="width:5%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+                        <col style="width:10%">
+-->
+                        <thead>
+                            <td>Tarea</td>
+                            <td>Horas</td>
+                        </thead>
+                        <tbody>
+                            {% for formTarea in tarea_linea_form %}
+                                {% if edit %}
+                                    {{ formTarea.id }}
+                                {% endif %}
+                                <tr {% if form.instance.estado == 'borrador' %}
+                                    class="inline {{ tarea_linea_form.prefix }}"
+                                    {% endif %}>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formTarea.tarea }} {{ formTarea.tarea.errors }}
+                                        {% else %}
+                                            {{ formTarea.instance.tarea }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formTarea.horas }} {{ formTarea.horas.errors }}
+                                        {% else %}
+                                            {{ formTarea.instance.horas | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit and form.instance.estado == 'borrador' %}
+                                            {% if formTarea.instance.pk %}
+                                                {{ formTarea.DELETE }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    {% if formTarea.errors %}
+                                        {% for error in formTarea.non_field_errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+<!--
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+-->
+                <!-- Importe Bruto -->
+                <div class="col-md-5" style="float:right">
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                          for="id_importe_bruto">
+                            Importe Bruto
+                        </label>
+                        <div class="col-md-5">
+                            <div class="input-group" style="z-index:0">
+                                {% if edit %}
+                                    <div class="input-group-addon">$</div>
+                                   {{ form.importe_bruto }}
+                                   {% for error in form.importe_bruto.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                               {% else %}
+                                   $
+                                   {{ form.importe_bruto.value | floatformat }}
+                               {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                          for="id_descuento">
+                            Descuento
+                        </label>
+                        <div class="col-md-5">
+                            <div class="input-group" style="z-index:0">
+                                {% if edit %}
+                                    <div class="input-group-addon">$</div>
+                                   {{ form.descuento }}
+                                   {% for error in form.descuento.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                               {% else %}
+                                   $
+                                   {{ form.descuento.value | floatformat }}
+                               {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5" style="text-align:left"
+                          for="id_importe_neto">
+                            Importe Neto
+                        </label>
+                        <div class="col-md-5">
+                            <div class="input-group" style="z-index:0">
+                                {% if edit %}
+                                    <div class="input-group-addon">$</div>
+                                   {{ form.importe_neto }}
+                                   {% for error in form.importe_neto.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                               {% else %}
+                                   $
+                                   {{ form.importe_neto.value | floatformat }}
+                               {% endif %}
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-default" id="btnImporteNeto"
+                            {% if not edit %}disabled="disabled"{% endif %}>
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <br/>
+                    <br/>
+                </div>
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+                </br>
+                </br>
+                {% if edit %}
+                    {% if form.errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-error">
+                                <strong>{{ error|escape }}</strong>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% url 'adm:si-list' as action_url %}
+{% include "intiSoft/modals.html" with postUrl=action_url %}
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "intiSoft/base.html" %}
+{% block content %}
+{% load intiSoft_filters %}
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <a href="{% url 'adm:sot-create' %}">
+            <button type="button" class="btn btn-danger"
+            {% if 'adm.add_sot' not in user.get_all_permissions %}
+            disabled
+            {% endif %}>Crear</button>
+        </a>
+    </div>
+    <div class="col-md-6 col-md-offset-1">
+        <form name="searchForm" class="search-bar" action="" method="GET">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button id="calendarBtn" type="button"class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </button>
+                </div>
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
+                <div class="input-group-btn">
+                    <button type="submit" value="submit" class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-12">
+        <table id="sotTable" class="table table-hover table-pointer">
+            <caption>Planilla de SOTs</caption>
+            <thead>
+                {% for name, label in fields %}
+                    <td>
+                        <div class="dropdown">
+                            <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                               aria-expanded="false"> {{ label }}
+                               <span class="caret"></span>
+                            </span>
+                            <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
+                                <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
+                                <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                {% endfor %}
+            <td></td>
+            <td></td>
+            <td></td>
+            </thead>
+            <tbody>
+                {% for sot in sot_list %}
+                        <tr
+                            {% if 'adm.change_sot' in user.get_all_permissions %}
+                                onclick="if (trlink) {location.href='{% url 'adm:sot-update' sot.id %}'}"
+                            {% endif %}
+                            class = {% if sot.estado == 'borrador' %} "neutral"
+                                      {% elif sot.estado == 'cobrada' %} "success"
+                                      {% elif sot.estado == 'pendiente' %} "warning"
+                                      {% elif sot.estado == 'cancelada' %} "danger"
+                                    {% endif %}
+                        >
+                        <td></td>
+                        <td>{{ sot.codigo }}</td>
+                        <td>{{ sot.fecha_realizado | date | default_if_none:"" }}</td>
+                        <td>{{ sot.deudor }}</td>
+                        <td>{{ sot.solicitante }}</td>
+                        <td>${{ sot.importe_bruto | floatformat }}</td>
+                        <td>${{ sot.importe_neto | floatformat }}</td>
+                        <td>{{ sot.fecha_envio_ut | date | default_if_none:"" }}</td>
+                        <td>{{ sot.firmada | boolToText }}</td>
+                        <td>{{ sot.fecha_envio_cc | date | default_if_none:"" }}</td>
+                        <td>
+                            <button onclick="trlink=false;" title="Cobrada" data-action="Finalizar"
+                                data-model="SOT" type="button" class="btn btn-default"
+                                data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
+                                {% if sot.estado != "pendiente" or 'adm.finish_sot' not in user.get_all_permissions  %}
+                                    disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
+                                data-model="SOT" type="button" class="btn btn-default"
+                                data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
+                                {% if sot.estado in "['cobrada', 'cancelada']" or 'adm.cancel_sot' not in user.get_all_permissions  %}
+                                    disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td>
+                            <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
+                                data-model="SOT" type="button" class="btn btn-default"
+                                data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
+                                {% if 'adm.delete_sot' not in user.get_all_permissions %}
+                                    disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <table style="margin: 0 auto">
+            <td><div id="ref" class="alert-neutral">&nbsp;</div>Borrador</td>
+            <td><div id="ref" class="alert-warning">&nbsp;</div>Pendiente</td>
+            <td><div id="ref" class="alert-success">&nbsp;</div>Cobrada</td>
+            <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelada</td>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+<br/>
+<br/>
+{% include "intiSoft/modals.html" %}
+{% endblock %}
