@@ -463,7 +463,10 @@
                                             {% if edit %}
                                                 {{ form.id }}
                                             {% endif %}
-                                            <tr class="inline {{ ofertatec_linea_form.prefix }}">
+                                            <tr {% if form.instance.estado == 'en_espera' or revision %}
+                                                class="inline {{ ofertatec_linea_form.prefix }}"
+                                                {% endif %}
+                                            >
                                                 <td>
                                                     {% if edit %}
                                                         {{ form.ofertatec }} {{ form.ofertatec.errors }}
@@ -528,7 +531,7 @@
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    {% if edit %}
+                                                    {% if edit and form.instance.estado == 'en_espera' %}
                                                         {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                                                     {% endif %}
                                                 </td>

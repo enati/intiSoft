@@ -624,10 +624,19 @@ class TurnoUpdate(UpdateView):
         self.object = Turno.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ofertatec_linea_form = OfertaTec_LineaFormSet(instance=self.object)
+        if form.isRev:
+            ofertatec_linea_form = OfertaTec_LineaFormSet(instance=self.object, revision=True)
+        else:
+            ofertatec_linea_form = OfertaTec_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
                                   ofertatec_linea_form=ofertatec_linea_form))
+
+    def get_form_kwargs(self):
+        kwargs = super(TurnoUpdate, self).get_form_kwargs()
+        if self.request.GET.get('revision', False):
+            kwargs.update({'revision': 1})
+        return kwargs
 
     def post(self, request, *args, **kwargs):
         """
@@ -638,7 +647,10 @@ class TurnoUpdate(UpdateView):
         self.object = Turno.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ofertatec_linea_form = OfertaTec_LineaFormSet(self.request.POST, instance=self.object)
+        if form.isRev:
+            ofertatec_linea_form = OfertaTec_LineaFormSet(self.request.POST, instance=self.object, revision=True)
+        else:
+            ofertatec_linea_form = OfertaTec_LineaFormSet(self.request.POST, instance=self.object)
         if (form.is_valid() and ofertatec_linea_form.is_valid()):
             return self.form_valid(form, ofertatec_linea_form)
         else:
@@ -667,6 +679,7 @@ class TurnoUpdate(UpdateView):
         context = super(TurnoUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['revision'] = self.request.GET.get('revision', False)
+
         # Revisionado
         turnoVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='P_')
         presupVersByRevision = []
