@@ -141,10 +141,10 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
                                 on_delete=models.PROTECT)
     revisionar = models.BooleanField(default=False)
     nro_revision = models.IntegerField(default=0)
-    asistencia = models.BooleanField('Asistencia')
-    calibracion = models.BooleanField('Calibración')
-    in_situ = models.BooleanField('In Situ')
-    lia = models.BooleanField('LIA')
+    asistencia = models.BooleanField('Asistencia', default=False)
+    calibracion = models.BooleanField('Calibración', default=False)
+    in_situ = models.BooleanField('In Situ', default=False)
+    lia = models.BooleanField('LIA', default=False)
 
     def __str__(self):
         return self.codigo
