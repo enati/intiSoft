@@ -34,15 +34,27 @@ class WorkoutCalendar(HTMLCalendar):
                 cssclass += ' filled'
                 body = ['<ul class="list-unstyled">']
                 for workout in self.workouts[day]:
+                    try:
+                        usuario = ""
+                        if workout.presupuesto:
+                            usuario = workout.presupuesto.usuario.nombre
+                        elif workout.si:
+                            usuario = workout.si.solicitante
+                        popupData = usuario + "\n\n" +\
+                                    "Inicio: " + workout.fecha_inicio.strftime("%d/%m/%y") + "\n" +\
+                                    "Fin:      " + workout.fecha_fin.strftime("%d/%m/%y") + "\n\n" +\
+                                    "\n".join(map(lambda x: x.codigo + " - " + x.detalle, workout.ofertatec_linea_set.all()))
+                    except:
+                        popupData = ""
+                    body.append('<li style="position: relative" class= "%s">' % cssstate[workout.estado])
+                    body.append("<a title='" + popupData + "' href=" + reverse('lab:%s-update' % self.lab, kwargs={'pk': workout.id}) + ">")
                     if workout.presupuesto_id:
                         if workout.revisionar:
                             cssstate[workout.estado] += ' overlay2'
-                        body.append('<li style="position: relative" class= "%s">' % cssstate[workout.estado])
-                        body.append("<a href=" + reverse('lab:%s-update' % self.lab, kwargs={'pk': workout.id}) + ">")
-                        presup_obj = Presupuesto.objects.get(pk=workout.presupuesto_id)
-                        user_obj = Usuario.objects.get(pk=presup_obj.usuario_id)
-                        body.append(esc(user_obj.nombre))
-                        body.append('</a></li>')
+                        body.append(esc(workout.presupuesto.usuario.nombre))
+                    elif workout.si:
+                        body.append(esc(workout.si.solicitante))
+                    body.append('</a></li>')
                 body.append('</ul>')
                 return self.day_cell(cssclass, '%d %s' % (day, ''.join(body)))
             return self.day_cell(cssclass, day)

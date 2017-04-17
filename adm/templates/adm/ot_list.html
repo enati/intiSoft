@@ -15,11 +15,28 @@
             {% endif %}>Crear</button>
         </a>
     </div>
+    <div class="col-md-6 col-md-offset-1">
+        <form name="searchForm" class="search-bar" action="" method="GET">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button id="calendarBtn" type="button"class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </button>
+                </div>
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
+                <div class="input-group-btn">
+                    <button type="submit" value="submit" class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
     <div class="col-md-12">
         <table id="otTable" class="table table-hover table-pointer">
             <caption>Planilla de OTs</caption>
             <thead>
-                {% for name, label, options in fields %}
+                {% for name, label in fields %}
                     <td>
                         <div class="dropdown">
                             <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -29,24 +46,6 @@
                             <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
                                 <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
                                 <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a onclick="seleccionar_todo(form_{{ name }})">Marcar todos</a></li>
-                                <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
-                                <li role="separator" class="divider"></li>
-                                <input type="text" class="form-control cbSearch" id="{{name}}-search">
-                                <form name="form_{{ name }}" class="form-contact" action="{% url 'adm:presup-list' %}" method="GET">
-                                    <div style="max-height:110px; overflow-y:auto">
-                                        {% for option in options %}
-                                             <div class="checkbox" style="padding-left:5%">
-                                                <label><input type="checkbox" class="cb" name="{{ name }}" value="{{ option }}"
-                                                {% if option|add:"_"|add:name in checked_fields %}checked{% endif %}> {{ option }} </label>
-                                              </div>
-                                        {% endfor %}
-                                    </div>
-                                    <br/>
-                                    <button onclick="submitAll()" type="button" class="btn" style="border: 1px solid grey; margin-left:10px">
-                                    Ok
-                                </form>
                             </ul>
                         </div>
                     </td>
@@ -72,8 +71,12 @@
                         <td>{{ ot.presupuesto.usuario.nombre }}</td>
                         <td>{{ ot.codigo }}</td>
                         <td>{{ ot.fecha_realizado | date | default_if_none:"" }}</td>
-                        <td>${{ ot.importe | floatformat }}</td>
-                        <td>{{ ot.presupuesto.get_turno_activo.area }}</td>
+                        <td>${{ ot.importe_bruto | floatformat }}</td>
+                        <td>
+                            {% for t in ot.presupuesto.get_turnos_activos %}
+                                {{ t.area }}</br>
+                            {% endfor %}
+                        </td>
                         <!-- FACTURAS -->
                         <td>
                             {% for f in ot.factura_set.all %}
@@ -105,7 +108,11 @@
                                 {% endfor %}
                             {% endfor %}
                         </td>
-                        <td>{{ ot.fecha_aviso | date | default_if_none:"" }}</td>
+                        <td>
+                            {% for f in ot.factura_set.all %}
+                                {{ f.fecha_aviso | date | default_if_none:"" }}</br>
+                            {% endfor %}
+                        </td>
                         <!-- RECIBOS -->
                         <td>
                             {% for f in ot.factura_set.all %}
@@ -154,13 +161,8 @@
                         </td>
                         <!-- REMITO -->
                         <td>
-                            {% for f in ot.factura_set.all %}
-                                {% if not f.remito_set.all %}
-                                    </br>
-                                {% endif %}
-                                {% for r in f.remito_set.all %}
-                                    {{ r.numero }}</br>
-                                {% endfor %}
+                            {% for r in ot.remito_set.all %}
+                                {{ r.numero }}</br>
                             {% endfor %}
                         </td>
                         <td>
@@ -199,7 +201,7 @@
             </tbody>
         </table>
         <table style="margin: 0 auto">
-            <td><div id="ref" class="alert-neutral">&nbsp;</div>No Facturado</td>
+            <td><div id="ref" class="alert-neutral">&nbsp;</div>Sin Facturar</td>
             <td><div id="ref" class="alert-warning">&nbsp;</div>No Pago</td>
             <td><div id="ref" class="alert-success">&nbsp;</div>Pagado</td>
             <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelado</td>

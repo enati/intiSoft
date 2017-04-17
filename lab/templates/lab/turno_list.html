@@ -14,6 +14,23 @@
             {% endif %}>Crear</button>
         </a>
     </div>
+    <div class="col-md-6 col-md-offset-1">
+        <form name="searchForm" class="search-bar" action="" method="GET">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button id="calendarBtn" type="button"class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </button>
+                </div>
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
+                <div class="input-group-btn">
+                    <button type="submit" value="submit" class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
     <div class="col-md-2 col-md-offset-10 col-xs-2 col-xs-offset-10" >
         <a href={% url calendarUrl %}>
             <button type="button" class="btn btn-default btn-calendar" aria-label="Left Align">
@@ -29,23 +46,10 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <table class="table table-hover table-pointer row-eq-height">
-            <col style="width:5%">
-            <col style="width:30%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:10%">
-<!--
-            <col style="width:10%">
--->
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:5%">
-            <col style="width:5%">
-            <col style="width:5%">
+        <table id="turnoTable" class="table table-hover table-pointer row-eq-height">
             <caption>Planilla de turnos {{ area_value }} </caption>
             <thead>
-                {% for name, label, options in fields %}
+                {% for name, label in fields %}
                     <td>
                         <div class="dropdown">
                             <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -55,24 +59,6 @@
                             <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
                                 <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
                                 <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a onclick="seleccionar_todo(form_{{ name }})">Marcar todos</a></li>
-                                <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
-                                <li role="separator" class="divider"></li>
-                                <input type="text" class="form-control cbSearch" id="{{name}}-search">
-                                <form name="form_{{ name }}" class="form-contact" action="{% url listUrl %}" method="GET">
-                                    <div style="max-height:110px; overflow-y:auto">
-                                        {% for option in options %}
-                                             <div class="checkbox" style="padding-left:5%">
-                                                <label><input type="checkbox" class="cb" name="{{ name }}" value="{{ option }}"
-                                                {% if option|add:"_"|add:name in checked_fields %}checked{% endif %}> {{ option }} </label>
-                                              </div>
-                                        {% endfor %}
-                                    </div>
-                                    <br/>
-                                    <button onclick="submitAll()" type="button" class="btn" style="border: 1px solid grey; margin-left:10px">
-                                    Ok
-                                </form>
                             </ul>
                         </div>
                     </td>
@@ -97,17 +83,17 @@
                                 <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
                             {% endif %}
                         </td>
-                        <td>{{turno.presupuesto.usuario}}</td>
+                        <td>
+                            {% if turno.si %}
+                                {{turno.si.solicitante}}
+                            {% else %}
+                                {{turno.presupuesto.usuario}}
+                            {% endif %}
+                        </td>
                         <td>{{turno.fecha_inicio | date }}</td>
                         <td>{{turno.fecha_fin | date }}</td>
-                        <td>{{turno.presupuesto.fecha_instrumento | date }}</td>
+                        <td>{{turno.presupuesto.instrumento_set.last.fecha_llegada | date | default_if_none:""}}</td>
                         <td>{{turno.presupuesto.fecha_aceptado | date }}</td>
-<!--
-                        <td>{% for o in turno.ofertatec_linea_set.all %}
-                                {{ o.ofertatec.codigo }}
-                            {% endfor %}
--->
-                        </td>
                         <td>{{turno.presupuesto.codigo}}</td>
                         <td>{% for ot in turno.presupuesto.ot_set.all %}
                                 {% if ot.estado != 'cancelado' %}
@@ -115,6 +101,19 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
+                        <td>{% for sot in turno.presupuesto.sot_set.all %}
+                                {% if sot.estado != 'cancelado' %}
+                                    {{sot.codigo}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{% for rut in turno.presupuesto.rut_set.all %}
+                                {% if rut.estado != 'cancelada' %}
+                                    {{rut.codigo}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{turno.si.codigo}}</td>
                         <td>
                             <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
                                 data-model="turno" type="button" class="btn btn-default"

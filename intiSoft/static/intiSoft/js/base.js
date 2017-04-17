@@ -24,7 +24,7 @@ function deseleccionar_todo(f_name){
 function revisionarTurno() {
     $.ajax({
         url: 'revision/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -45,7 +45,7 @@ function revisionarTurno() {
 function rollBackTurno() {
     $.ajax({
         url: 'rollback/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -66,7 +66,7 @@ function rollBackTurno() {
 function revisionarPresupuesto() {
     $.ajax({
         url: 'revision/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -87,7 +87,7 @@ function revisionarPresupuesto() {
 function rollBackPresupuesto() {
     $.ajax({
         url: 'rollback/',
-        method: 'get',
+        method: 'post',
         data: {},
         success: function(data){
                     if (data.ok) {
@@ -104,6 +104,19 @@ function rollBackPresupuesto() {
             }
      });
 }
+
+$.fn.wrapInTag = function(opts) {
+
+  var tag = opts.tag || 'strong'
+    , words = opts.words || []
+    , regex = RegExp(words.join('|'), 'gi') // case insensitive
+    , replacement = '<'+ tag +'>$&</'+ tag +'>';
+  return this.html(function() {
+      if (words != "") {
+        return $(this).text().replace(regex, replacement);
+      }
+  });
+};
 
 //function cancelarFactura(event) {
 //    btn = $(event.target);
@@ -128,6 +141,30 @@ function rollBackPresupuesto() {
 //}
 
 $(document).ready(function() {
+
+    $('#calendarBtn').daterangepicker();
+
+    var url = decodeURIComponent(window.location),
+        matches = url.match(/[\?|\&]search=([^\&]+)/),
+        getParams = matches ? matches[1].split(",") : [],
+        getParamsDate = [];
+    for (var i = 0; i < getParams.length; i++) {
+        $('#searchField').tagsinput('add', getParams[i]);
+        // Si es la fecha con formato dd/mm/yyyy-dd/mm/yyyy la separo en 2 palabras para la negrita
+        //match = getParams[i].match(/\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}/);
+        //getParamsDate = match ? match[0].split("-") : [];
+        //if (getParamsDate.length > 0) {
+            //getParams.splice(i, 1);
+        //}
+    }
+    $('#otTable tbody td:not(:first):not(:has(button)),\
+       #presupuestoTable tbody td:not(:first):not(:has(button)),\
+       #rutTable tbody td:not(:first):not(:has(button)),\
+       #sotTable tbody td:not(:first):not(:has(button)),\
+       #siTable tbody td:not(:first):not(:has(button)),\
+       #ofertatecTable tbody td:not(:has(button)),\
+       #usuarioTable tbody td:not(:has(button)),\
+       #turnoTable tbody td:not(:has(button))').wrapInTag({words: getParams});
 
     // Reseteo las fechas cuando hago una nueva revision
     if (window.location.href.indexOf('revision') != -1) {
@@ -198,11 +235,14 @@ $(document).ready(function() {
     });
 
 
-    $("#ofertatec_formtable select").on('change keyup', function (e) {
+    $("#ofertatec_formtable_turno select").on('change keyup', function (e) {
         var ot_id = $(this).val()
         if ( ot_id != "" ) {
             var select = $(this).get(0);
             splitted_id = select.id.split("-");
+            splitted_id[splitted_id.length-1] = 'codigo';
+            codigo_id = '#'.concat(splitted_id.join("-"));
+            codigo = $(codigo_id);
             splitted_id[splitted_id.length-1] = 'precio';
             precio_id = '#'.concat(splitted_id.join("-"));
             precio = $(precio_id);
@@ -220,11 +260,48 @@ $(document).ready(function() {
                 method: 'get',
                 data: {'ot_id': ot_id},
                 success: function(data){
+                    codigo.val(data['codigo']);
                     precio.val(data['precio']);
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
                     precio_total.val(data['precio_total']);
-                    $('#ofertatecform_table').load('#ofertatecform_table');
+                    //$('#ofertatecform_table').load('#ofertatecform_table');
+                }
+             });
+        }
+    });
+
+    $("#ofertatec_formtable select").on('change keyup', function (e) {
+        var ot_id = $(this).val()
+        if ( ot_id != "" ) {
+            var select = $(this).get(0);
+            splitted_id = select.id.split("-");
+            splitted_id[splitted_id.length-1] = 'codigo';
+            codigo_id = '#'.concat(splitted_id.join("-"));
+            codigo = $(codigo_id);
+            splitted_id[splitted_id.length-1] = 'precio';
+            precio_id = '#'.concat(splitted_id.join("-"));
+            precio = $(precio_id);
+            splitted_id[splitted_id.length-1] = 'detalle';
+            detalle_id = '#'.concat(splitted_id.join("-"));
+            detalle = $(detalle_id);
+            splitted_id[splitted_id.length-1] = 'tipo_servicio';
+            tipo_servicio_id = '#'.concat(splitted_id.join("-"));
+            tipo_servicio = $(tipo_servicio_id);
+            splitted_id[splitted_id.length-1] = 'precio_total';
+            precio_total_id = '#'.concat(splitted_id.join("-"));
+            precio_total= $(precio_total_id);
+            $.ajax({
+                url: domain + '/lab/turnos/get_price/',
+                method: 'get',
+                data: {'ot_id': ot_id},
+                success: function(data){
+                    codigo.val(data['codigo']);
+                    precio.val(data['precio']);
+                    detalle.val(data['detalle']);
+                    tipo_servicio.val(data['tipo_servicio']);
+                    precio_total.val(data['precio_total']);
+                    //$('#ofertatecform_table').load('#ofertatecform_table');
                 }
              });
         }
@@ -246,20 +323,59 @@ $(document).ready(function() {
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
                     $("#id_presupuesto__area").text(data['area']);
+                    $("select#id_solicitante").val(data['solicitante']);
+                    $("#id_fecha_prevista").val(data['fecha_turno']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
+                    $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);
 
-                    var n = $('#id_ot_linea_set-TOTAL_FORMS').val()
-                    for (i=0; i<n; i++) {
-                        $('#ofertatec_formtable tr.inline:first a.delete-row').click()
-                    }
+                    // Borro todas las lineas de oferta tecnologica actuales
+                    $('#ofertatec_formtable a.delete-row').click()
+                    if (data['ofertatec'].length > 0) {
+                        // Traigo las lineas de oferta tecnologica del presupuesto
+                        for (i=0; i<data['ofertatec'].length; i++) {
+                            $('#ofertatec_formtable .add-row').click();
+                            $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
+                            $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
+                            $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
+                            $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
+                            $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
+                            $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
+                            $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
+                            $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
+                            $('#ofertatec_formtable tr:last>td>textarea').val(data['ofertatec'][i].observaciones);
+                        }
+                    };
+                },
+            });
+        }
+    });
+
+    $("#id_si").on('change keyup', function (e) {
+        var si_id = $(this).val()
+        if (si_id != "") {
+            $.ajax({
+                url: domain + '/lab/turnos/get_si/',
+                method: 'get',
+                data: {'si_id': si_id},
+                success: function(data){
+                    $("#id_si__solicitante").text(data['solicitante']);
+                    $("#id_si__fecha_realizado").text(data['fecha_realizado']);
+                    $("#id_si__fecha_prevista").text(data['fecha_prevista']);
+
+                    // Borro todas las lineas de oferta tecnologica actuales
+                    $('#ofertatec_formtable_turno a.delete-row').click()
+                    // Traigo las lineas de oferta tecnologica de la SI
                     for (i=0; i<data['ofertatec'].length; i++) {
-                        $('#ofertatec_formtable .add-row').click();
-                        $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
-                        $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].tipo_servicio;
-                        $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].cantidad;
-                        $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cant_horas;
-                        $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].precio;
-                        $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio_total;
+                        $('#ofertatec_formtable_turno .add-row').click();
+                        $('#ofertatec_formtable_turno tr:last>td>select').val(data['ofertatec'][i].ofertatec);
+                        $('#ofertatec_formtable_turno tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[5].value = data['ofertatec'][i].precio;
+                        $('#ofertatec_formtable_turno tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
+                        $('#ofertatec_formtable_turno tr:last>td>textarea').val(data['ofertatec'][i].observaciones);
                     }
                 },
             });
@@ -277,14 +393,54 @@ $(document).ready(function() {
                     $("#id_nro_usuario").text(data['nro_usuario']);
                     $("#id_cuit").text(data['cuit']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_mail").text(data['mail']);
                 },
             });
         }
     });
 
-    $("[id$=cant_horas]").on('change', function (e) {
+    $("[id^=id_ofertatec][id$=cant_horas], [id^=id_ofertatec][id$=cantidad], [id^=id_ofertatec][id$=precio]")
+        .on('change', function (e) {
+            var cant_horas_id = $(this).attr('id'),
+                formset_number = cant_horas_id.split("-")[1],
+                cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
+                cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
+                precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
+                precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
+                acc = precio;
+
+                if (!isNaN(cant_horas)) {
+                    acc *= cant_horas;
+                }
+                if (!isNaN(cantidad)) {
+                    acc *= cantidad;
+                }
+                precio_total.val(acc);
+    });
+
+    $("[id^=id_adm-ot][id$=cantidad], [id^=id_adm-ot][id$=cant_horas], [id^=id_adm-ot][id$=precio]")
+            .on('change', function (e) {
+                var cant_horas_id = $(this).attr('id'),
+                    formset_number = cant_horas_id.split("-")[4],
+                    cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
+                    cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
+                    precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
+                    precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
+                    acc = precio;
+
+                if (!isNaN(cant_horas)) {
+                    acc *= cant_horas;
+                }
+                if (!isNaN(cantidad)) {
+                    acc *= cantidad;
+                }
+                precio_total.val(acc);
+    });
+
+    $("[id^=id_adm-ot][id$=cant_horas]").on('change', function (e) {
         cant_horas_id = $(this).attr('id')
-        formset_number = cant_horas_id.split("-")[1];
+        formset_number = cant_horas_id.split("-")[4];
+        cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
         cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
         precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
         precio_total = $("[id$="+formset_number+"-precio_total"+"]");
@@ -292,19 +448,34 @@ $(document).ready(function() {
             precio_total.val(precio);
         }
         else {
-            precio_total.val(cant_horas*precio);
+            precio_total.val(cantidad*cant_horas*precio);
         }
     });
 
-    $("[id^=id_factura_set][id$=numero]").on('change', function (e) {
-        importe = $('#id_importe').val();
+    $("[id^=id_adm-factura][id$=numero]").on('change', function (e) {
+        importe = $('#id_importe_neto').val();
         field_id = $(this).attr('id')
         importe_id = field_id.split("numero")[0] + 'importe'
         $('#'+importe_id).val(importe);
 
     });
 
-    $("#id_codigo").on('change keyup', function (e) {
+    $("#btnImporteNeto").on('click', function(e) {
+        var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
+            total = 0,
+            importe_bruto = $("[id$=id_importe_bruto]"),
+            importe_neto = $("[id$=id_importe_neto]"),
+            descuento_val = parseFloat($("[id$=id_descuento]").val());
+        for (var i=0; i<otLinePrice_list.length; i++) {
+            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
+                total += parseFloat(otLinePrice_list[i].value);
+            }
+        }
+        importe_bruto.val(total);
+        importe_neto.val(total - descuento_val);
+    });
+
+    $("select#id_codigo").on('change keyup', function (e) {
         var presup_id = $(this).val()
         if (presup_id != "") {
             $.ajax({
@@ -411,6 +582,7 @@ $(document).ready(function() {
                             }
                             else {
                                 window.location = window.location.href.split("?")[0];
+                                window.location.reload();
                             }
                         }
                         else {
@@ -438,17 +610,19 @@ $(document).ready(function() {
         var modal = $(this)
         modal.find('.modal-title').text(action +' '+ model)
         var art = ' el ';
+        var artP = 'Los ';
         //if ((model=='OT') || (model=='factura'))
-        if (model=='OT')
+        if (model=='OT' || model=='OT-ML' || model=='SOT' || model=='RUT')
             art = ' la ';
+            artP = 'Las ';
         if (action.localeCompare('Finalizar')==0) {
             if (model=='OT') {
                 var msg = "Las OT deben ser finalizadas solo en caso que ya hayan sido pagadas.\
                     Tenga en cuenta que una vez finalizada ya no podrá modificarse."
             }
             else
-                var msg = "Los "+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
-                    Tenga en cuenta que una vez finalizado el mismo ya no podrá modificarse."
+                var msg = artP+model+"s deben ser finalizados solo en caso que ya se hayan realizado.\
+                    Tenga en cuenta que una vez finalizado ya no podrá modificarse."
             modal.find('.modal-body h4').text("¿Está seguro que quiere finalizar"+art+model+"?")
             modal.find('.modal-body p').text(msg)
         }
@@ -480,6 +654,36 @@ $(document).ready(function() {
             submitButton2.value = id;
             $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
         }
+        //En SOTs agrego opcion para finalizar solo SOT u SOT y presupuesto
+        else if (model=='SOT' && action=='Finalizar') {
+            $(submitButton).text('Finalizar SOT');
+            submitButton.name = 'Finalizar1';
+            submitButton.value = id;
+            $(submitButton).attr('onclick', "$('#inputField').attr('name', 'Finalizar1').attr('value', " + id + ")");
+            $('#submitButton2').remove();
+            var btn = $("<button id='submitButton2' type='submit' class='btn btn-primary' name='name' value='value'></button>");
+            $("#myForm").append(btn);
+            submitButton2 = document.getElementById('submitButton2');
+            $(submitButton2).text('Finalizar SOT y Presupuesto');
+            submitButton2.name = 'Finalizar1';
+            submitButton2.value = id;
+            $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
+        }
+        //En RUTs agrego opcion para finalizar solo RUT u RUT y presupuesto
+        else if (model=='RUT' && action=='Finalizar') {
+            $(submitButton).text('Finalizar RUT');
+            submitButton.name = 'Finalizar1';
+            submitButton.value = id;
+            $(submitButton).attr('onclick', "$('#inputField').attr('name', 'Finalizar1').attr('value', " + id + ")");
+            $('#submitButton2').remove();
+            var btn = $("<button id='submitButton2' type='submit' class='btn btn-primary' name='name' value='value'></button>");
+            $("#myForm").append(btn);
+            submitButton2 = document.getElementById('submitButton2');
+            $(submitButton2).text('Finalizar RUT y Presupuesto');
+            submitButton2.name = 'Finalizar1';
+            submitButton2.value = id;
+            $(submitButton2).attr('onclick', "$('#inputField').attr('name', 'Finalizar2').attr('value', " + id + ")");
+        }
         else {
             $(submitButton).text('Aceptar');
             $(submitButton).removeAttr('onclick');
@@ -504,6 +708,7 @@ $(document).ready(function() {
             },
     });
 
+/*
     $('.cbSearch').on({"change keyup": function(e) {
         var fieldName = $(this).attr('id').split("-")[0];
         var key = this.value.toUpperCase();
@@ -518,35 +723,25 @@ $(document).ready(function() {
         });
     }
     });
-
-    submitAll = function(){
-        //Crea un formulario con todas las opciones seleccionadas
-        //de cada dropbox
-        var f = document.createElement("form");
-        f.setAttribute('method',"get");
-        f.setAttribute('action', "");
-
-        var checkbox_list = document.getElementsByClassName("cb");
-
-        for (var i=0; i<checkbox_list.length; i++) {
-            if (checkbox_list[i].checked) {
-                var n = document.createElement("input");
-                n.setAttribute('type',"hidden");
-                n.setAttribute('name',checkbox_list[i].name);
-                n.setAttribute('value',checkbox_list[i].value);
-                n.checked = true;
-                f.appendChild(n);
-            }
-        }
-        document.body.appendChild(f);
-        f.submit();
-    };
+*/
 
     $("#change_pass").on({"click": function (e) {
             document.getElementById("id_old_password").removeAttribute("disabled");
             document.getElementById("id_new_password").removeAttribute("disabled");
             document.getElementById("id_cnew_password").removeAttribute("disabled");
             return false;
+        }
+    });
+
+    $('#id_descuento_fijo').change(function() {
+        if(this.checked) {
+            // Calculo el 10% del bruto
+            importe_bruto = parseFloat($('#id_importe_bruto').val());
+            $('#id_descuento').val(importe_bruto/10);
+            $('#id_descuento').attr('readonly', true);
+        }
+        else {
+            $('#id_descuento').attr('readonly', false);
         }
     });
 

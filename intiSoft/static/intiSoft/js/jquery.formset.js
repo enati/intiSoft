@@ -203,7 +203,7 @@
         deleteCssClass: 'delete-row',    // CSS class applied to the delete link
         formCssClass: 'dynamic-form',    // CSS class applied to each form in a formset
         extraClasses: [],                // Additional CSS classes, which will be applied to each form in turn
-        keepFieldValues: 'input',        // jQuery selector for fields whose values should be kept when the form is cloned
+        keepFieldValues: null,        // jQuery selector for fields whose values should be kept when the form is cloned
         added: null,                     // Function called each time a new form is added
         removed: null                    // Function called each time a form is deleted
     };

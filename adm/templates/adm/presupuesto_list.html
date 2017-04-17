@@ -15,8 +15,25 @@
             {% endif %}>Crear</button>
         </a>
     </div>
+    <div class="col-md-6 col-md-offset-1">
+        <form name="searchForm" class="search-bar" action="" method="GET">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button id="calendarBtn" type="button"class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </button>
+                </div>
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
+                <div class="input-group-btn">
+                    <button type="submit" value="submit" class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
     <div class="col-md-12">
-        <table class="table table-hover table-pointer">
+        <table id="presupuestoTable" class="table table-hover table-pointer">
             <col style="width:5%">
             <col style="width:5%">
             <col style="width:25%">
@@ -31,7 +48,7 @@
             <col style="width:5%">
             <caption>Planilla de presupuestos</caption>
             <thead>
-                {% for name, label, options in fields %}
+                {% for name, label in fields %}
                     <td>
                         <div class="dropdown">
                             <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -41,24 +58,6 @@
                             <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
                                 <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
                                 <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a onclick="seleccionar_todo(form_{{ name }})">Marcar todos</a></li>
-                                <li><a onclick="deseleccionar_todo(form_{{ name }})">Desmarcar todos</a></li>
-                                <li role="separator" class="divider"></li>
-                                <input type="text" class="form-control cbSearch" id="{{name}}-search">
-                                <form name="form_{{ name }}" class="form-contact" action="{% url 'adm:presup-list' %}" method="GET">
-                                    <div style="max-height:110px; overflow-y:auto">
-                                        {% for option in options %}
-                                             <div class="checkbox" style="padding-left:5%">
-                                                <label><input type="checkbox" class="cb" name="{{ name }}" value="{{ option }}"
-                                                {% if option|add:"_"|add:name in checked_fields %}checked{% endif %}> {{ option }} </label>
-                                              </div>
-                                        {% endfor %}
-                                    </div>
-                                    <br/>
-                                    <button onclick="submitAll()" type="button" class="btn" style="border: 1px solid grey; margin-left:10px">
-                                    Ok
-                                </form>
                             </ul>
                         </div>
                     </td>
@@ -67,7 +66,7 @@
             <td></td>
             </thead>
             <tbody>
-                {% for presup, turno_activo in tuple_paginated_list %}
+                {% for presup, turnos_activos in tuple_paginated_list %}
                         <tr
                             {% if 'adm.change_presupuesto' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:presup-update' presup.id %}'}"
@@ -79,20 +78,19 @@
                                       {% elif presup.estado == 'cancelado' %} "danger"
                                     {% endif %}
                         >
-                        <td style="text-align: center">{% if turno_activo and presup.estado == 'borrador' and not presup.fecha_realizado %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+                        <td style="text-align: center">{% if turnos_activos and presup.estado == 'borrador' and not presup.fecha_realizado %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                         <td>{{presup.codigo}}</td>
                         <td>{{presup.usuario}}</td>
                         <td>{{presup.usuario.nro_usuario}}</td>
-<!--
-                        <td>{% for o in turno_activo.ofertatec_linea_set.all %}
-                                {{o.ofertatec.area}}
-                            {% endfor %}</td>
--->
-                        <td>{{turno_activo.area}}</td>
+                        <td>
+                            {% for turno in turnos_activos %}
+                                {{turno.area}}</br>
+                            {% endfor %}
+                        </td>
                         <td>{{presup.fecha_realizado | date | default_if_none:""}}</td>
                         <td>{{presup.fecha_aceptado | date | default_if_none:""}}</td>
-                        <td>{{presup.fecha_instrumento | date | default_if_none:""}}</td>
-                        <td>{{presup.nro_recepcion}}</td>
+                        <td>{{presup.instrumento_set.last.fecha_llegada | date | default_if_none:""}}</td>
+                        <td>{{presup.instrumento_set.last.nro_recepcion}}</td>
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="presupuesto" type="button" class="btn btn-default"

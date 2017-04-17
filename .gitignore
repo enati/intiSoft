@@ -64,4 +64,5 @@ target/
 #Plantillas
 Plantillas/
 
+#PyCharm
 .idea/

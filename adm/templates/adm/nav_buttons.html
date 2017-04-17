@@ -2,8 +2,23 @@
     <a href="{% url 'adm:presup-list' %}">Presupuestos</a>
 </li>
 
-<li class="nav-button {% if '/adm/OT/' in request.path %}active{% endif %}">
-    <a href="{% url 'adm:ot-list' %}">OT</a>
+<li class="dropdown {% if '/adm/contratos/' in request.path %}active{% endif %}">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Contratos <span class="caret"></span></a>
+    <ul class="dropdown-menu">
+        <li style="{% if '/adm/contratos/OT/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:ot-list' %}">OT</a>
+        </li>
+        <li style="{% if '/adm/contratos/OT-ML/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:otml-list' %}">OT-ML</a>
+        </li>
+        <li style="{% if '/adm/contratos/SOT/' in request.path %}background-color: #F5F5F5{% endif %}">
+           <a href="{% url 'adm:sot-list' %}">SOT</a>
+        <li style="{% if '/adm/contratos/RUT/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:rut-list' %}">RUT</a>
+        <li style="{% if '/adm/contratos/SI/' in request.path %}background-color: #F5F5F5{% endif %}">
+            <a href="{% url 'adm:si-list' %}">SI</a>
+        </li>
+    </ul>
 </li>
 
 <li class="nav-button {% if '/adm/ofertatec/' in request.path %}active{% endif %}">

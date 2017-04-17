@@ -22,6 +22,16 @@
                         style="background-color: #F5F5F5"
                     {% endifequal %}
                 >LIM3</a>
+                <a href="{% url 'lab:LIM4-list' %}"
+                    {% ifequal  area_value 'LIM4' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM4</a>
+                <a href="{% url 'lab:LIM5-list' %}"
+                    {% ifequal  area_value 'LIM5' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >LIM5</a>
                 <a href="{% url 'lab:LIM6-list' %}"
                     {% ifequal  area_value 'LIM6' %}
                         style="background-color: #F5F5F5"
@@ -47,6 +57,16 @@
                         style="background-color: #F5F5F5"
                     {% endifequal %}
                 >CAL</a>
+                <a href="{% url 'lab:MEC-list' %}"
+                    {% ifequal  area_value 'MEC' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >MEC</a>
+                <a href="{% url 'lab:ML-list' %}"
+                    {% ifequal  area_value 'ML' %}
+                        style="background-color: #F5F5F5"
+                    {% endifequal %}
+                >ML</a>
             <li>
         </ul>
     </a>
