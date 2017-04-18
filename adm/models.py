@@ -256,7 +256,7 @@ class Instrumento(TimeStampedModel, AuthStampedModel):
 
     detalle = models.CharField("Detalle", max_length=150, blank=True, null=True)
     fecha_llegada = models.DateField("Fecha de Llegada")
-    nro_recepcion = models.CharField("Nro. Recibo de Recepcion", max_length=15)
+    nro_recepcion = models.CharField("Nro. Recibo de Recepción", max_length=15)
     presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE, verbose_name="Presupuesto")
 
     class Meta:
