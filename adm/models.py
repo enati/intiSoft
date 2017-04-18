@@ -309,7 +309,7 @@ class OT(Contrato):
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
-    factura_set = GenericRelation("Factura")
+    factura_set = GenericRelation("Factura", verbose_name="Factura")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
