@@ -526,7 +526,7 @@ class SOT(Contrato):
     fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
     fecha_prevista = models.DateField("Fecha Prevista")
     solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
-    descuento_fijo = models.BooleanField("Descuento fijo")
+    descuento_fijo = models.BooleanField("Descuento Fijo")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
