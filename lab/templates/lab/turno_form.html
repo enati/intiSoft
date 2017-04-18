@@ -459,9 +459,9 @@
                                         <td>Observaciones</td>
                                     </thead>
                                     <tbody>
-                                        {% for form in ofertatec_linea_form %}
+                                        {% for formOt in ofertatec_linea_form %}
                                             {% if edit %}
-                                                {{ form.id }}
+                                                {{ formOt.id }}
                                             {% endif %}
                                             <tr {% if form.instance.estado == 'en_espera' or revision %}
                                                 class="inline {{ ofertatec_linea_form.prefix }}"
@@ -469,70 +469,70 @@
                                             >
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.ofertatec }} {{ form.ofertatec.errors }}
+                                                        {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                                     {% else %}
-                                                        {{ form.instance.codigo }}
+                                                        {{ formOt.instance.codigo }}
                                                     {% endif %}
                                                 </td>
                                                 <td style="display:none">
                                                     {% if edit %}
-                                                        {{ form.codigo }} {{ form.codigo.errors }}
+                                                        {{ formOt.codigo }} {{ formOt.codigo.errors }}
                                                     {% else %}
-                                                        {{ form.instance.codigo}}
+                                                        {{ formOt.instance.codigo}}
                                                     {% endif %}
                                                 </td>
                                                 <td style="display:none">
                                                     {% if edit %}
-                                                        {{ form.detalle }} {{ form.detalle.errors }}
+                                                        {{ formOt.detalle }} {{ formOt.detalle.errors }}
                                                     {% else %}
-                                                        {{ form.instance.detalle }}
+                                                        {{ formOt.instance.detalle }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.tipo_servicio }} {{ form.tipo_servicio.errors }}
+                                                        {{ formOt.tipo_servicio }} {{ formOt.tipo_servicio.errors }}
                                                     {% else %}
-                                                        {{ form.instance.tipo_servicio  | default_if_none:"" }}
+                                                        {{ formOt.instance.tipo_servicio  | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.cantidad }} {{ form.cantidad.errors }}
+                                                        {{ formOt.cantidad }} {{ formOt.cantidad.errors }}
                                                     {% else %}
-                                                        {{ form.instance.cantidad }}
+                                                        {{ formOt.instance.cantidad }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.cant_horas }} {{ form.cant_horas.errors }}
+                                                        {{ formOt.cant_horas }} {{ formOt.cant_horas.errors }}
                                                     {% else %}
-                                                        {{ form.instance.cant_horas | default_if_none:"" }}
+                                                        {{ formOt.instance.cant_horas | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.precio }} {{ form.precio.errors }}
+                                                        {{ formOt.precio }} {{ formOt.precio.errors }}
                                                     {% else %}
-                                                        {{ form.instance.precio | default_if_none:"" }}
+                                                        {{ formOt.instance.precio | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.precio_total }} {{ form.precio_total.errors }}
+                                                        {{ formOt.precio_total }} {{ formOt.precio_total.errors }}
                                                     {% else %}
-                                                        {{ form.instance.precio_total | default_if_none:"" }}
+                                                        {{ formOt.instance.precio_total | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit %}
-                                                        {{ form.observaciones }} {{ form.observaciones.errors }}
+                                                        {{ formOt.observaciones }} {{ formOt.observaciones.errors }}
                                                     {% else %}
-                                                        {{ form.instance.observaciones | default_if_none:"" }}
+                                                        {{ formOt.instance.observaciones | default_if_none:"" }}
                                                     {% endif %}
                                                 </td>
                                                 <td>
                                                     {% if edit and form.instance.estado == 'en_espera' %}
-                                                        {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                                        {% if formOt.instance.pk %}{{ formOt.DELETE }}{% endif %}
                                                     {% endif %}
                                                 </td>
                                             </tr>
