@@ -127,20 +127,19 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         ('cancelado', 'Cancelado'),
     )
 
-    estado = models.CharField(max_length=25, choices=ESTADOS,
-                              default='borrador', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. Presupuesto',
+    estado = models.CharField('Estado', max_length=25, choices=ESTADOS, default='borrador')
+    codigo = models.CharField('Nro. Presupuesto', max_length=15,
                               unique=True, default=nextCode,
                               error_messages={'unique': "Ya existe un presupuesto con ese número."})
     fecha_solicitado = models.DateField('Fecha de Solicitud')
-    fecha_realizado = models.DateField(verbose_name='Fecha de Presupuesto',
+    fecha_realizado = models.DateField('Fecha de Realización',
                                        blank=True, null=True)
-    fecha_aceptado = models.DateField(verbose_name='Fecha de Aceptacion',
+    fecha_aceptado = models.DateField('Fecha de Aceptación',
                                       blank=True, null=True)
     usuario = models.ForeignKey(Usuario, verbose_name='Usuario',
                                 on_delete=models.PROTECT)
-    revisionar = models.BooleanField(default=False)
-    nro_revision = models.IntegerField(default=0)
+    revisionar = models.BooleanField('Revisionar', default=False)
+    nro_revision = models.IntegerField('Nro. Revisión', default=0)
     asistencia = models.BooleanField('Asistencia', default=False)
     calibracion = models.BooleanField('Calibración', default=False)
     in_situ = models.BooleanField('In Situ', default=False)
