@@ -53,6 +53,20 @@
             </p>
         </div>
     {% endif %}
+    {% if form.errors or instrumento_linea_form.errors %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">
+            <h3>Error!</h3>
+            <strong> Hay problemas con los siguientes campos: </strong><br/>
+            <ul>
+            {% for error in form.errors %}
+                <li>{% get_verbose_name form.model error %}</li>
+            {% endfor %}
+            {% for error in instrumento_linea_form.errors.0 %}
+                <li>{% get_verbose_name instrumento_linea_form.model error %}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 </div>
 <br/>
 <div class="row">
@@ -511,13 +525,7 @@
                             </div>
         -->
                         </div>
-                        {% if form.errors %}
-                            {% for error in form.non_field_errors %}
-                                <div class="alert alert-error">
-                                    <strong>{{ error|escape }}</strong>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+
                     </form>
                 </div>
             </div>
