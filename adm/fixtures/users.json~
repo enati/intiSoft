@@ -1,0 +1,1 @@
+[{"fields": {"nro_usuario": "00001", "modified_with_session_key": null, "mail": "", "created": 2017-04-11T13:35:00Z, "cuit": "", "modified": 2017-04-11T13:35:00Z, "created_by": null, "rubro": "TEST", "created_with_session_key": null, "nombre": "John Doe", "modified_by": null}, "model": "adm.usuario", "pk": 1}]

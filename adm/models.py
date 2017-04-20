@@ -33,15 +33,15 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
 
 @reversion.register()
 class Usuario(TimeStampedModel, AuthStampedModel):
-    nro_usuario = models.CharField(validators=[RegexValidator(r'^\d{5}$')],
+    nro_usuario = models.CharField("Nro. Usuario", validators=[RegexValidator(r'^\d{5}$')],
                                    max_length=5, blank=True,
                                    null=True)
-    nombre = models.CharField(max_length=150, blank=False, unique=True,
+    nombre = models.CharField("Nombre", max_length=150, blank=False, unique=True,
                             error_messages={'unique': "Ya existe un usuario con ese nombre."})
-    cuit = models.CharField(validators=[RegexValidator(r'^\d{11}$')],
+    cuit = models.CharField("Cuit", validators=[RegexValidator(r'^\d{11}$')],
                                         max_length=11, blank=True, null=True)
-    mail = models.CharField(max_length=50, blank=True, null=True)
-    rubro = models.CharField(max_length=50, blank=True, null=True)
+    mail = models.CharField("Mail", max_length=50, blank=True, null=True)
+    rubro = models.CharField("Rubro", max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.nombre.encode('utf-8')
@@ -62,16 +62,15 @@ class Usuario(TimeStampedModel, AuthStampedModel):
 @reversion.register()
 class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
 
-    proveedor = models.IntegerField(default='106', verbose_name='Proveedor')
-    codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
-                              max_length=14, verbose_name='Codigo')
-    rubro = models.CharField(max_length=50, verbose_name='Rubro')
-    subrubro = models.CharField(max_length=50, verbose_name='Subrubro')
-    tipo_servicio = models.CharField(max_length=20,
-                                     verbose_name='Tipo de Servicio')
-    area = models.CharField(max_length=15, verbose_name='Area')
-    detalle = models.CharField(max_length=350, verbose_name='Detalle')
-    precio = models.FloatField(verbose_name='Precio')
+    proveedor = models.IntegerField("Proveedor", default='106')
+    codigo = models.CharField("Código", validators=[RegexValidator(r'^\d{14}$')],
+                              max_length=14)
+    rubro = models.CharField("Rubro", max_length=50)
+    subrubro = models.CharField("Subrubro", max_length=50)
+    tipo_servicio = models.CharField("Tipo de Servicio", max_length=20)
+    area = models.CharField("Area", max_length=15)
+    detalle = models.CharField("Detalle", max_length=350)
+    precio = models.FloatField("Precio")
 
     def __str__(self):
         return self.codigo
@@ -127,20 +126,19 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         ('cancelado', 'Cancelado'),
     )
 
-    estado = models.CharField(max_length=25, choices=ESTADOS,
-                              default='borrador', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. Presupuesto',
+    estado = models.CharField('Estado', max_length=25, choices=ESTADOS, default='borrador')
+    codigo = models.CharField('Nro. Presupuesto', max_length=15,
                               unique=True, default=nextCode,
                               error_messages={'unique': "Ya existe un presupuesto con ese número."})
     fecha_solicitado = models.DateField('Fecha de Solicitud')
-    fecha_realizado = models.DateField(verbose_name='Fecha de Presupuesto',
+    fecha_realizado = models.DateField('Fecha de Realización',
                                        blank=True, null=True)
-    fecha_aceptado = models.DateField(verbose_name='Fecha de Aceptacion',
+    fecha_aceptado = models.DateField('Fecha de Aceptación',
                                       blank=True, null=True)
     usuario = models.ForeignKey(Usuario, verbose_name='Usuario',
                                 on_delete=models.PROTECT)
-    revisionar = models.BooleanField(default=False)
-    nro_revision = models.IntegerField(default=0)
+    revisionar = models.BooleanField('Revisionar', default=False)
+    nro_revision = models.IntegerField('Nro. Revisión', default=0)
     asistencia = models.BooleanField('Asistencia', default=False)
     calibracion = models.BooleanField('Calibración', default=False)
     in_situ = models.BooleanField('In Situ', default=False)
@@ -256,25 +254,24 @@ post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
 @reversion.register()
 class Instrumento(TimeStampedModel, AuthStampedModel):
 
-    detalle = models.CharField(max_length=150, blank=True, null=True)
-    fecha_llegada = models.DateField('Fecha de Llegada')
-    nro_recepcion = models.CharField(max_length=15, verbose_name='Nro. Recibo de Recepcion')
-    presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
+    detalle = models.CharField("Detalle", max_length=150, blank=True, null=True)
+    fecha_llegada = models.DateField("Fecha de Llegada")
+    nro_recepcion = models.CharField("Nro. Recibo de Recepción", max_length=15)
+    presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE, verbose_name="Presupuesto")
 
     class Meta:
-        ordering = ['fecha_llegada']
+        ordering = ["fecha_llegada"]
 
 
 class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
-    presupuesto = models.ForeignKey(Presupuesto, verbose_name='Presupuesto',
+    presupuesto = models.ForeignKey(Presupuesto, verbose_name="Presupuesto",
                                     null=True, blank=True, on_delete=models.PROTECT)
-    importe_neto = models.FloatField(verbose_name='Importe Neto', blank=False, null=True, default=0)
-    importe_bruto = models.FloatField(verbose_name='Importe Bruto', blank=False, null=True, default=0)
-    descuento = models.FloatField(verbose_name='Descuento', blank=False, null=True, default=0)
-    fecha_realizado = models.DateField(verbose_name='Fecha',
-                                       blank=False, null=True)
+    importe_neto = models.FloatField("Importe Neto", blank=False, null=True, default=0)
+    importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
+    descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
+    fecha_realizado = models.DateField("Fecha", blank=False, null=True)
    # Campos para la relacion inversa
-    ot_linea_set = GenericRelation('OT_Linea')
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     class Meta:
         abstract = True
@@ -306,15 +303,13 @@ class OT(Contrato):
         ('cancelado', 'Cancelado')
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='sin_facturar', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. OT',
-                              unique=True, default='00000',
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default="sin_facturar")
+    codigo = models.CharField("Nro. OT", max_length=15, unique=True, default='00000',
                               validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
-    factura_set = GenericRelation('Factura')
+    factura_set = GenericRelation("Factura", verbose_name="Factura")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -394,21 +389,19 @@ class OTML(Contrato):
         ('cancelado', 'Cancelado')
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='sin_facturar', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. OT',
-                              unique=True, default='00000',
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='sin_facturar')
+    codigo = models.CharField("Nro. OT", max_length=15, unique=True, default='00000',
                               validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
                                                          message="El código debe ser de la forma 00000 ó 00000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
-    vpe = models.CharField(max_length=5, verbose_name='VPE', blank=True, null=True)
-    vpr = models.CharField(max_length=8, verbose_name='VPR', blank=True, null=True)
-    vpuu = models.CharField(max_length=8, verbose_name='VPUU', blank=True, null=True)
-    usuario = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT)
-    usuarioRep = models.ForeignKey(Usuario, verbose_name='Usuario Representado', on_delete=models.PROTECT,
+    vpe = models.CharField("VPE", max_length=5, blank=True, null=True)
+    vpr = models.CharField("VPR", max_length=8, blank=True, null=True)
+    vpuu = models.CharField("VPUU", max_length=8, blank=True, null=True)
+    usuario = models.ForeignKey(Usuario, verbose_name="Usuario", on_delete=models.PROTECT)
+    usuarioRep = models.ForeignKey(Usuario, verbose_name="Usuario Representado", on_delete=models.PROTECT,
                                    related_name='usuarioRep_set')
     # Campos para la relacion inversa
-    factura_set = GenericRelation('Factura')
+    factura_set = GenericRelation("Factura")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -517,25 +510,23 @@ class SOT(Contrato):
         ('ML', 'ML'),
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='borrador', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. SOT',
-                              unique=True, default=nextSOTCode,
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
+    codigo = models.CharField("Nro. SOT", max_length=15, unique=True, default=nextSOTCode,
                               error_messages={'unique': "Ya existe una SOT con ese número."})
-    deudor = models.ForeignKey(Usuario, verbose_name='Usuario',
+    deudor = models.ForeignKey(Usuario, verbose_name="UT Deudora",
                                on_delete=models.PROTECT, related_name='sot_deudor')
-    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario', default=1,
+    ejecutor = models.ForeignKey(Usuario, verbose_name="UT Ejecutora", default=1,
                                  on_delete=models.PROTECT, related_name='sot_ejecutor')
-    usuario_final = models.ForeignKey(Usuario, verbose_name='Usuario OT', null=True, blank=True,
+    usuario_final = models.ForeignKey(Usuario, verbose_name="Usuario OT", null=True, blank=True,
                                       on_delete=models.PROTECT, related_name='sot_usuario_final')
-    ot = models.CharField(max_length=15, verbose_name='Nro. OT', blank=True, null=True)
-    expediente = models.CharField(max_length=20, verbose_name='Expediente', blank=True, null=True)
-    fecha_envio_ut = models.DateField('Fecha de envio a la UT', blank=True, null=True)
-    firmada = models.BooleanField('Retorno firmada')
-    fecha_envio_cc = models.DateField('Fecha de envio a CC', blank=True, null=True)
-    fecha_prevista = models.DateField('Fecha prevista')
-    solicitante = models.CharField(max_length=4, choices=AREAS)
-    descuento_fijo = models.BooleanField('Descuento fijo')
+    ot = models.CharField("Nro. OT", max_length=15, blank=True, null=True)
+    expediente = models.CharField("Expediente", max_length=20, blank=True, null=True)
+    fecha_envio_ut = models.DateField("Fecha de Envío a la UT", blank=True, null=True)
+    firmada = models.BooleanField("Retornó Firmada")
+    fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
+    fecha_prevista = models.DateField("Fecha Prevista")
+    solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
+    descuento_fijo = models.BooleanField("Descuento Fijo")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -643,20 +634,18 @@ class RUT(Contrato):
         ('ML', 'ML'),
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='borrador', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. RUT',
-                              unique=True, default=nextRUTCode,
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
+    codigo = models.CharField("Nro. RUT", max_length=15, unique=True, default=nextRUTCode,
                               error_messages={'unique': "Ya existe una RUT con ese número."})
-    deudor = models.ForeignKey(Usuario, verbose_name='Usuario', on_delete=models.PROTECT, related_name='rut_deudor')
-    ejecutor = models.ForeignKey(Usuario, verbose_name='Usuario', default=1,
+    deudor = models.ForeignKey(Usuario, verbose_name="UT Deudora", on_delete=models.PROTECT, related_name='rut_deudor')
+    ejecutor = models.ForeignKey(Usuario, verbose_name="UT Ejecutora", default=1,
                                  on_delete=models.PROTECT, related_name='rut_ejecutor')
-    solicitante = models.CharField(max_length=4, choices=AREAS)
-    fecha_envio_ut = models.DateField('Fecha de envio a la UT', blank=True, null=True)
-    firmada = models.BooleanField('Retorno firmada')
-    fecha_envio_cc = models.DateField('Fecha de envio a CC', blank=True, null=True)
-    fecha_prevista = models.DateField('Fecha prevista')
-    descuento_fijo = models.BooleanField('Descuento fijo')
+    solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
+    fecha_envio_ut = models.DateField("Fecha de Envío a la UT", blank=True, null=True)
+    firmada = models.BooleanField("Retornó Firmada")
+    fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
+    fecha_prevista = models.DateField("Fecha Prevista")
+    descuento_fijo = models.BooleanField("Descuento Fijo")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -764,17 +753,15 @@ class SI(Contrato):
         ('ML', 'ML'),
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='borrador', verbose_name='Estado')
-    codigo = models.CharField(max_length=15, verbose_name='Nro. SI',
-                              unique=True, default=nextSICode,
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
+    codigo = models.CharField("Nro. SI", max_length=15, unique=True, default=nextSICode,
                               error_messages={'unique': "Ya existe una SI con ese número."})
-    solicitante = models.CharField(max_length=4, choices=AREAS)
-    ejecutor = models.CharField(max_length=4, choices=AREAS)
-    fecha_prevista = models.DateField('Fecha prevista', blank=True, null=True)
-    fecha_fin_real = models.DateField('Finalizacion', blank=True, null=True)
+    solicitante = models.CharField("UT Solicitante", max_length=4, choices=AREAS)
+    ejecutor = models.CharField("UT Ejecutora", max_length=4, choices=AREAS)
+    fecha_prevista = models.DateField("Fecha Prevista", blank=True, null=True)
+    fecha_fin_real = models.DateField("Fecha de Finalización", blank=True, null=True)
     # Campos para la relacion inversa
-    tarea_linea_set = GenericRelation('Tarea_Linea')
+    tarea_linea_set = GenericRelation("Tarea_Linea")
 
     def __str__(self):
         return self.codigo
@@ -852,20 +839,19 @@ class Tarea_Linea(TimeStampedModel, AuthStampedModel):
 class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 
-    ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
-    codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
-                              max_length=14, verbose_name='Codigo')
-    precio = models.FloatField(verbose_name='Precio')
-    precio_total = models.FloatField(verbose_name='Precio Total')
-    cantidad = models.IntegerField(verbose_name='Cantidad', default=1)
-    cant_horas = models.FloatField(verbose_name='Horas', blank=True, null=True)
-    observaciones = models.TextField(max_length=100, blank=True)
-    detalle = models.CharField(max_length=350, verbose_name='Detalle', blank=True, null=True)
-    tipo_servicio = models.CharField(max_length=20, verbose_name='Tipo de Servicio', blank=True, null=True)
+    ofertatec = models.ForeignKey(OfertaTec, verbose_name="Oferta Tecnológica")
+    codigo = models.CharField("Código", validators=[RegexValidator(r'^\d{14}$')], max_length=14)
+    precio = models.FloatField("Precio Unitario")
+    precio_total = models.FloatField("Precio Total")
+    cantidad = models.IntegerField("Cantidad", default=1)
+    cant_horas = models.FloatField("Horas", blank=True, null=True)
+    observaciones = models.TextField("Observaciones", max_length=100, blank=True)
+    detalle = models.CharField("Detalle", max_length=350, blank=True, null=True)
+    tipo_servicio = models.CharField("Tipo de Servicio", max_length=20, blank=True, null=True)
     # Campos para relacion generica
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
         ordering = ['id']
@@ -878,17 +864,15 @@ class Factura(TimeStampedModel, AuthStampedModel):
         ('cancelada', 'Cancelada')
     )
 
-    estado = models.CharField(max_length=12, choices=ESTADOS,
-                              default='activa', verbose_name='Estado')
-    numero = models.CharField(max_length=15, verbose_name='Nro. Factura')
-    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
-    importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
-    fecha_aviso = models.DateField(verbose_name='Aviso de Trabajo Realizado',
-                                       blank=True, null=True)
+    estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='activa')
+    numero = models.CharField("Nro. Factura", max_length=15)
+    fecha = models.DateField("Fecha", blank=False, null=True)
+    importe = models.FloatField("Importe", blank=True, null=True, default=0)
+    fecha_aviso = models.DateField("Aviso de Trabajo Realizado", blank=True, null=True)
     # Campos para relacion generica
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     def _toState_cancelado(self):
         if self.estado == 'activa':
@@ -930,11 +914,11 @@ class Recibo(TimeStampedModel, AuthStampedModel):
         ('nota_credito', 'Nota De Credito'),
     )
 
-    comprobante_cobro = models.CharField(max_length=20, choices=CHOICES, verbose_name='Comprobante De Cobro')
-    numero = models.CharField(max_length=15, verbose_name='Nro.')
-    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
-    importe = models.FloatField(verbose_name='Importe', blank=True, null=True, default=0)
-    factura = models.ForeignKey(Factura, verbose_name='Factura', on_delete=models.CASCADE)
+    comprobante_cobro = models.CharField("Comprobante de Cobro", max_length=20, choices=CHOICES)
+    numero = models.CharField("Número", max_length=15)
+    fecha = models.DateField("Fecha", blank=False, null=True)
+    importe = models.FloatField("Importe", blank=True, null=True, default=0)
+    factura = models.ForeignKey(Factura, verbose_name="Factura", on_delete=models.CASCADE)
 
     #def save(self, *args, **kwargs):
         #if not self.pk:
@@ -965,9 +949,9 @@ class Recibo(TimeStampedModel, AuthStampedModel):
 
 class Remito(TimeStampedModel, AuthStampedModel):
 
-    numero = models.CharField(max_length=15, verbose_name='Nro.')
-    fecha = models.DateField(verbose_name='Fecha', blank=False, null=True)
-    ot = models.ForeignKey(OT, verbose_name='OT', on_delete=models.CASCADE)
+    numero = models.CharField("Número", max_length=15)
+    fecha = models.DateField("Fecha", blank=False, null=True)
+    ot = models.ForeignKey(OT, verbose_name="OT", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['id']
