@@ -643,7 +643,7 @@ class RUT(Contrato):
     solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
     fecha_envio_ut = models.DateField("Fecha de Envío a la UT", blank=True, null=True)
     firmada = models.BooleanField("Retornó Firmada")
-    fecha_envio_cc = models.DateField("Fecha de envío a CC", blank=True, null=True)
+    fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
     fecha_prevista = models.DateField("Fecha Prevista")
     descuento_fijo = models.BooleanField("Descuento Fijo")
 
