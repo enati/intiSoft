@@ -35,7 +35,7 @@ class OTTest(TestCase):
     def test_fecha_realizado_label(self):
         ot = OT.objects.get(id=1)
         field_label = ot._meta.get_field("fecha_realizado").verbose_name
-        self.assertEquals(field_label, "Fecha")
+        self.assertEquals(field_label, "Fecha de Realización")
 
     def test_ot_linea_set(self):
         ot = OT.objects.get(id=1)
