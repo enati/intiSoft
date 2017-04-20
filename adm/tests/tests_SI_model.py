@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from adm.models import SI, Usuario
-from datetime import datetime
+from adm.models import SI
+
 
 class SITest(TestCase):
 
