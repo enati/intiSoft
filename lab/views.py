@@ -1098,7 +1098,8 @@ def get_presup(request, *args, **kwargs):
         if turnos_activos:
             data['area'] = '-'.join([t.area for t in turnos_activos])
             data['solicitante'] = turnos_activos[0].area
-            data['fecha_turno'] = turnos_activos[0].fecha_fin.strftime("%d/%m/%Y")
+            if turnos_activos[0].fecha_fin:
+                data['fecha_turno'] = turnos_activos[0].fecha_fin.strftime("%d/%m/%Y")
             for turno in turnos_activos:
                 for ot in turno.ofertatec_linea_set.all():
                     data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
