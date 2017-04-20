@@ -759,7 +759,7 @@ class SI(Contrato):
     solicitante = models.CharField("UT Solicitante", max_length=4, choices=AREAS)
     ejecutor = models.CharField("UT Ejecutora", max_length=4, choices=AREAS)
     fecha_prevista = models.DateField("Fecha Prevista", blank=True, null=True)
-    fecha_fin_real = models.DateField("Fecha de Finalizacion", blank=True, null=True)
+    fecha_fin_real = models.DateField("Fecha de Finalización", blank=True, null=True)
     # Campos para la relacion inversa
     tarea_linea_set = GenericRelation("Tarea_Linea")
 
