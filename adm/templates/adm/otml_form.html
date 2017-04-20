@@ -42,6 +42,29 @@
     </div>
 </div>
 <div class="row">
+    {% if form.errors or ot_linea_form.errors or factura_form.errors %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">
+            <h3>Error!</h3>
+            <strong> Hay problemas con los siguientes campos: </strong><br/>
+            <ul>
+            {% for error in form.errors %}
+                <li>{% get_verbose_name form.instance error %}</li>
+            {% endfor %}
+            {% for error in ot_linea_form.errors.0 %}
+                <li>{% get_verbose_name ot_linea_form.model error %}</li>
+            {% endfor %}
+            {% for error in factura_form.errors.0 %}
+                <li>{% get_verbose_name factura_form.model error %}</li>
+            {% endfor %}
+            {% for error in factura_form.forms.0.nested.0.errors.0 %}
+                <li>{% get_verbose_name factura_form.forms.0.nested.0.model error %}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+<br/>
+<div class="row">
     <div class="col-md-offset-1 col-md-6">
         <!-- Solo muestro las acciones disponibles si la ot ya fue guardada -->
         {% if object %}
