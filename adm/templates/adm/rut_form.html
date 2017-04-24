@@ -38,6 +38,22 @@
             y sólo quedarán editables los campos <b>Retorno Firmada</b> y <b>Fecha de Envio a CC</b></p>
         </div>
     {% endif %}
+    {% if form.errors or ot_linea_form.errors %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">
+            <h3>Error!</h3>
+            <strong> Hay problemas con los siguientes campos: </strong><br/>
+            <ul>
+            {% for error in form.errors %}
+                <li>{% get_verbose_name form.instance error %}</li>
+            {% endfor %}
+            {% for form in ot_linea_form.forms %}
+                {% for error in form.errors %}
+                    <li>{% get_verbose_name form.instance error %}({{forloop.parentloop.counter}})</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 </div>
 <br/>
 <div class="row">

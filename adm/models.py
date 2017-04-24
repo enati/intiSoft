@@ -269,7 +269,7 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     importe_neto = models.FloatField("Importe Neto", blank=False, null=True, default=0)
     importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
-    fecha_realizado = models.DateField("Fecha", blank=False, null=True)
+    fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 

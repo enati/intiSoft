@@ -202,7 +202,7 @@ class OfertaTec_LineaForm(forms.ModelForm):
         if self.fields['detalle'].widget.attrs.get('disabled', False):
             return self.instance.detalle
         else:
-            return self.cleaned_data['cantidad']
+            return self.cleaned_data['detalle']
 
     def clean_tipo_servicio(self):
         if self.fields['tipo_servicio'].widget.attrs.get('disabled', False):
