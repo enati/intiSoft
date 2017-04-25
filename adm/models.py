@@ -47,13 +47,11 @@ class Usuario(TimeStampedModel, AuthStampedModel):
         return self.nombre.encode('utf-8')
 
     def _delete(self):
-        """Faltarian las validaciones"""
-        # Chequeo que el usuario no este asociado a ningun presupuesto
-        if self.presupuesto_set.all():
-            return False
-        else:
+        try:
             self.delete()
-            return True
+        except:
+            return False
+        return True
 
     class Meta:
         ordering = ['nombre']
@@ -413,7 +411,7 @@ class OTML(Contrato):
         self.save()
         return True
 
-    def _toState_pagado(self, flag):
+    def _toState_pagado(self):
         self.estado = 'pagado'
         self.save()
 
@@ -653,14 +651,13 @@ class RUT(Contrato):
         return True
 
     def _toState_cobrada(self, flag):
-        # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
-        if self.presupuesto.estado != 'en_proceso_de_facturacion':
-            raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
+        if flag:
+            # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
+            if self.presupuesto.estado != 'en_proceso_de_facturacion':
+                raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
+            self.presupuesto._toState_finalizado()
         self.estado = 'cobrada'
         self.save()
-        if flag:
-            # Finalizo el presupuesto asociado
-            self.presupuesto._toState_finalizado()
         return True
 
     def _toState_cancelada(self):

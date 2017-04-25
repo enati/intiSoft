@@ -823,7 +823,7 @@ class OTMLList(ListView):
                         response_dict['msg'] = "La OT no tiene recibos registrados.\
                                                 Para poder finalizarla debe estar pagada."
                     else:
-                        otml_obj._toState_pagado(False)
+                        otml_obj._toState_pagado()
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -2099,8 +2099,7 @@ class UsuarioList(ListView):
                 user_obj = Usuario.objects.get(pk=user_id)
                 if not user_obj._delete():
                     response_dict['ok'] = False
-                    response_dict['msg'] = 'No se puede borrar el usuario ya que tiene\
-                                            presupuestos asociados'
+                    response_dict['msg'] = 'No se puede borrar el usuario seleccionado'
                 response_dict['redirect'] = reverse_lazy('adm:usuarios-list').strip()
             else:
                 raise PermissionDenied
