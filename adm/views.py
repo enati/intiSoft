@@ -1378,6 +1378,11 @@ class SICreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('adm:si-update', kwargs={'pk': self.object.id})
 
+    def get_form_kwargs(self):
+        kwargs = super(SICreate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests and instantiates blank versions of the form
@@ -1458,6 +1463,11 @@ class SIUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('adm:si-update', kwargs={'pk': self.object.id})
+
+    def get_form_kwargs(self):
+        kwargs = super(SIUpdate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         """

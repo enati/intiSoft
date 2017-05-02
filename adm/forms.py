@@ -7,6 +7,7 @@ from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group
 
 editable_fields = ['fecha_realizado', 'fecha_aceptado', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -522,7 +523,13 @@ class SIForm(forms.ModelForm):
     formfield_callback = bootstrap_format
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(SIForm, self).__init__(*args, **kwargs)
+        # Restrinjo el area ejecutora al area del usuario logueado
+        groups = Group.objects.filter(user=user).values_list('name', 'name')
+        choices = self.fields['ejecutor'].choices
+        self.fields['ejecutor'].choices = list(set(choices) & set(groups))
+
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SIForm'
         if self.instance:
