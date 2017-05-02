@@ -1121,13 +1121,6 @@ def get_si(request, *args, **kwargs):
         data['solicitante'] = si_obj.solicitante
         data['fecha_realizado'] = si_obj.fecha_realizado.strftime("%d/%m/%Y") if si_obj.fecha_realizado else ''
         data['fecha_prevista'] = si_obj.fecha_prevista.strftime("%d/%m/%Y") if si_obj.fecha_prevista else ''
-        data['ofertatec'] = []
-        for ot in si_obj.ot_linea_set.all():
-            data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
-                                      'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
-                                      'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
-                                      'precio': ot.precio, 'precio_total': ot.precio_total,
-                                      'detalle': ot.detalle, 'observaciones': ot.observaciones})
     except:
         data = {}
     return HttpResponse(json.dumps(data), content_type="text/json")

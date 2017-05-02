@@ -61,6 +61,7 @@
                                 onclick="if (trlink) {location.href='{% url 'adm:si-update' si.id %}'}"
                             {% endif %}
                             class = {% if si.estado == 'borrador' %} "neutral"
+                                      {% elif si.estado == 'pendiente' %} "warning"
                                       {% elif si.estado == 'finalizada' %} "success"
                                       {% elif si.estado == 'cancelada' %} "danger"
                                     {% endif %}
@@ -108,6 +109,7 @@
         </table>
         <table style="margin: 0 auto">
             <td><div id="ref" class="alert-neutral">&nbsp;</div>Borrador</td>
+            <td><div id="ref" class="alert-warning">&nbsp;</div>Pendiente</td>
             <td><div id="ref" class="alert-success">&nbsp;</div>Finalizada</td>
             <td><div id="ref" class="alert-danger">&nbsp;</div>Cancelada</td>
         </table>

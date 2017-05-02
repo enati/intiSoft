@@ -50,7 +50,7 @@ class TurnoForm(forms.ModelForm):
                 # Filtro los presupuestos que no estan en borrador
                 self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado='borrador')
                 # Filtro las solicitudes internas que corresponden al lab actual
-                self.fields['si'].queryset = SI.objects.filter(ejecutor=initArea)
+                self.fields['si'].queryset = SI.objects.filter(ejecutor=initArea, estado__in=['borrador', 'pendiente'])
             else:
                 for f in self.fields:
                     self.fields[f].widget.attrs['disabled'] = True

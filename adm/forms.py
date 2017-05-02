@@ -535,11 +535,8 @@ class SIForm(forms.ModelForm):
         if self.instance:
             if self.instance.estado != 'borrador':
                 for f in self.fields:
-                    # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
-                    # se pueden actualizar con el boton por si quedaron en 0
-                    if f == 'importe_neto' or f == 'importe_bruto':
-                        self.fields[f].widget.attrs['readonly'] = True
-                        self.fields[f].required = False
+                    self.fields[f].widget.attrs['disabled'] = True
+                    self.fields[f].required = False
 
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -577,9 +574,6 @@ class SIForm(forms.ModelForm):
         fields = ['estado',
                   'codigo',
                   'fecha_realizado',
-                  'importe_bruto',
-                  'importe_neto',
-                  'descuento',
                   'fecha_prevista',
                   'solicitante',
                   'ejecutor',

@@ -268,8 +268,6 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
-   # Campos para la relacion inversa
-    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     class Meta:
         abstract = True
@@ -308,6 +306,7 @@ class OT(Contrato):
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura", verbose_name="Factura")
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -400,6 +399,7 @@ class OTML(Contrato):
                                    related_name='usuarioRep_set')
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura")
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -525,6 +525,8 @@ class SOT(Contrato):
     fecha_prevista = models.DateField("Fecha Prevista")
     solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
     descuento_fijo = models.BooleanField("Descuento Fijo")
+   # Campos para la relacion inversa
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -644,6 +646,8 @@ class RUT(Contrato):
     fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
     fecha_prevista = models.DateField("Fecha Prevista")
     descuento_fijo = models.BooleanField("Descuento Fijo")
+   # Campos para la relacion inversa
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -730,6 +734,7 @@ class SI(Contrato):
 
     ESTADOS = (
         ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
+        ('pendiente', 'Pendiente'),
         ('finalizada', 'Finalizada'),
         ('cancelada', 'Cancelada')
     )

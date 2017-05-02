@@ -1391,11 +1391,9 @@ class SICreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet()
         tarea_linea_form = Tarea_LineaFormSet()
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
     def post(self, request, *args, **kwargs):
@@ -1407,35 +1405,30 @@ class SICreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(self.request.POST)
         tarea_linea_form = Tarea_LineaFormSet(self.request.POST)
-        if (form.is_valid() and ot_linea_form.is_valid()
-                            and tarea_linea_form.is_valid()):
-            return self.form_valid(form, ot_linea_form, tarea_linea_form)
+        if (form.is_valid() and tarea_linea_form.is_valid()):
+            return self.form_valid(form, tarea_linea_form)
         else:
-            return self.form_invalid(form, ot_linea_form, tarea_linea_form)
+            return self.form_invalid(form, tarea_linea_form)
 
-    def form_valid(self, form, ot_linea_form, tarea_linea_form):
+    def form_valid(self, form, tarea_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Factuas and Recibos then redirects to a
         success page.
         """
         self.object = form.save()
-        ot_linea_form.instance = self.object
-        ot_linea_form.save()
         tarea_linea_form.instance = self.object
         tarea_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, ot_linea_form, tarea_linea_form):
+    def form_invalid(self, form, tarea_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
 
@@ -1477,11 +1470,9 @@ class SIUpdate(UpdateView):
         self.object = SI.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(instance=self.object)
         tarea_linea_form = Tarea_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
     def post(self, request, *args, **kwargs):
@@ -1493,33 +1484,29 @@ class SIUpdate(UpdateView):
         self.object = SI.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
         tarea_linea_form = Tarea_LineaFormSet(self.request.POST, instance=self.object)
-        if (form.is_valid() and ot_linea_form.is_valid()
-                            and tarea_linea_form.is_valid()):
-            return self.form_valid(form, ot_linea_form, tarea_linea_form)
+        if (form.is_valid() and tarea_linea_form.is_valid()):
+            return self.form_valid(form, tarea_linea_form)
         else:
-            return self.form_invalid(form, ot_linea_form, tarea_linea_form)
+            return self.form_invalid(form, tarea_linea_form)
 
-    def form_valid(self, form, ot_linea_form, tarea_linea_form):
+    def form_valid(self, form, tarea_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Facturas and then redirects to a
         success page.
         """
         form.save()
-        ot_linea_form.save()
         tarea_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, ot_linea_form, tarea_linea_form):
+    def form_invalid(self, form, tarea_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
 
