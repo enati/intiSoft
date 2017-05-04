@@ -58,7 +58,7 @@
     <div class="col-md-offset-1 col-md-6">
         <!-- Solo muestro las acciones disponibles si la ot ya fue guardada -->
         {% if object %}
-            {% if form.instance.estado not in "['cancelada', 'finalizada']" %}
+            {% if form.instance.estado not in "['cancelada', 'finalizada']" and form.instance.ejecutor in userGroups %}
                 {% if edit %}
                     <div class="col-md-2">
                         <input type="submit" value="Guardar" class="btn btn-danger" form="SIForm">

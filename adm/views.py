@@ -1452,6 +1452,7 @@ class SIUpdate(UpdateView):
         context = super(SIUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['back_url'] = back_url_si
+        context['userGroups'] = self.request.user.groups.values_list('name', flat=True)
         return context
 
     def get_success_url(self):
@@ -1560,38 +1561,51 @@ class SIList(ListView):
 
     def post(self, request, *args, **kwargs):
         response_dict = {'ok': True, 'msg': None}
+        userGroups = request.user.groups.values_list('name', flat=True)
         if 'Cancelar' in request.POST:
             if request.user.has_perm('adm.cancel_si'):
                 si_id = request.POST.get('Cancelar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._toState_cancelada()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._toState_cancelada()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         if 'Finalizar' in request.POST:
             if request.user.has_perm('adm.finish_si'):
                 si_id = request.POST.get('Finalizar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._toState_finalizada()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._toState_finalizada()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         if 'Eliminar' in request.POST:
             if request.user.has_perm('adm.delete_si'):
                 si_id = request.POST.get('Eliminar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._delete()
-                    response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._delete()
+                        response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)
