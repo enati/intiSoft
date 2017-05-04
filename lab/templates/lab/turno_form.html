@@ -199,10 +199,12 @@
                            data-toggle="modal" data-target="#myModal">Cancelar Turno</a>
                     </li>
                     {% endif %}
-                    <li>
-                        <a href="#" data-action="Revisionar" data-model="turno" data-id={{object.id}}
-                           data-toggle="modal" data-target="#revWarning">Revisionar</a>
-                    </li>
+                    {% if form.instance.si == None %}
+                        <li>
+                            <a href="#" data-action="Revisionar" data-model="turno" data-id={{object.id}}
+                               data-toggle="modal" data-target="#revWarning">Revisionar</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         {% else %}
