@@ -29,9 +29,9 @@
             $("#datos_si input.checkbox").on('change', function() {
                 if ($(this).is(':checked')) {
                     $("#datos_si select").removeAttr('disabled');
-                    <!-- Borro todos los datos que vienen del presupuesto -->
                     $("#datos_presup input.checkbox").removeAttr('checked');
                     $("select[id=id_presupuesto]").attr('disabled', 'disabled');
+                    <!-- Borro todos los datos que vienen del presupuesto -->
                     $("#datos_presup select option:first").attr('selected', 'selected');
                     $("#datos_presup p").text("");
                     $("#datos_usuario p").text("");
@@ -40,6 +40,8 @@
                 }
                 else {
                     $("select[id=id_si]").attr('disabled', 'disabled');
+                    $("#datos_presup input.checkbox").attr('checked', 'checked');
+                    $("#datos_presup select").removeAttr('disabled');
                     <!-- Borro todos los datos que vienen de la SI -->
                     $("#datos_presup select option:first").attr('selected', 'selected');
                     $("#datos_si p").text("");
@@ -49,18 +51,20 @@
             $("#datos_presup input.checkbox").on('change', function() {
                 if ($(this).is(':checked')) {
                     $("#datos_presup select").removeAttr('disabled');
-                    <!-- Borro todos los datos que vienen de la SI -->
+                    $("select[id=id_si]").attr('disabled', 'disabled');
                     $("#datos_si input.checkbox").removeAttr('checked');
-                    $("#datos_si select option:first").attr('selected', 'selected');
+                    <!-- Borro todos los datos que vienen de la SI -->
+                    $("select[id=id_si] option:first").attr('selected', 'selected');
                     $("#datos_si p").text("");
                     $("#ofertatec_formtable_turno a.delete-row").click();
                 }
                 else {
-                    $("select[id=id_presup]").attr('disabled', 'disabled');
-                    <!-- Borro todos los datos que vienen del presupuesto -->
-                    $("#datos_presup input.checkbox").removeAttr('checked');
                     $("select[id=id_presupuesto]").attr('disabled', 'disabled');
-                    $("#datos_presup select option:first").attr('selected', 'selected');
+                    $("#datos_si input.checkbox").attr('checked', 'checked');
+                    $("#datos_si select").removeAttr('disabled');
+                    $("#datos_presup input.checkbox").removeAttr('checked');
+                    <!-- Borro todos los datos que vienen del presupuesto -->
+                    $("select[id=id_presup] option:first").attr('selected', 'selected');
                     $("#datos_presup p").text("");
                     $("#datos_usuario p").text("");
 
@@ -71,9 +75,11 @@
                 si = "{{form.instance.si}}";
             if (si !== 'None') {
                 $("#datos_si input.checkbox").attr('checked', 'checked');
+                $("select[id=id_presup]").attr('disabled', 'disabled');
             }
             else {
                 $("#datos_presup input.checkbox").attr('checked', 'checked');
+                $("select[id=id_si]").attr('disabled', 'disabled');
             };
 
 
