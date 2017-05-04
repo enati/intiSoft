@@ -270,11 +270,17 @@
                                     <td>Oferta Tecnologica</td>
                                 </thead>
                                 <tbody>
-                                    {% for turno in form.instance.turno_set.all %}
-                                        <tr>
-                                            <td>{{ turno.fecha_inicio | date }}</td>
-                                            <td>{{ turno.fecha_fin | date }}</td>
-                                            <td>{% for ot in turno.ofertatec_linea_set.all %}
+                                    {% for t in object.get_turnos_activos %}
+                                            <tr class=
+                                                  {% if t.estado == 'en_espera' %} "neutral"
+                                                      {% elif t.estado == 'activo' %} "warning "
+                                                      {% elif t.estado == 'finalizado' %} "success"
+                                                      {% elif t.estado == 'cancelado' %} "danger"
+                                                  {% endif %}
+                                            >
+                                            <td>{{ t.fecha_inicio | date }}</td>
+                                            <td>{{ t.fecha_fin | date }}</td>
+                                            <td>{% for ot in t.ofertatec_linea_set.all %}
                                                     {{ ot.codigo }}</br>
                                                 {% endfor %}
                                             </td>
@@ -310,8 +316,8 @@
                             <td>Observaciones</td>
                         </thead>
                         <tbody>
-                            {% for turno in form.instance.turno_set.all %}
-                                {% for ot in turno.ofertatec_linea_set.all %}
+                            {% for t in object.get_turnos_activos %}
+                                {% for ot in t.ofertatec_linea_set.all %}
                                     <tr>
                                         <td>
                                             {{ ot.ofertatec.codigo }}

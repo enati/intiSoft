@@ -768,9 +768,19 @@ class SI(Contrato):
     def __str__(self):
         return self.codigo
 
+    def get_turnos_activos(self):
+        if self.estado == 'cancelado':
+            return self.turno_set.order_by('-created')
+        else:
+            return self.turno_set.select_related().filter(estado__in=['en_espera',
+                                                                        'activo',
+                                                                        'finalizado'])
+
     def _toState_finalizada(self):
         # Si la SI esta asociada a un turno, se finaliza automaticamente al finalizar el turno.
-        if self.turno_set.all():
+        # Puede darse el caso en que tenga mas de un turno, uno se finaliza y el resto no y luego
+        # se borran todos menos el finalizado. En ese caso se finaliza a mano.
+        if self.turno_set.filter(estado__in=['borrador', 'activo']):
             raise StateError('La SI tiene turnos asociados. Se finalizara automaticamente al finalizar dichos turnos.', '')
         self.estado = 'finalizada'
         self.fecha_fin_real = datetime.now().date()

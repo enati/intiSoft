@@ -78,6 +78,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                 * El instrumento haya llegado pasados 2 dias habiles a la fecha de inicio.
                 * El instrumento no haya llegado pasados 2 dias habiles a la fecha de inicio (a menos que sea in situ).
                 * Haya pasado la fecha de finalizacion y el turno siga en estado en espera/activo.
+                * El turno no este asociado a una SI
         """
         try:
             hoy = datetime.now().date()
@@ -136,9 +137,18 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         return True
 
     def _toState_cancelado(self):
-        """Faltarian las validaciones"""
+        """
+        Si el turno esta asociado a una SI, la SI esta en estado Pendiente.
+        Luego, si el turno que se quiere cancelar es el unico turno activo de la SI,
+        hay que volverla a estado Borrador.
+        """
         self.estado = 'cancelado'
         self.save()
+        if self.si:
+            turnosAsociados = self.si.get_turnos_activos()
+            if not turnosAsociados:
+                self.si.estado = 'borrador'
+                self.si.save()
         return True
 
     def _delete(self):
