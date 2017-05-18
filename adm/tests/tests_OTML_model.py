@@ -47,3 +47,8 @@ class OTMLTest(TestCase):
         otml = OTML.objects.get(id=1)
         field_label = otml._meta.get_field("usuarioRep").verbose_name
         self.assertEquals(field_label, "Usuario Representado")
+
+    def test_checkbox_sot_label(self):
+        otml = OTML.objects.get(id=1)
+        field_label = otml._meta.get_field("checkbox_sot").verbose_name
+        self.assertEquals(field_label, "SOT de otro centro")
