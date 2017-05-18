@@ -517,7 +517,7 @@ class SOT(Contrato):
                                  on_delete=models.PROTECT, related_name='sot_ejecutor')
     usuario_final = models.ForeignKey(Usuario, verbose_name="Usuario OT", null=True, blank=True,
                                       on_delete=models.PROTECT, related_name='sot_usuario_final')
-    ot = models.CharField("Nro. OT", max_length=15, blank=True, null=True)
+    ot = models.CharField("Nro. OT", max_length=200, blank=True, null=True)
     expediente = models.CharField("Expediente", max_length=20, blank=True, null=True)
     fecha_envio_ut = models.DateField("Fecha de Envío a la UT", blank=True, null=True)
     firmada = models.BooleanField("Retornó Firmada")
