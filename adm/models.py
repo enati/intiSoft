@@ -760,7 +760,6 @@ class SI(Contrato):
                               error_messages={'unique': "Ya existe una SI con ese número."})
     solicitante = models.CharField("UT Solicitante", max_length=4, choices=AREAS)
     ejecutor = models.CharField("UT Ejecutora", max_length=4, choices=AREAS)
-    fecha_prevista = models.DateField("Fecha Prevista", blank=True, null=True)
     fecha_fin_real = models.DateField("Fecha de Finalización", blank=True, null=True)
     # Campos para la relacion inversa
     tarea_linea_set = GenericRelation("Tarea_Linea")
@@ -773,8 +772,8 @@ class SI(Contrato):
             return self.turno_set.order_by('-created')
         else:
             return self.turno_set.select_related().filter(estado__in=['en_espera',
-                                                                        'activo',
-                                                                        'finalizado'])
+                                                                      'activo',
+                                                                      'finalizado'])
 
     def _toState_finalizada(self):
         # Si la SI esta asociada a un turno, se finaliza automaticamente al finalizar el turno.

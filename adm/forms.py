@@ -562,19 +562,12 @@ class SIForm(forms.ModelForm):
         else:
             return self.cleaned_data['ejecutor']
 
-    def clean_fecha_prevista(self):
-        if self.instance and self.instance.estado != 'borrador':
-            return self.instance.fecha_prevista
-        else:
-            return self.cleaned_data['fecha_prevista']
-
     class Meta:
         model = SI
 
         fields = ['estado',
                   'codigo',
                   'fecha_realizado',
-                  'fecha_prevista',
                   'solicitante',
                   'ejecutor',
                   'fecha_fin_real']
@@ -593,8 +586,6 @@ class SIForm(forms.ModelForm):
 
         widgets = {
             'fecha_realizado': forms.DateInput(attrs={'class': 'datepicker',
-                                                      'readonly': True},),
-            'fecha_prevista': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'importe_bruto': forms.TextInput(),
         }

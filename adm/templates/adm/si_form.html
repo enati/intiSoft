@@ -7,7 +7,6 @@
     <script>
         $(function() {
             //$(".datepicker#id_fecha_realizado").datepicker("option", "maxDate", '0');
-            //$(".datepicker#id_fecha_prevista").datepicker("option", "minDate", '0');
             $(".datepicker").datepicker();
         });
 
@@ -176,7 +175,7 @@
                         <div class="col-md-12">
                             <h3 class="text-danger">SI</h3>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <!-- Fecha de Realizacion -->
                             <div class="form-group">
                                 <label class="control-label col-md-6" style="text-align:left"
@@ -196,6 +195,8 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-4">
                             <!-- UT Solicitante -->
                             <div class="form-group">
                                 <label class="control-label col-md-6" style="text-align:left"
@@ -216,26 +217,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <!-- Fecha Prevista -->
-                            <div class="form-group">
-                                <label class="control-label col-md-6" style="text-align:left"
-                                  for="id_fecha_prevista">
-                                      Fecha Prevista
-                                </label>
-                                <div class="col-md-6">
-                                    {% if edit %}
-                                        {{ form.fecha_prevista }}
-                                        {% for error in form.fecha_prevista.errors %}
-                                            <div class="alert alert-error">
-                                                <strong>{{ error|escape }}</strong>
-                                            </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {{ form.instance.fecha_prevista | default_if_none:"" }}
-                                    {% endif %}
-                                </div>
-                            </div>
+                        <div class="col-md-4">
                             <!-- UT Ejecutora -->
                             <div class="form-group">
                                 <label class="control-label col-md-6" style="text-align:left"

@@ -173,8 +173,18 @@ def viewSI(request, *args, **kwargs):
     vals['ejecutor'] = si_obj.ejecutor
     vals['solicitante'] = si_obj.solicitante
     vals['codigo'] = si_obj.codigo
+
+    turnos_activos = si_obj.get_turnos_activos()
+    if turnos_activos:
+        turnos_activos = turnos_activos.order_by('fecha_inicio')
+        turnoFechaInicioAnterior = turnos_activos[0].fecha_inicio
+        turnos_activos = turnos_activos.order_by('-fecha_fin')
+        turnoFechaFinPosterior = turnos_activos[0].fecha_fin
+
+        vals['fecha_inicio'] = turnoFechaInicioAnterior.strftime('%d/%m/%Y') if turnoFechaInicioAnterior else ''
+        vals['fecha_fin'] = turnoFechaFinPosterior.strftime('%d/%m/%Y') if turnoFechaFinPosterior else ''
+
     vals['fecha_apertura'] = si_obj.fecha_realizado.strftime('%d/%m/%Y')
-    vals['fecha_prevista'] = si_obj.fecha_prevista.strftime('%d/%m/%Y')
     vals['ofertatec'] = []
     vals['tarea'] = []
     for t in si_obj.get_turnos_activos():
@@ -1546,10 +1556,8 @@ class SIList(ListView):
         t_inicial = time()
         context = super(SIList, self).get_context_data(**kwargs)
 
-        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado',
-                       'fecha_prevista', 'importe_neto']
-        field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora',
-                        'Fecha Realizada', 'Fecha Prevista', 'Arancel']
+        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado']
+        field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora', 'Fecha Realizada']
 
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
