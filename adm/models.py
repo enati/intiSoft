@@ -398,6 +398,7 @@ class OTML(Contrato):
     usuario = models.ForeignKey(Usuario, verbose_name="Usuario", on_delete=models.PROTECT)
     usuarioRep = models.ForeignKey(Usuario, verbose_name="Usuario Representado", on_delete=models.PROTECT,
                                    related_name='usuarioRep_set')
+    checkbox_sot = models.BooleanField("SOT de otro centro", default=False)
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura")
 

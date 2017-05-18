@@ -129,7 +129,7 @@ class OTMLForm(forms.ModelForm):
         if self.instance:
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
-                    if f != 'fecha_aviso':
+                    if f != 'fecha_aviso' and f != 'checkbox_sot':
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
@@ -194,6 +194,12 @@ class OTMLForm(forms.ModelForm):
         else:
             return self.cleaned_data['usuarioRep']
 
+    def clean_checkbox_sot(self):
+        if self.instance and self.instance.estado in ['pagado', 'cancelado']:
+            return self.instance.checkbox_sot
+        else:
+            return self.cleaned_data['checkbox_sot']
+
     class Meta:
         model = OTML
         fields = ['estado',
@@ -206,7 +212,8 @@ class OTMLForm(forms.ModelForm):
                   'vpr',
                   'vpuu',
                   'usuario',
-                  'usuarioRep']
+                  'usuarioRep',
+                  'checkbox_sot']
 
         error_messages = {
             'fecha_realizado': {
