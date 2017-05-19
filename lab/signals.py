@@ -6,4 +6,7 @@ def check_state(sender, **kwargs):
     if instance.pk:
         if instance.si and instance.estado == 'en_espera':
             instance.estado = 'activo'
+            if instance.si.estado == 'borrador':
+                instance.si.estado = 'pendiente'
+                instance.si.save()
     return True

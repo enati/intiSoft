@@ -173,12 +173,23 @@ def viewSI(request, *args, **kwargs):
     vals['ejecutor'] = si_obj.ejecutor
     vals['solicitante'] = si_obj.solicitante
     vals['codigo'] = si_obj.codigo
+
+    turnos_activos = si_obj.get_turnos_activos()
+    if turnos_activos:
+        turnos_activos = turnos_activos.order_by('fecha_inicio')
+        turnoFechaInicioAnterior = turnos_activos[0].fecha_inicio
+        turnos_activos = turnos_activos.order_by('-fecha_fin')
+        turnoFechaFinPosterior = turnos_activos[0].fecha_fin
+
+        vals['fecha_inicio'] = turnoFechaInicioAnterior.strftime('%d/%m/%Y') if turnoFechaInicioAnterior else ''
+        vals['fecha_fin'] = turnoFechaFinPosterior.strftime('%d/%m/%Y') if turnoFechaFinPosterior else ''
+
     vals['fecha_apertura'] = si_obj.fecha_realizado.strftime('%d/%m/%Y')
-    vals['fecha_prevista'] = si_obj.fecha_prevista.strftime('%d/%m/%Y')
     vals['ofertatec'] = []
     vals['tarea'] = []
-    for o in si_obj.ot_linea_set.get_queryset():
-        vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
+    for t in si_obj.get_turnos_activos():
+        for o in t.ofertatec_linea_set.all():
+            vals['ofertatec'].append((o.ofertatec.codigo, o.detalle, o.tipo_servicio, o.cantidad, o.precio, o.precio_total))
     for t in si_obj.tarea_linea_set.get_queryset():
         vals['tarea'].append((t.tarea, t.horas))
     vals['plantilla'] = 'SI.docx'
@@ -1378,6 +1389,11 @@ class SICreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('adm:si-update', kwargs={'pk': self.object.id})
 
+    def get_form_kwargs(self):
+        kwargs = super(SICreate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests and instantiates blank versions of the form
@@ -1386,11 +1402,9 @@ class SICreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet()
         tarea_linea_form = Tarea_LineaFormSet()
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
     def post(self, request, *args, **kwargs):
@@ -1402,35 +1416,30 @@ class SICreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(self.request.POST)
         tarea_linea_form = Tarea_LineaFormSet(self.request.POST)
-        if (form.is_valid() and ot_linea_form.is_valid()
-                            and tarea_linea_form.is_valid()):
-            return self.form_valid(form, ot_linea_form, tarea_linea_form)
+        if (form.is_valid() and tarea_linea_form.is_valid()):
+            return self.form_valid(form, tarea_linea_form)
         else:
-            return self.form_invalid(form, ot_linea_form, tarea_linea_form)
+            return self.form_invalid(form, tarea_linea_form)
 
-    def form_valid(self, form, ot_linea_form, tarea_linea_form):
+    def form_valid(self, form, tarea_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Factuas and Recibos then redirects to a
         success page.
         """
         self.object = form.save()
-        ot_linea_form.instance = self.object
-        ot_linea_form.save()
         tarea_linea_form.instance = self.object
         tarea_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, ot_linea_form, tarea_linea_form):
+    def form_invalid(self, form, tarea_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
 
@@ -1454,10 +1463,16 @@ class SIUpdate(UpdateView):
         context = super(SIUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['back_url'] = back_url_si
+        context['userGroups'] = self.request.user.groups.values_list('name', flat=True)
         return context
 
     def get_success_url(self):
         return reverse_lazy('adm:si-update', kwargs={'pk': self.object.id})
+
+    def get_form_kwargs(self):
+        kwargs = super(SIUpdate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         """
@@ -1467,11 +1482,9 @@ class SIUpdate(UpdateView):
         self.object = SI.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(instance=self.object)
         tarea_linea_form = Tarea_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
     def post(self, request, *args, **kwargs):
@@ -1483,33 +1496,29 @@ class SIUpdate(UpdateView):
         self.object = SI.objects.get(pk=kwargs['pk'])
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
         tarea_linea_form = Tarea_LineaFormSet(self.request.POST, instance=self.object)
-        if (form.is_valid() and ot_linea_form.is_valid()
-                            and tarea_linea_form.is_valid()):
-            return self.form_valid(form, ot_linea_form, tarea_linea_form)
+        if (form.is_valid() and tarea_linea_form.is_valid()):
+            return self.form_valid(form, tarea_linea_form)
         else:
-            return self.form_invalid(form, ot_linea_form, tarea_linea_form)
+            return self.form_invalid(form, tarea_linea_form)
 
-    def form_valid(self, form, ot_linea_form, tarea_linea_form):
+    def form_valid(self, form, tarea_linea_form):
         """
         Called if all forms are valid. Creates an OT instance along with
         associated Facturas and then redirects to a
         success page.
         """
         form.save()
-        ot_linea_form.save()
         tarea_linea_form.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, ot_linea_form, tarea_linea_form):
+    def form_invalid(self, form, tarea_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  ot_linea_form=ot_linea_form,
                                   tarea_linea_form=tarea_linea_form))
 
 
@@ -1547,10 +1556,8 @@ class SIList(ListView):
         t_inicial = time()
         context = super(SIList, self).get_context_data(**kwargs)
 
-        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado',
-                       'fecha_prevista', 'importe_neto']
-        field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora',
-                        'Fecha Realizada', 'Fecha Prevista', 'Arancel']
+        field_names = ['estado', 'codigo', 'solicitante', 'ejecutor', 'fecha_realizado']
+        field_labels = ['Estado', 'Nro. SI', 'Area Solicitante', 'Area Ejecutora', 'Fecha Realizada']
 
         context['fields'] = list(zip(field_names, field_labels))
         # Fecha de hoy para coloreo de filas
@@ -1563,38 +1570,51 @@ class SIList(ListView):
 
     def post(self, request, *args, **kwargs):
         response_dict = {'ok': True, 'msg': None}
+        userGroups = request.user.groups.values_list('name', flat=True)
         if 'Cancelar' in request.POST:
             if request.user.has_perm('adm.cancel_si'):
                 si_id = request.POST.get('Cancelar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._toState_cancelada()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._toState_cancelada()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         if 'Finalizar' in request.POST:
             if request.user.has_perm('adm.finish_si'):
                 si_id = request.POST.get('Finalizar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._toState_finalizada()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._toState_finalizada()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         if 'Eliminar' in request.POST:
             if request.user.has_perm('adm.delete_si'):
                 si_id = request.POST.get('Eliminar')
                 si_obj = SI.objects.get(pk=si_id)
-                try:
-                    si_obj._delete()
-                    response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
-                except StateError as e:
+                if si_obj.ejecutor in userGroups:
+                    try:
+                        si_obj._delete()
+                        response_dict['redirect'] = reverse_lazy('adm:si-list').strip()
+                    except StateError as e:
+                        response_dict['ok'] = False
+                        response_dict['msg'] = e.message
+                else:
                     response_dict['ok'] = False
-                    response_dict['msg'] = e.message
+                    response_dict['msg'] = "No tiene permisos para realizar esta acción"
             else:
                 raise PermissionDenied
         return JsonResponse(response_dict)

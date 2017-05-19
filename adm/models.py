@@ -268,8 +268,6 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
-   # Campos para la relacion inversa
-    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     class Meta:
         abstract = True
@@ -308,6 +306,7 @@ class OT(Contrato):
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura", verbose_name="Factura")
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -401,6 +400,7 @@ class OTML(Contrato):
     checkbox_sot = models.BooleanField("SOT de otro centro", default=False)
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura")
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -526,6 +526,8 @@ class SOT(Contrato):
     fecha_prevista = models.DateField("Fecha Prevista")
     solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
     descuento_fijo = models.BooleanField("Descuento Fijo")
+   # Campos para la relacion inversa
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -645,6 +647,8 @@ class RUT(Contrato):
     fecha_envio_cc = models.DateField("Fecha de Envío a CC", blank=True, null=True)
     fecha_prevista = models.DateField("Fecha Prevista")
     descuento_fijo = models.BooleanField("Descuento Fijo")
+   # Campos para la relacion inversa
+    ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
     def _toState_pendiente(self):
         self.estado = 'pendiente'
@@ -731,6 +735,7 @@ class SI(Contrato):
 
     ESTADOS = (
         ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
+        ('pendiente', 'Pendiente'),
         ('finalizada', 'Finalizada'),
         ('cancelada', 'Cancelada')
     )
@@ -756,7 +761,6 @@ class SI(Contrato):
                               error_messages={'unique': "Ya existe una SI con ese número."})
     solicitante = models.CharField("UT Solicitante", max_length=4, choices=AREAS)
     ejecutor = models.CharField("UT Ejecutora", max_length=4, choices=AREAS)
-    fecha_prevista = models.DateField("Fecha Prevista", blank=True, null=True)
     fecha_fin_real = models.DateField("Fecha de Finalización", blank=True, null=True)
     # Campos para la relacion inversa
     tarea_linea_set = GenericRelation("Tarea_Linea")
@@ -764,9 +768,19 @@ class SI(Contrato):
     def __str__(self):
         return self.codigo
 
+    def get_turnos_activos(self):
+        if self.estado == 'cancelado':
+            return self.turno_set.order_by('-created')
+        else:
+            return self.turno_set.select_related().filter(estado__in=['en_espera',
+                                                                      'activo',
+                                                                      'finalizado'])
+
     def _toState_finalizada(self):
         # Si la SI esta asociada a un turno, se finaliza automaticamente al finalizar el turno.
-        if self.turno_set.all():
+        # Puede darse el caso en que tenga mas de un turno, uno se finaliza y el resto no y luego
+        # se borran todos menos el finalizado. En ese caso se finaliza a mano.
+        if self.turno_set.filter(estado__in=['borrador', 'activo']):
             raise StateError('La SI tiene turnos asociados. Se finalizara automaticamente al finalizar dichos turnos.', '')
         self.estado = 'finalizada'
         self.fecha_fin_real = datetime.now().date()

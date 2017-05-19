@@ -29,11 +29,6 @@ class SITest(TestCase):
         field_label = si._meta.get_field("ejecutor").verbose_name
         self.assertEquals(field_label, "UT Ejecutora")
 
-    def test_fecha_prevista_label(self):
-        si = SI.objects.get(id=1)
-        field_label = si._meta.get_field("fecha_prevista").verbose_name
-        self.assertEquals(field_label, "Fecha Prevista")
-
     def test_fecha_fin_real_label(self):
         si = SI.objects.get(id=1)
         field_label = si._meta.get_field("fecha_fin_real").verbose_name

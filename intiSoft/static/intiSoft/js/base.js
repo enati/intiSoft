@@ -361,22 +361,6 @@ $(document).ready(function() {
                     $("#id_si__solicitante").text(data['solicitante']);
                     $("#id_si__fecha_realizado").text(data['fecha_realizado']);
                     $("#id_si__fecha_prevista").text(data['fecha_prevista']);
-
-                    // Borro todas las lineas de oferta tecnologica actuales
-                    $('#ofertatec_formtable_turno a.delete-row').click()
-                    // Traigo las lineas de oferta tecnologica de la SI
-                    for (i=0; i<data['ofertatec'].length; i++) {
-                        $('#ofertatec_formtable_turno .add-row').click();
-                        $('#ofertatec_formtable_turno tr:last>td>select').val(data['ofertatec'][i].ofertatec);
-                        $('#ofertatec_formtable_turno tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[5].value = data['ofertatec'][i].precio;
-                        $('#ofertatec_formtable_turno tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
-                        $('#ofertatec_formtable_turno tr:last>td>textarea').val(data['ofertatec'][i].observaciones);
-                    }
                 },
             });
         }

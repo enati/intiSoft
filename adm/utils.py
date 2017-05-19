@@ -383,7 +383,9 @@ def genSI(vals):
             # Inserto la fila en el documento original
             table_xml.insert(n + 10, nrow._tr)
 
-    table.column_cells(1)[n + 9].paragraphs[0].add_run(vals['fecha_prevista'] or '')
+    if vals.has_key('fecha_inicio'):
+        table.column_cells(1)[n + 9].paragraphs[0].add_run(vals['fecha_inicio'] or '')
+        table.column_cells(1)[n + 10].paragraphs[0].add_run(vals['fecha_fin'] or '')
 
     for m, (tarea, horas) in enumerate(vals['tarea']):
         table.column_cells(0)[n + m + 18].paragraphs[0].add_run(tarea)
