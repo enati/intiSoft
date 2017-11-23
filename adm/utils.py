@@ -11,7 +11,7 @@ import os
 def genWord(vals):
     if os.name == 'posix':
         #Linux
-        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
+        path = '/home/nati/Desktop/intiSoft/Plantillas/'
     else:
         #Windows
         path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
@@ -53,11 +53,11 @@ def genWord(vals):
     # Fecha
     table.column_cells(8)[0].paragraphs[0].runs[0].add_text(vals['fecha'] or '')
     # Solicitante
-    table.column_cells(2)[2].paragraphs[0].runs[0].text = vals['solicitante'] or ''
+    table.column_cells(2)[2].paragraphs[0].add_run(vals['solicitante'] or '')
     # Contacto
-    table.column_cells(7)[2].paragraphs[0].runs[0].text = vals['contacto'] or ''
+    table.column_cells(7)[2].paragraphs[0].add_run(vals['contacto'] or '')
     # Email
-    table.column_cells(2)[3].paragraphs[0].runs[0].text = vals['email'] or ''
+    table.column_cells(2)[3].paragraphs[0].add_run(vals['email'] or '')
 
     if vals['plantilla'] == 'Presupuesto Calibracion.docx':
         table.column_cells(0)[10].paragraphs[0].add_run(vals['fecha_inicio'], 'OT_TableStyle')
