@@ -22,6 +22,7 @@ import re
 from django.db.models import Q
 import operator
 from django.core import serializers
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -55,6 +56,9 @@ def less_five(orig_date):
         date = orig_date
     return date
 
+def userBelongsObjectArea(user):
+    import pdb; pdb.set_trace()
+    return True
 
 #===========================================
 #======= FUNCIONES ROUTEABLES ==============
@@ -932,10 +936,14 @@ class SOTCreate(CreateView):
                                 ot_linea_form=ot_linea_form))
 
 
-class SOTUpdate(UpdateView):
+class SOTUpdate(UserPassesTestMixin, UpdateView):
     model = SOT
     form_class = SOTForm
     template_name_suffix = '_form'
+
+    def test_func(self):
+        import pdb; pdb.set_trace()
+        return True
 
     @method_decorator(permission_required('adm.read_sot',
                       raise_exception=True))

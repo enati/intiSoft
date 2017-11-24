@@ -51,9 +51,9 @@ def make_paginator(page_obj, num_links):
     last_page = last_page if page_count > num_links and not_last_section else None
 
     if first_page is None:
-        page_range = page_obj.paginator.page_range[:num_links]
+        page_range = list(page_obj.paginator.page_range)[:num_links]
     elif last_page is None:
-        page_range = page_obj.paginator.page_range[-num_links:]
+        page_range = list(page_obj.paginator.page_range)[-num_links:]
     else:
         start = number - (middle_point - 1) - 1  # zero indexed
         end = number + middle_point - 1  # zero indexed
@@ -62,7 +62,7 @@ def make_paginator(page_obj, num_links):
         if num_links % 2 == 0:
             end += 1
 
-        page_range = page_obj.paginator.page_range[start:end]
+        page_range = list(page_obj.paginator.page_range)[start:end]
 
     return Paginator(first_page, prev_page, page_range, next_page, last_page, number)
 

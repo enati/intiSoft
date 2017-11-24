@@ -16,21 +16,21 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from  .forms import MyAuthenticationForm
-from django.contrib.auth.decorators import login_required
-from . import views
+from . import views as myViews
+from django.contrib.auth import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^lab/', include('lab.urls', namespace="lab")),
     url(r'^adm/', include('adm.urls', namespace="adm")),
-    url(r'^login/$', 'django.contrib.auth.views.login',
+    url(r'^login/$', views.login,
         {'template_name': 'intiSoft/login.html',
         'authentication_form': MyAuthenticationForm},
         name='user-login'),
-    url(r'^logout/$', 'django.contrib.auth.views.logout',
+    url(r'^logout/$', views.logout,
         {'template_name': 'intiSoft/logout.html'},
         name='user-logout'),
-    url('^$', 'intiSoft.views.index', name='index'),
-    url(r'^profile/(?P<pk>\d+)/$', views.ProfileView.as_view(),
+    url('^$', myViews.index, name='index'),
+    url(r'^profile/(?P<pk>\d+)/$', myViews.ProfileView.as_view(),
         name='user-profile'),
 ]
