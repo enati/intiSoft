@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from lab.models import Turno
 from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura,\
                     Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
@@ -242,7 +244,13 @@ class SOTForm(forms.ModelForm):
     formfield_callback = bootstrap_format
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(SOTForm, self).__init__(*args, **kwargs)
+        # Restrinjo el area solicitante al area del usuario logueado
+        groups = Group.objects.filter(user=user).values_list('name', 'name')
+        choices = self.fields['solicitante'].choices
+        self.fields['solicitante'].choices = list(set(choices) & set(groups))
+
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         if self.instance:

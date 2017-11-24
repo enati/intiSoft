@@ -80,7 +80,7 @@
                             <button onclick="trlink=false;" title="Cobrada" data-action="Finalizar"
                                 data-model="SOT" type="button" class="btn btn-default"
                                 data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
-                                {% if sot.estado != "pendiente" or 'adm.finish_sot' not in user.get_all_permissions  %}
+                                {% if sot.estado != "pendiente" or 'adm.finish_sot' not in user.get_all_permissions or sot.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
@@ -90,7 +90,7 @@
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="SOT" type="button" class="btn btn-default"
                                 data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
-                                {% if sot.estado in "['cobrada', 'cancelada']" or 'adm.cancel_sot' not in user.get_all_permissions  %}
+                                {% if sot.estado in "['cobrada', 'cancelada']" or 'adm.cancel_sot' not in user.get_all_permissions or sot.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -100,7 +100,7 @@
                             <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
                                 data-model="SOT" type="button" class="btn btn-default"
                                 data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
-                                {% if 'adm.delete_sot' not in user.get_all_permissions %}
+                                {% if 'adm.delete_sot' not in user.get_all_permissions or sot.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
