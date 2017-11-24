@@ -55,10 +55,6 @@ def less_five(orig_date):
         date = orig_date
     return date
 
-def userBelongsObjectArea(user):
-    import pdb; pdb.set_trace()
-    return True
-
 #===========================================
 #======= FUNCIONES ROUTEABLES ==============
 #===========================================

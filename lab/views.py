@@ -1102,7 +1102,13 @@ def get_presup(request, *args, **kwargs):
                 data['fecha_turno'] = turnos_activos[0].fecha_fin.strftime("%d/%m/%Y")
             for turno in turnos_activos:
                 for ot in turno.ofertatec_linea_set.all():
-                    data['ofertatec'].append({'ofertatec': ot.ofertatec.id,
+                    # Puede ser que la referencia al obj no exista mas
+                    ot_object_id = None
+                    try:
+                        ot_object_id = ot.ofertatec.id
+                    except:
+                        pass
+                    data['ofertatec'].append({'ofertatec': ot_object_id,
                                               'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                               'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
                                               'precio': ot.precio, 'precio_total': ot.precio_total,
