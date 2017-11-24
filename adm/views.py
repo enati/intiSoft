@@ -1593,6 +1593,7 @@ class SIList(ListView):
         if 'order_by' in self.request.GET:
             context['order_by'] = self.request.GET['order_by']
         print "TIEMPO get_context_data: ", time() - t_inicial
+        context['userGroups'] = self.request.user.groups.values_list('name', flat=True)
         return context
 
     def post(self, request, *args, **kwargs):

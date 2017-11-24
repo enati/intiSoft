@@ -75,7 +75,7 @@
                             <button onclick="trlink=false;" title="Finalizar" data-action="Finalizar"
                                 data-model="SI" type="button" class="btn btn-default"
                                 data-id={{si.id}} data-toggle="modal" data-target="#myModal"
-                                {% if si.estado != "pendiente" or 'adm.finish_si' not in user.get_all_permissions  %}
+                                {% if si.estado != "pendiente" or 'adm.finish_si' not in user.get_all_permissions or si.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
@@ -85,7 +85,7 @@
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="SI" type="button" class="btn btn-default"
                                 data-id={{si.id}} data-toggle="modal" data-target="#myModal"
-                                {% if si.estado in "['finalizada', 'cancelada']" or 'adm.cancel_si' not in user.get_all_permissions  %}
+                                {% if si.estado in "['finalizada', 'cancelada']" or 'adm.cancel_si' not in user.get_all_permissions or si.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -95,7 +95,7 @@
                             <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
                                 data-model="SI" type="button" class="btn btn-default"
                                 data-id={{si.id}} data-toggle="modal" data-target="#myModal"
-                                {% if 'adm.delete_si' not in user.get_all_permissions %}
+                                {% if 'adm.delete_si' not in user.get_all_permissions or si.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>

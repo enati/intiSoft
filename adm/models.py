@@ -781,6 +781,9 @@ class SI(Contrato):
     def __str__(self):
         return self.codigo
 
+    def get_area(self):
+        return self.ejecutor
+
     def get_turnos_activos(self):
         if self.estado == 'cancelado':
             return self.turno_set.order_by('-created')
