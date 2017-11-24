@@ -22,7 +22,6 @@ import re
 from django.db.models import Q
 import operator
 from django.core import serializers
-from django.contrib.auth.mixins import UserPassesTestMixin
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -936,14 +935,10 @@ class SOTCreate(CreateView):
                                 ot_linea_form=ot_linea_form))
 
 
-class SOTUpdate(UserPassesTestMixin, UpdateView):
+class SOTUpdate(UpdateView):
     model = SOT
     form_class = SOTForm
     template_name_suffix = '_form'
-
-    def test_func(self):
-        import pdb; pdb.set_trace()
-        return True
 
     @method_decorator(permission_required('adm.read_sot',
                       raise_exception=True))

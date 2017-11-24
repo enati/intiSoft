@@ -532,6 +532,7 @@ class SOT(Contrato):
    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+
     def _toState_pendiente(self):
         self.estado = 'pendiente'
         self.save()
