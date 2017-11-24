@@ -658,6 +658,10 @@ class RUT(Contrato):
    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+
+    def get_area(self):
+        return self.solicitante
+
     def _toState_pendiente(self):
         self.estado = 'pendiente'
         self.save()

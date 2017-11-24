@@ -80,7 +80,7 @@
                             <button onclick="trlink=false;" title="Cobrada" data-action="Finalizar"
                                 data-model="RUT" type="button" class="btn btn-default"
                                 data-id={{rut.id}} data-toggle="modal" data-target="#myModal"
-                                {% if rut.estado != "pendiente" or 'adm.finish_rut' not in user.get_all_permissions  %}
+                                {% if rut.estado != "pendiente" or 'adm.finish_rut' not in user.get_all_permissions or rut.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
@@ -90,7 +90,7 @@
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="RUT" type="button" class="btn btn-default"
                                 data-id={{rut.id}} data-toggle="modal" data-target="#myModal"
-                                {% if rut.estado in "['cobrada', 'cancelada']" or 'adm.cancel_rut' not in user.get_all_permissions  %}
+                                {% if rut.estado in "['cobrada', 'cancelada']" or 'adm.cancel_rut' not in user.get_all_permissions or rut.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -100,7 +100,7 @@
                             <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
                                 data-model="RUT" type="button" class="btn btn-default"
                                 data-id={{rut.id}} data-toggle="modal" data-target="#myModal"
-                                {% if 'adm.delete_rut' not in user.get_all_permissions %}
+                                {% if 'adm.delete_rut' not in user.get_all_permissions or rut.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>

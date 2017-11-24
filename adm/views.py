@@ -1151,6 +1151,11 @@ class RUTCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('adm:rut-update', kwargs={'pk': self.object.id})
 
+    def get_form_kwargs(self):
+        kwargs = super(RUTCreate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         """
         Handles GET requests and instantiates blank versions of the form
@@ -1220,10 +1225,16 @@ class RUTUpdate(UpdateView):
         context = super(RUTUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['back_url'] = back_url_rut
+        context['userGroups'] = self.request.user.groups.values_list('name', flat=True)
         return context
 
     def get_success_url(self):
         return reverse_lazy('adm:rut-update', kwargs={'pk': self.object.id})
+
+    def get_form_kwargs(self):
+        kwargs = super(RUTUpdate, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         """
@@ -1322,6 +1333,7 @@ class RUTList(ListView):
         if 'order_by' in self.request.GET:
             context['order_by'] = self.request.GET['order_by']
         print "TIEMPO get_context_data: ", time() - t_inicial
+        context['userGroups'] = self.request.user.groups.values_list('name', flat=True)
         return context
 
     def post(self, request, *args, **kwargs):

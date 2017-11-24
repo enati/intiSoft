@@ -396,7 +396,13 @@ class RUTForm(forms.ModelForm):
     formfield_callback = bootstrap_format
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(RUTForm, self).__init__(*args, **kwargs)
+        # Restrinjo el area solicitante al area del usuario logueado
+        groups = Group.objects.filter(user=user).values_list('name', 'name')
+        choices = self.fields['solicitante'].choices
+        self.fields['solicitante'].choices = list(set(choices) & set(groups))
+
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
         if self.instance:

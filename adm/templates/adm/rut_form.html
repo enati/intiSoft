@@ -73,7 +73,7 @@
                 {% else %}
                     <div class="col-md-2">
                         <input type="submit" value="Editar"
-                                {% if 'adm.change_rut' not in user.get_all_permissions %}
+                                {% if 'adm.change_rut' not in user.get_all_permissions or object.get_area not in userGroups %}
                                 disabled
                                 {% endif %}
                                 class="btn btn-danger" form="RUTForm">
