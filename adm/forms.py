@@ -254,9 +254,11 @@ class SOTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         if self.instance:
-            # Solo se deben poder crear SOTs a presupuestos aceptados
-            self.fields['presupuesto'].queryset = \
-                Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            # Solo se deben poder crear SOTs a presupuestos aceptados y del area del usuario logueado
+            presup_ids = [p.id for p in Presupuesto.objects.all() if
+                          (set(p.get_area()) & set(user.groups.values_list('name', flat=True))) and p.estado in [
+                              'aceptado', 'en_proceso_de_facturacion']]
+            self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=presup_ids).order_by('-id')
             if self.instance.estado != 'borrador':
                 for f in self.fields:
                     # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
@@ -406,9 +408,9 @@ class RUTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
         if self.instance:
-            # Solo se deben poder crear RUTs a presupuestos aceptados
-            self.fields['presupuesto'].queryset = \
-                Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            # Solo se deben poder crear RUTs a presupuestos aceptados y del area del usuario logueado
+            presup_ids = [p.id for p in Presupuesto.objects.all() if (set(p.get_area()) & set(user.groups.values_list('name', flat=True))) and p.estado in ['aceptado', 'en_proceso_de_facturacion']]
+            self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=presup_ids).order_by('-id')
             if self.instance.estado != 'borrador':
                 for f in self.fields:
                     # Los campos importe bruto e importe neto son readonly en lugar de disabled asi

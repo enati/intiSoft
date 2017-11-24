@@ -145,6 +145,13 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     def __str__(self):
         return self.codigo
 
+    def get_area(self):
+        areas = []
+        for turno in self.get_turnos_activos():
+            areas.append(turno.area)
+        return areas
+
+
     def get_turnos_activos(self):
         if self.estado == 'cancelado':
             return self.turno_set.order_by('-created')
