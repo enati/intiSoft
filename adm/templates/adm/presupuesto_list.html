@@ -68,7 +68,7 @@
             <tbody>
                 {% for presup, turnos_activos in tuple_paginated_list %}
                         <tr
-                            {% if 'adm.change_presupuesto' in user.get_all_permissions %}
+                            {% if 'adm.read_presupuesto' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:presup-update' presup.id %}'}"
                             {% endif %}
                             class = {% if presup.estado == 'borrador' %} "neutral {% if presup.revisionar %} overlay {% endif %}"

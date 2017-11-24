@@ -346,7 +346,7 @@ class OTUpdate(UpdateView):
     template_name_suffix = '_form'
     success_url = reverse_lazy('adm:ot-list')
 
-    @method_decorator(permission_required('adm.change_ot',
+    @method_decorator(permission_required('adm.read_ot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
@@ -665,7 +665,7 @@ class OTMLUpdate(UpdateView):
     template_name_suffix = '_form'
     success_url = reverse_lazy('adm:otml-list')
 
-    @method_decorator(permission_required('adm.change_otml',
+    @method_decorator(permission_required('adm.read_otml',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
@@ -937,7 +937,7 @@ class SOTUpdate(UpdateView):
     form_class = SOTForm
     template_name_suffix = '_form'
 
-    @method_decorator(permission_required('adm.change_sot',
+    @method_decorator(permission_required('adm.read_sot',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
@@ -1190,7 +1190,7 @@ class RUTUpdate(UpdateView):
     form_class = RUTForm
     template_name_suffix = '_form'
 
-    @method_decorator(permission_required('adm.change_rut',
+    @method_decorator(permission_required('adm.read_rut',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
@@ -1448,7 +1448,7 @@ class SIUpdate(UpdateView):
     form_class = SIForm
     template_name_suffix = '_form'
 
-    @method_decorator(permission_required('adm.change_si',
+    @method_decorator(permission_required('adm.read_si',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
@@ -1850,7 +1850,7 @@ class PresupuestoUpdate(UpdateView):
     template_name_suffix = '_form'
     success_url = reverse_lazy('adm:presup-list')
 
-    @method_decorator(permission_required('adm.change_presupuesto',
+    @method_decorator(permission_required('adm.read_presupuesto',
                       raise_exception=True))
     def dispatch(self, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):

@@ -57,7 +57,7 @@
             <tbody>
                 {% for otml in otml_list %}
                         <tr
-                            {% if 'adm.change_otml' in user.get_all_permissions %}
+                            {% if 'adm.read_otml' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:otml-update' otml.id %}'}"
                             {% endif %}
                             class = {% if otml.estado == 'sin_facturar' %} "neutral"

@@ -96,7 +96,11 @@
                     </div>
                 {% else %}
                     <div class="col-md-2">
-                        <input type="submit" value="Editar" class="btn btn-danger" form="presupForm">
+                        <input type="submit" value="Editar"
+                                {% if 'adm.change_presupuesto' not in user.get_all_permissions %}
+                                disabled
+                                {% endif %}
+                                class="btn btn-danger" form="presupForm">
                     </div>
                     <div class="col-md-2" style="padding-left: 0px">
                         <a class="btn btn-default" href="{{ back_url }}">

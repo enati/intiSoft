@@ -72,7 +72,11 @@
                     </div>
                 {% else %}
                     <div class="col-md-2">
-                        <input type="submit" value="Editar" class="btn btn-danger" form="RUTForm">
+                        <input type="submit" value="Editar"
+                                {% if 'adm.change_rut' not in user.get_all_permissions %}
+                                disabled
+                                {% endif %}
+                                class="btn btn-danger" form="RUTForm">
                     </div>
                     <div class="col-md-2" style="padding-left: 0px">
                         <a class="btn btn-default" href="{{ back_url }}">

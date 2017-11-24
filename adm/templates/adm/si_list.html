@@ -57,7 +57,7 @@
             <tbody>
                 {% for si in si_list %}
                         <tr
-                            {% if 'adm.change_si' in user.get_all_permissions %}
+                            {% if 'adm.read_si' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:si-update' si.id %}'}"
                             {% endif %}
                             class = {% if si.estado == 'borrador' %} "neutral"

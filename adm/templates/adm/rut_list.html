@@ -57,7 +57,7 @@
             <tbody>
                 {% for rut in rut_list %}
                         <tr
-                            {% if 'adm.change_rut' in user.get_all_permissions %}
+                            {% if 'adm.read_rut' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:rut-update' rut.id %}'}"
                             {% endif %}
                             class = {% if rut.estado == 'borrador' %} "neutral"

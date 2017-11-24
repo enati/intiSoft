@@ -242,7 +242,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     class Meta:
         permissions = (("finish_presupuesto", "Can finish presupuesto"),
-                       ("cancel_presupuesto", "Can cancel presupuesto"))
+                       ("cancel_presupuesto", "Can cancel presupuesto"),
+                       ("read_presupuesto", "Can read presupuesto"))
 
 # Signals
 pre_save.connect(check_state, sender=Presupuesto)
@@ -374,7 +375,8 @@ class OT(Contrato):
 
     class Meta:
         permissions = (("cancel_ot", "Can cancel OT"),
-                       ("finish_ot", "Can finish OT"),)
+                       ("finish_ot", "Can finish OT"),
+                       ("read_ot", "Can read OT"))
 
 
 class OTML(Contrato):
@@ -461,7 +463,8 @@ class OTML(Contrato):
 
     class Meta:
         permissions = (("cancel_otml", "Can cancel OT-ML"),
-                       ("finish_otml", "Can finish OT-ML"),)
+                       ("finish_otml", "Can finish OT-ML"),
+                       ("read_otml", "Can read OT-ML"))
 
 
 # Ultimo codigo disponible (teniendo en cuenta saltos,
@@ -584,7 +587,8 @@ class SOT(Contrato):
 
     class Meta:
         permissions = (("cancel_sot", "Can cancel SOT"),
-                       ("finish_sot", "Can finish SOT"),)
+                       ("finish_sot", "Can finish SOT"),
+                       ("read_sot", "Can read SOT"))
 
 # Signals
 pre_save.connect(toState_pendiente, sender=SOT)
@@ -705,7 +709,8 @@ class RUT(Contrato):
 
     class Meta:
         permissions = (("cancel_rut", "Can cancel RUT"),
-                       ("finish_rut", "Can finish RUT"),)
+                       ("finish_rut", "Can finish RUT"),
+                       ("read_rut", "Can read RUT"))
 
 # Signals
 pre_save.connect(toState_pendiente, sender=RUT)
@@ -830,7 +835,8 @@ class SI(Contrato):
 
     class Meta:
         permissions = (("cancel_si", "Can cancel SOT"),
-                       ("finish_si", "Can finish SOT"),)
+                       ("finish_si", "Can finish SOT"),
+                       ("read_si", "Can read SI"))
 
 
 class Tarea_Linea(TimeStampedModel, AuthStampedModel):

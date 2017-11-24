@@ -57,7 +57,7 @@
             <tbody>
                 {% for ot in ot_list %}
                         <tr
-                            {% if 'adm.change_ot' in user.get_all_permissions %}
+                            {% if 'adm.read_ot' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:ot-update' ot.id %}'}"
                             {% endif %}
                             class = {% if ot.estado == 'sin_facturar' %} "neutral"

@@ -57,7 +57,7 @@
             <tbody>
                 {% for sot in sot_list %}
                         <tr
-                            {% if 'adm.change_sot' in user.get_all_permissions %}
+                            {% if 'adm.read_sot' in user.get_all_permissions %}
                                 onclick="if (trlink) {location.href='{% url 'adm:sot-update' sot.id %}'}"
                             {% endif %}
                             class = {% if sot.estado == 'borrador' %} "neutral"
