@@ -77,10 +77,10 @@
                 {% else %}
                     <div class="col-md-2">
                         <input type="submit" value="Editar"
-                                {% if 'adm.change_sot' not in user.get_all_permissions or object.get_area not in userGroups %}
-                                disabled
-                                {% endif %}
-                                class="btn btn-danger" form="SOTForm">
+                            {% if 'Administracion' not in userGroups and object.get_area not in userGroups or 'adm.change_rut' not in user.get_all_permissions %}
+                            disabled
+                            {% endif %}
+                            class="btn btn-danger" form="SOTForm">
                     </div>
                     <div class="col-md-2" style="padding-left: 0px">
                         <a class="btn btn-default" href="{{ back_url }}">
