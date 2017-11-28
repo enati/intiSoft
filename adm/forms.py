@@ -250,15 +250,19 @@ class SOTForm(forms.ModelForm):
         # Restrinjo el area solicitante al area del usuario logueado
         groups = Group.objects.filter(user=user).values_list('name', 'name')
         choices = self.fields['solicitante'].choices
-        self.fields['solicitante'].choices = list(set(choices) & set(groups))
+        if ('Administracion', 'Administracion') not in groups:
+            self.fields['solicitante'].choices = list(set(choices) & set(groups))
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         if self.instance:
             # Solo se deben poder crear SOTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
-            ids = Turno.objects.filter(area__in=userAreas).values_list('presupuesto_id', flat=True)
-            self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=ids, estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            if 'Administracion' in userAreas:
+                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            else:
+                ids = Turno.objects.filter(area__in=userAreas).values_list('presupuesto_id', flat=True)
+                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=ids, estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
             if self.instance.estado != 'borrador':
                 for f in self.fields:
                     # Los campos importe bruto e importe neto son readonly en lugar de disabled asi
@@ -403,15 +407,19 @@ class RUTForm(forms.ModelForm):
         # Restrinjo el area solicitante al area del usuario logueado
         groups = Group.objects.filter(user=user).values_list('name', 'name')
         choices = self.fields['solicitante'].choices
-        self.fields['solicitante'].choices = list(set(choices) & set(groups))
+        if ('Administracion', 'Administracion') not in groups:
+            self.fields['solicitante'].choices = list(set(choices) & set(groups))
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
         if self.instance:
             # Solo se deben poder crear RUTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
-            ids = Turno.objects.filter(area__in=userAreas).values_list('presupuesto_id', flat=True)
-            self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=ids, estado__in=['aceptado',
+            if 'Administracion' in userAreas:
+                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
+            else:
+                ids = Turno.objects.filter(area__in=userAreas).values_list('presupuesto_id', flat=True)
+                self.fields['presupuesto'].queryset = Presupuesto.objects.filter(id__in=ids, estado__in=['aceptado',
                                                                                                      'en_proceso_de_facturacion']).order_by('-id')
             if self.instance.estado != 'borrador':
                 for f in self.fields:
