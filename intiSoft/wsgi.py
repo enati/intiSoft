@@ -12,12 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 settings = "intiSoft.settings_prod"
-#if os.name == "posix":
-#    #Linux
-#    settings = "intiSoft.settings"
-#else:
-#    #Windows
-#    settings = "intiSoft.settings_prod"
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings)
 
