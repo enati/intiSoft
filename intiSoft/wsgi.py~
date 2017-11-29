@@ -11,7 +11,7 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-settings = "intiSoft.settings_prod"
+settings = "settings_prod"
 #if os.name == "posix":
 #    #Linux
 #    settings = "intiSoft.settings"

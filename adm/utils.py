@@ -9,12 +9,8 @@ import os
 
 
 def genWord(vals):
-    if os.name == 'posix':
-        #Linux
-        path = '/home/nati/Desktop/intiSoft/Plantillas/'
-    else:
-        #Windows
-        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+    #Windows
+    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -129,12 +125,8 @@ def genWord(vals):
 
 
 def genSOT(vals):
-    if os.name == 'posix':
-        #Linux
-        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
-    else:
-        #Windows
-        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+    #Windows
+    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -228,12 +220,8 @@ def genSOT(vals):
 
 
 def genRUT(vals):
-    if os.name == 'posix':
-        #Linux
-        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
-    else:
-        #Windows
-        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+    #Windows
+    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -320,12 +308,8 @@ def genRUT(vals):
 
 
 def genSI(vals):
-    if os.name == 'posix':
-        #Linux
-        path = '/home/nati/Escritorio/intiSoft/Plantillas/'
-    else:
-        #Windows
-        path = 'C:/xampp/htdocs/intiSoft/Plantillas/'
+    #Windows
+    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
