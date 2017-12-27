@@ -182,10 +182,31 @@
                         <div class="col-md-12">
                             <h3 class="text-danger">RUT</h3>
                         </div>
+                        <div class="col-md-12">
+                            <!-- PDT -->
+                            <div class="form-group">
+                                <label class="control-label col-md-2" style="text-align:left"
+                                 for="id_pdt">
+                                    Plan de Trabajo
+                                </label>
+                                <div class="col-md-3">
+                                    {% if edit %}
+                                        {{ form.pdt }}
+                                        {% for error in form.pdt.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.pdt | default_if_none:"" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <!-- Fecha de Realizacion -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_fecha_realizado">
                                     Fecha de Realizacion
                                 </label>
@@ -204,7 +225,7 @@
                             </div>
                             <!-- Presupuesto -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_presupuesto"> Presupuesto </label>
                                  <div class="col-md-6">
                                      {% if edit %}
@@ -221,7 +242,7 @@
                             </div>
                             <!-- UT Deudora -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_deudor">
                                     UT Deudora
                                 </label>
@@ -240,7 +261,7 @@
                             </div>
                             <!-- UT Ejecutora -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_ejecutora">
                                     UT Ejecutora
                                 </label>
@@ -259,7 +280,7 @@
                             </div>
                             <!-- Area Solicitante -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_solicitante">
                                     Area Solicitante
                                 </label>
@@ -280,7 +301,7 @@
                         <div class="col-md-6">
                             <!-- Fecha de Prevista -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                  for="id_fecha_prevista">
                                     Fecha Prevista
                                 </label>
@@ -299,7 +320,7 @@
                             </div>
                             <!-- Fecha de Envio a UT -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                   for="id_fecha_envio_ut">
                                       Fecha Envio a UT
                                 </label>
@@ -318,7 +339,7 @@
                             </div>
                             <!-- Retorno firmada -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                   for="id_firmada">
                                       Retorno Firmada
                                 </label>
@@ -337,7 +358,7 @@
                             </div>
                             <!-- Fecha de Envio a CC -->
                             <div class="form-group">
-                                <label class="control-label col-md-5" style="text-align:left"
+                                <label class="control-label col-md-4" style="text-align:left"
                                   for="id_fecha_envio_cc">
                                       Fecha Envio a CC
                                 </label>

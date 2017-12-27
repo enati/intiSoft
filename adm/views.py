@@ -2,11 +2,11 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT
 from lab.models import OfertaTec_Linea
-from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm,\
-                   Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm,\
-                   Tarea_LineaFormSet, Instrumento_LineaFormSet
+from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm, \
+    Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm, \
+    Tarea_LineaFormSet, Instrumento_LineaFormSet, PDTForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -34,6 +34,7 @@ back_url_ofertatec = reverse_lazy('adm:ofertatec-list')
 back_url_sot = reverse_lazy('adm:sot-list')
 back_url_rut = reverse_lazy('adm:rut-list')
 back_url_si = reverse_lazy('adm:si-list')
+back_url_pdt = reverse_lazy('adm:pdt-list')
 
 #===========================================
 #======== FUNCIONES AUXILIARES =============
@@ -2217,3 +2218,103 @@ class UsuarioUpdate(UpdateView):
     def get_success_url(self):
         return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
 
+
+class PDTList(ListView):
+    model = PDT
+    template_name = 'adm/pdt_list.html'
+    paginate_by = 30
+
+    def get_queryset(self):
+        queryset = PDT.objects.all()
+        for key, vals in self.request.GET.lists():
+            if key != 'page':
+                if key == 'order_by':
+                    queryset = queryset.order_by(vals[0])
+                if key == 'search':
+                    searchArgs = vals[0].split(",")
+                    QList = []
+                    for arg in searchArgs:
+                        QList = (Q(anio__icontains="%s" % arg) |
+                                     Q(tipo__icontains="%s" % arg) |
+                                     Q(codigo__icontains="%s" % arg) |
+                                     Q(nombre__icontains="%s" % arg))
+                    queryset = queryset.filter(QList).distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(PDTList, self).get_context_data(**kwargs)
+        field_names = ['anio', 'tipo', 'codigo', 'nombre', 'cantidad_servicios', 'cantidad_contratos', 'facturacion_prevista', 'generacion_neta']
+        field_labels = ['Año', 'Tipo de Plan', 'Código', 'Nombre', 'Cantidad de Servicios', 'Cantidad de OT/SOT/RUT', 'Facturación Anual Prevista por OT', 'Generación Neta']
+
+        context['fields'] = list(zip(field_names, field_labels))
+        # Para la paginacion
+        if self.request.GET.has_key('order_by'):
+            context['order_by'] = self.request.GET['order_by']
+        return context
+
+    def post(self, request, *args, **kwargs):
+        response_dict = {'ok': True, 'msg': None}
+        if 'Eliminar' in request.POST:
+            if request.user.has_perm('adm.delete_pdt'):
+                pdt_id = request.POST.get('Eliminar')
+                pdt_obj = PDT.objects.get(pk=pdt_id)
+                if not pdt_obj._delete():
+                    response_dict['ok'] = False
+                    response_dict['msg'] = 'No se puede borrar el PDT ya que tiene\
+                                            documentos asociados'
+                else:
+                    response_dict['redirect'] = reverse_lazy('adm:pdt-list').strip()
+            else:
+                raise PermissionDenied
+        return JsonResponse(response_dict)
+
+
+class PDTCreate(CreateView):
+    model = PDT
+    form_class = PDTForm
+
+    @method_decorator(permission_required('adm.add_pdt',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:pdt-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_pdt
+                back_url_pdt = http_referer
+        return super(PDTCreate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PDTCreate, self).get_context_data(**kwargs)
+        context['edit'] = True
+        context['back_url'] = back_url_pdt
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:pdt-update', kwargs={'pk': self.object.id})
+
+
+class PDTUpdate(UpdateView):
+    model = PDT
+    form_class = PDTForm
+    template_name_suffix = '_form'
+
+    @method_decorator(permission_required('adm.read_pdt',
+                      raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        if self.request.META.get('HTTP_REFERER', False):
+            http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
+            pattern = re.compile("^" + reverse_lazy('adm:pdt-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            if pattern.match(http_referer):
+                global back_url_pdt
+                back_url_pdt = http_referer
+        return super(PDTUpdate, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(PDTUpdate, self).get_context_data(**kwargs)
+        context['edit'] = self.request.GET.get('edit', False)
+        context['back_url'] = back_url_pdt
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('adm:pdt-update', kwargs={'pk': self.object.id})

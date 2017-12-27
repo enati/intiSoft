@@ -3,14 +3,14 @@ from time import time
 from django import forms
 
 from lab.models import Turno
-from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura,\
-                    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento
+from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, \
+    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 
 editable_fields = ['fecha_realizado', 'fecha_aceptado', 'asistencia', 'calibracion', 'in_situ', 'lia']
 
@@ -23,6 +23,13 @@ def bootstrap_format(f, **kwargs):
     tmp = formfield.widget.attrs.get('class') or ''
     if f.name != 'descuento_fijo':
         formfield.widget.attrs.update({'class': 'form-control ' + tmp})
+    return formfield
+
+
+def base_bootstrap_format(f, **kwargs):
+    formfield = f.formfield(**kwargs)
+    tmp = formfield.widget.attrs.get('class') or ''
+    formfield.widget.attrs.update({'class': 'form-control ' + tmp})
     return formfield
 
 
@@ -102,7 +109,8 @@ class OTForm(forms.ModelForm):
                   'fecha_realizado',
                   'importe_bruto',
                   'importe_neto',
-                  'descuento']
+                  'descuento',
+                  'pdt']
 
         error_messages = {
             'presupuesto': {
@@ -217,7 +225,8 @@ class OTMLForm(forms.ModelForm):
                   'vpuu',
                   'usuario',
                   'usuarioRep',
-                  'checkbox_sot']
+                  'checkbox_sot',
+                  'pdt']
 
         error_messages = {
             'fecha_realizado': {
@@ -359,7 +368,8 @@ class SOTForm(forms.ModelForm):
                   'fecha_envio_cc',
                   'firmada',
                   'solicitante',
-                  'descuento_fijo']
+                  'descuento_fijo',
+                  'pdt']
 
         error_messages = {
                 'fecha_realizado': {
@@ -515,7 +525,8 @@ class RUTForm(forms.ModelForm):
                   'ejecutor',
                   'solicitante',
                   'presupuesto',
-                  'descuento_fijo']
+                  'descuento_fijo',
+                  'pdt']
 
         error_messages = {
             'fecha_realizado': {
@@ -603,7 +614,8 @@ class SIForm(forms.ModelForm):
                   'fecha_realizado',
                   'solicitante',
                   'ejecutor',
-                  'fecha_fin_real']
+                  'fecha_fin_real',
+                  'pdt']
 
         error_messages = {
             'fecha_realizado': {
@@ -1200,5 +1212,43 @@ class UsuarioForm(forms.ModelForm):
             },
         }
 
-#class OfertaTec_LineaForm(forms.ModelForm):
 
+class PDTForm(forms.ModelForm):
+    formfield_callback = base_bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(PDTForm, self).__init__(*args, **kwargs)
+        self.fields['agentes'].queryset = User.objects.exclude(username='admin').order_by('first_name')
+
+    class Meta:
+        model = PDT
+        fields = ['contribucion',
+                  'anio',
+                  'tipo',
+                  'codigo',
+                  'nombre',
+                  'cantidad_servicios',
+                  'cantidad_contratos',
+                  'facturacion_prevista',
+                  'generacion_neta',
+                  'agentes']
+
+        widgets = {
+            'nombre': forms.Textarea(attrs={'rows': 2}),
+            'agentes': forms.CheckboxSelectMultiple()
+        }
+
+        error_messages = {
+            'nombre': {
+                'required': 'Campo obligatorio.',
+            },
+            'codigo': {
+                'required': 'Campo obligatorio.',
+            },
+            'agentes': {
+                'required': 'Campo obligatorio.',
+            },
+            'tipo': {
+                'required': 'Campo obligatorio.',
+            },
+        }

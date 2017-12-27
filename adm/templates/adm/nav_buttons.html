@@ -1,3 +1,7 @@
+<li>
+    <a href="{% url 'adm:pdt-list' %}">PDT</a>
+</li>
+
 <li class="nav-button {% if '/adm/presup/' in request.path %}active{% endif %}">
     <a href="{% url 'adm:presup-list' %}">Presupuestos</a>
 </li>
@@ -13,8 +17,10 @@
         </li>
         <li style="{% if '/adm/contratos/SOT/' in request.path %}background-color: #F5F5F5{% endif %}">
            <a href="{% url 'adm:sot-list' %}">SOT</a>
+        </li>
         <li style="{% if '/adm/contratos/RUT/' in request.path %}background-color: #F5F5F5{% endif %}">
             <a href="{% url 'adm:rut-list' %}">RUT</a>
+        </li>
         <li style="{% if '/adm/contratos/SI/' in request.path %}background-color: #F5F5F5{% endif %}">
             <a href="{% url 'adm:si-list' %}">SI</a>
         </li>

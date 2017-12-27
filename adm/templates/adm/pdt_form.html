@@ -1,0 +1,318 @@
+{% extends "intiSoft/base.html" %}
+
+{% block content %}
+{% load intiSoft_filters %}
+<div class="row">
+    {% if form.errors %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">
+            <h3>Error!</h3>
+            <strong> Hay problemas con los siguientes campos: </strong><br/>
+            <ul>
+            {% for error in form.errors %}
+                <li>{% get_verbose_name form.instance error %}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-offset-1 col-md-6">
+        <!-- Solo muestro las acciones disponibles si el PDT ya fue guardado -->
+        {% if object %}
+            {% if edit %}
+                <div class="col-md-2">
+                    <input type="submit" value="Guardar" class="btn btn-danger" form="pdtForm">
+                </div>
+                <div class="col-md-2" style="padding-left: 0px">
+                    <a class="cancel btn btn-default" href="{% url 'adm:pdt-update' object.id %}">
+                        Cancelar
+                    </a>
+                </div>
+            {% else %}
+                <div class="col-md-2">
+                    <input type="submit" value="Editar"
+                               {% if 'adm.change_pdt' not in user.get_all_permissions %}
+                               disabled
+                               {% endif %}
+                               class="btn btn-danger" form="pdtForm">
+                </div>
+                <div class="col-md-2" style="padding-left: 0px">
+                    <a class="btn btn-default" href="{{ back_url }}">
+                        Volver
+                    </a>
+                </div>
+            {% endif %}
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle
+                                        {% if not edit %} disabled {% endif %}" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                    Acciones
+                    <span class="caret" />
+                </button>
+                <ul class="dropdown-menu">
+                    {% if 'adm.delete_pdt' in user.get_all_permissions %}
+                    <li>
+                        <a href="#" data-action="Eliminar" data-model="PDT" data-id={{object.id}}
+                           data-toggle="modal" data-target="#myModal">Borrar PDT</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="col-md-2">
+                <input type="submit" value="Guardar" class="btn btn-danger" form="pdtForm">
+            </div>
+            <div class="col-md-2" style="padding-left: 0px">
+                <a class="btn btn-default" href="{{ back_url }}">
+                    Volver
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<br/>
+<br/>
+<div class="row">
+    <div class="col-md-offset-1 col-md-10">
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 3px solid #eee"/>
+        <!-- Titulo -->
+        <div class="col-md-12">
+            {% if object %}
+                <h2 class="text-danger">{{ form.nombre.value | add:" (" | add:form.codigo.value | add:")" }}</h2>
+            {% endif %}
+        </div>
+        <!-- Separador -->
+        <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+        <div class="col-md-12">
+            <form id="pdtForm" class="form-horizontal" style="padding-top:5%" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+                {% if edit %}
+                    {% csrf_token %}
+                {% else %}
+                    <input name="edit" type="hidden" value="1">
+                {% endif %}
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <!-- Tipo de Plan -->
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align:left"
+                             for="id_tipo">
+                                Tipo de Plan
+                            </label>
+                            <div class="col-md-3">
+                                {% if edit %}
+                                    {{ form.tipo }}
+                                    {% for error in form.tipo.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ form.tipo.value }}
+                                {% endif %}
+                            </div>
+                            <!-- Contribucion -->
+                            <label class="control-label col-md-3" style="text-align:left"
+                                 for="id_contribucion">Contribución</label>
+                            <div class="col-md-1">
+                                {% if edit %}
+                                    {{ form.contribucion }}
+                                    {% for error in form.contribucion.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                                {% else %}
+                                    {{ form.contribucion|disable }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Año -->
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align:left"
+                             for="id_anio">
+                                Año
+                            </label>
+                            <div class="col-md-3">
+                                {% if edit %}
+                                    {{ form.anio }}
+                                    {% for error in form.anio.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ form.anio.value }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-6">
+                        <!-- Nombre -->
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align:left"
+                             for="id_nombre">
+                                Nombre
+                            </label>
+                            <div class="col-md-8">
+                                {% if edit %}
+                                    {{ form.nombre }}
+                                    {% for error in form.nombre.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ form.nombre.value }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Código -->
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align:left"
+                             for="id_codigo">
+                                Código
+                            </label>
+                            <div class="col-md-3">
+                                {% if edit %}
+                                    {{ form.codigo }}
+                                    {% for error in form.codigo.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ form.codigo.value }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+                <br/>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_cantidad_servicios">
+                            Cantidad de Servicios
+                        </label>
+                        <div class="col-md-3">
+                            {% if edit %}
+                                {{ form.cantidad_servicios }}
+                                {% for error in form.cantidad_servicios.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.cantidad_servicios.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_cantidad_contratos">
+                            Cantidad de OT/SOT/RUT Anuales
+                        </label>
+                        <div class="col-md-3">
+                            {% if edit %}
+                                {{ form.cantidad_contratos }}
+                                {% for error in form.cantidad_contratos.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.cantidad_contratos.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_facturacion_prevista">
+                            Facturación Prevista
+                        </label>
+                        <div class="col-md-3">
+                            {% if edit %}
+                                <div class="input-group" style="z-index:0">
+                                    <div class="input-group-addon">$</div>
+                                    {{ form.facturacion_prevista }}
+                                    {% for error in form.facturacion_prevista.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                $
+                                {{ form.facturacion_prevista.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align:left"
+                         for="id_generacion_neta">
+                            Generación Neta
+                        </label>
+                        <div class="col-md-3">
+                            {% if edit %}
+                                <div class="input-group" style="z-index:0">
+                                    <div class="input-group-addon">$</div>
+                                    {{ form.generacion_neta }}
+                                    {% for error in form.generacion_neta.errors %}
+                                        <div class="alert alert-error">
+                                            <strong>{{ error|escape }}</strong>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                $
+                                {{ form.generacion_neta.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+                <br/>
+                <div class="col-md-6">
+                    <!-- Agentes -->
+                    <h4 class="text-danger">Agentes Involucrados</h4>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            {% if edit %}
+                                {{ form.agentes }}
+                                {% for error in form.agentes.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.agentes|disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% url 'adm:pdt-list' as action_url %}
+{% include "intiSoft/modals.html" with postUrl=action_url %}
+{% endblock %}
+

@@ -58,4 +58,9 @@ urlpatterns = [
                                            name='usuarios-update'),
     url(r'^usuarios/create/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.UsuarioCreate.as_view())),
                                name='usuarios-create'),
+    url(r'^pdt/$', login_required(views.PDTList.as_view()), name='pdt-list'),
+    url(r'^pdt/create/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.PDTCreate.as_view())),
+                               name='pdt-create'),
+    url(r'^pdt/update/(?P<pk>\d+)/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.PDTUpdate.as_view())),
+                                            name='pdt-update'),
 ]

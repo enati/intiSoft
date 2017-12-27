@@ -1,0 +1,86 @@
+{% extends "intiSoft/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <a href="{% url 'adm:pdt-create' %}">
+        <button type="button" class="btn btn-danger"
+        {% if 'adm.add_pdt' not in user.get_all_permissions %}
+        disabled
+        {% endif %}>Crear</button>
+        </a>
+    </div>
+    <div class="col-md-6 col-md-offset-1">
+        <form name="searchForm" class="search-bar" action="" method="GET">
+            <div class="input-group">
+                <input id="searchField" name="search" type="text" class="form-control" data-role="tagsinput">
+                <div class="input-group-btn">
+                    <button type="submit" value="submit" class="btn btn-search btn-default">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-12">
+        <table id="pdtTable" class="table table-hover table-pointer">
+            <caption>Planilla de Planes de Trabajo</caption>
+            <thead>
+                {% for name, label in fields %}
+                    <td>
+                        <div class="dropdown">
+                            <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                               aria-expanded="false"> {{ label }}
+                               <span class="caret"></span>
+                            </span>
+                            <ul id="{{'drop-'|add:forloop.counter}}" class="dropdown-menu">
+                                <li><a name="order_by" href="{{ '?order_by='|add:name|add:'&'|add:request.GET.urlencode }}">Orden ascendente</a></li>
+                                <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                {% endfor %}
+            <td></td>
+            </thead>
+            <tbody>
+                {% for pdt in pdt_list %}
+                    <tr
+                        {% if 'adm.read_pdt' in user.get_all_permissions %}
+                            onclick="if (trlink) {location.href='{% url 'adm:pdt-update' pdt.id %}'}"
+                        {% endif %}
+                    >
+                        <td>{{ pdt.anio }}</td>
+                        <td>{{ pdt.tipo }}</td>
+                        <td>{{ pdt.codigo }}</td>
+                        <td class="col-md-5">{{ pdt.nombre }}</td>
+                        <td class="col-md-1">{{ pdt.cantidad_servicios }}</td>
+                        <td class="col-md-1">{{ pdt.cantidad_contratos }}</td>
+                        <td class="col-md-1">$ {{ pdt.facturacion_prevista }}</td>
+                        <td class="col-md-1">$ {{ pdt.generacion_neta }}</td>
+                        <td>
+                            <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
+                                data-model="PDT" type="button" class="btn btn-default"
+                                data-id={{pdt.id}} data-toggle="modal" data-target="#myModal"
+                                {% if 'adm.delete_pdt' not in user.get_all_permissions %}
+                                disabled
+                                {% endif %}>
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-offset-6 col-md-6">
+        {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+{% include "intiSoft/modals.html" %}
+{% endblock %}

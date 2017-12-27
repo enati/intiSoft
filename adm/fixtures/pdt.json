@@ -1,0 +1,7 @@
+[{"fields": {"anio": "2017", "tipo": "PDI", "nombre": "Desarrollo e implementación de tecnología para equipos de la Maquinaria Agrícola", "codigo": "13023", "agentes": [1,2,3],  "created": "2017-04-11T13:35:00Z", "modified": "2017-04-11T13:35:00Z"}, "model": "adm.pdt", "pk": 1},
+ {"fields": {"anio": "2017", "tipo": "POA", "nombre": "Actividades del Campo Regulado y Regímenes Especiales", "codigo": "10531", "agentes": [1,2,3],  "created": "2017-04-11T13:35:00Z", "modified": "2017-04-11T13:35:00Z"}, "model": "adm.pdt", "pk": 2},
+ {"fields": {"anio": "2017", "tipo": "POA", "nombre": "Gestión empresarial y buenas prácticas productivas", "codigo": "10816", "agentes": [1,2,3],  "created": "2017-04-11T13:35:00Z", "modified": "2017-04-11T13:35:00Z"}, "model": "adm.pdt", "pk": 3},
+ {"fields": {"anio": "2017", "tipo": "POA", "nombre": "Masas y Volúmen", "codigo": "11014", "agentes": [1,2,3],  "created": "2017-04-11T13:35:00Z", "modified": "2017-04-11T13:35:00Z"}, "model": "adm.pdt", "pk": 4},
+ {"fields": {"anio": "2017", "tipo": "POA", "nombre": "Desarrollo de Productos y Procesos Metalmecánicos", "codigo": "11253", "agentes": [1,2,3],  "created": "2017-04-11T13:35:00Z", "modified": "2017-04-11T13:35:00Z"}, "model": "adm.pdt", "pk": 5}]
+
+

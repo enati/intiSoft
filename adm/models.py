@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.contrib.auth.models import User
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
@@ -12,10 +13,26 @@ from intiSoft.exception import StateError
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+import datetime
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
 
+AREAS = (
+        ('LIA', 'LIA'),
+        ('LIM1', 'LIM1'),
+        ('LIM2', 'LIM2'),
+        ('LIM3', 'LIM3'),
+        ('LIM4', 'LIM4'),
+        ('LIM5', 'LIM5'),
+        ('LIM6', 'LIM6'),
+        ('EXT', 'EXT'),
+        ('SIS', 'SIS'),
+        ('DES', 'DES'),
+        ('CAL', 'CAL'),
+        ('MEC', 'MEC'),
+        ('ML', 'ML'),
+    )
 
 def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE, JUE, VIE)):
     """ Suma 'dias' habiles a 'fecha_origen' """
@@ -269,6 +286,55 @@ class Instrumento(TimeStampedModel, AuthStampedModel):
         ordering = ["fecha_llegada"]
 
 
+
+def yearNow():
+    return datetime.datetime.now().year
+
+
+class PDT(TimeStampedModel, AuthStampedModel):
+    """ Planes de Trabajo """
+    YEARS = []
+    for y in range(2017, datetime.datetime.now().year + 3):
+        YEARS.append((str(y), str(y)))
+
+    TIPO_PLAN = [('POA', 'POA'), ('PDI', 'PDI')]
+
+    # Indica si el registro es una contribucion de un plan de otro centro
+    contribucion = models.BooleanField("Contribución", default=False)
+    anio = models.CharField("Año", max_length=4, choices=YEARS, default=yearNow)
+    tipo = models.CharField("Tipo de Plan", max_length=3, choices=TIPO_PLAN)
+    nombre = models.CharField("Nombre", max_length=500)
+    codigo = models.CharField("Código", max_length=5, unique=True,
+                     error_messages={'unique': "Código duplicado."})
+    cantidad_servicios = models.PositiveIntegerField("Cantidad de Servicios", default=0)
+    cantidad_contratos = models.PositiveIntegerField("Cantidad de OT/SOT/RUT Anuales", default=0)
+    facturacion_prevista = models.FloatField("Facturación Anual Prevista por OT", default=0)
+    generacion_neta = models.FloatField("Generación Neta", default=0)
+    agentes = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return "%s - %s" % (self.codigo, self.nombre)
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        # Chequeo que no este asociada a ningun documento
+        if self.ot_set.all() or self.otml_set.all() or self.sot_set.all() or self.rut_set.all() or self.si_set.all():
+            return False
+        else:
+            self.delete()
+            return True
+
+    class Meta:
+        ordering = ['anio', 'codigo']
+        permissions = (("read_pdt", "Can read pdt"),)
+
+
+def user_unicode(self):
+    return  u'%s %s' % (self.first_name, self.last_name)
+
+User.__unicode__ = user_unicode
+
+
 class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     presupuesto = models.ForeignKey(Presupuesto, verbose_name="Presupuesto",
                                     null=True, blank=True, on_delete=models.PROTECT)
@@ -276,6 +342,7 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
+    pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -503,22 +570,6 @@ class SOT(Contrato):
         ('cancelada', 'Cancelada')
     )
 
-    AREAS = (
-        ('LIA', 'LIA'),
-        ('LIM1', 'LIM1'),
-        ('LIM2', 'LIM2'),
-        ('LIM3', 'LIM3'),
-        ('LIM4', 'LIM4'),
-        ('LIM5', 'LIM5'),
-        ('LIM6', 'LIM6'),
-        ('EXT', 'EXT'),
-        ('SIS', 'SIS'),
-        ('DES', 'DES'),
-        ('CAL', 'CAL'),
-        ('MEC', 'MEC'),
-        ('ML', 'ML'),
-    )
-
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
     codigo = models.CharField("Nro. SOT", max_length=15, unique=True, default=nextSOTCode,
                               error_messages={'unique': "Ya existe una SOT con ese número."})
@@ -634,22 +685,6 @@ class RUT(Contrato):
         ('cancelada', 'Cancelada')
     )
 
-    AREAS = (
-        ('LIA', 'LIA'),
-        ('LIM1', 'LIM1'),
-        ('LIM2', 'LIM2'),
-        ('LIM3', 'LIM3'),
-        ('LIM4', 'LIM4'),
-        ('LIM5', 'LIM5'),
-        ('LIM6', 'LIM6'),
-        ('EXT', 'EXT'),
-        ('SIS', 'SIS'),
-        ('DES', 'DES'),
-        ('CAL', 'CAL'),
-        ('MEC', 'MEC'),
-        ('ML', 'ML'),
-    )
-
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
     codigo = models.CharField("Nro. RUT", max_length=15, unique=True, default=nextRUTCode,
                               error_messages={'unique': "Ya existe una RUT con ese número."})
@@ -758,22 +793,6 @@ class SI(Contrato):
         ('pendiente', 'Pendiente'),
         ('finalizada', 'Finalizada'),
         ('cancelada', 'Cancelada')
-    )
-
-    AREAS = (
-        ('LIA', 'LIA'),
-        ('LIM1', 'LIM1'),
-        ('LIM2', 'LIM2'),
-        ('LIM3', 'LIM3'),
-        ('LIM4', 'LIM4'),
-        ('LIM5', 'LIM5'),
-        ('LIM6', 'LIM6'),
-        ('EXT', 'EXT'),
-        ('SIS', 'SIS'),
-        ('DES', 'DES'),
-        ('CAL', 'CAL'),
-        ('MEC', 'MEC'),
-        ('ML', 'ML'),
     )
 
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
@@ -991,5 +1010,4 @@ class Remito(TimeStampedModel, AuthStampedModel):
 
     class Meta:
         ordering = ['id']
-
 
