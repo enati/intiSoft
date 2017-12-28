@@ -1,0 +1,63 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+    </button>
+    <h4 class="title text-danger">{{ pdt.nombre }}</h4>
+</div>
+<div class="modal-body">
+    <table class="table">
+        <thead>
+        <tr>
+            <th style="text-align:center" scope="col">Tipo</th>
+            <th style="text-align:center" scope="col">Código</th>
+            <th style="text-align:center" scope="col">Servicios</th>
+            <th style="text-align:center" scope="col">Importe Bruto</th>
+            <th style="text-align:center" scope="col">Importe Neto</th>
+            <th style="text-align:center" scope="col">Importe Facturado</th>
+        </tr>
+        </thead>
+    <tbody>
+        {% for ot in pdt.ot_set.all %}
+            <tr style="text-align:center">
+                <td>OT</td>
+                <td><a class="ref" href="{% url 'adm:ot-update' ot.id %}" target="_blank">{{ ot.codigo }}</a></td>
+                <td>{{ ot.get_servicios }}</td>
+                <td>${{ ot.importe_bruto }}</td>
+                <td>${{ ot.importe_neto }}</td>
+                <td>${{ ot.get_facturacion }}</td>
+            </tr>
+        {% endfor %}
+        {% for otml in pdt.otml_set.all %}
+            <tr style="text-align:center">
+                <td>OTML</td>
+                <td><a class="ref" href="{% url 'adm:otml-update' otml.id %}" target="_blank">{{ otml.codigo }}</a></td>
+                <td>{{ otml.get_servicios }}</td>
+                <td>${{ otml.importe_bruto }}</td>
+                <td>${{ otml.importe_neto }}</td>
+                <td>${{ otml.get_facturacion }}</td>
+            </tr>
+        {% endfor %}
+        {% for sot in pdt.sot_set.all %}
+            <tr style="text-align:center">
+                <td>SOT</td>
+                <td><a class="ref" href="{% url 'adm:sot-update' sot.id %}" target="_blank">{{ sot.codigo }}</a></td>
+                <td>{{ sot.get_servicios }}</td>
+                <td>${{ sot.importe_bruto }}</td>
+                <td>${{ sot.importe_neto }}</td>
+                <td>${{ sot.get_facturacion }}</td>
+            </tr>
+        {% endfor %}
+        {% for rut in pdt.rut_set.all %}
+            <tr style="text-align:center">
+                <td>RUT</td>
+                <td><a class="ref" href="{% url 'adm:rut-update' rut.id %}" target="_blank">{{ rut.codigo }}</a></td>
+                <td>{{ rut.get_servicios }}</td>
+                <td>${{ rut.importe_bruto }}</td>
+                <td>${{ rut.importe_neto }}</td>
+                <td>${{ rut.get_facturacion }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+<div class="modal-footer">
+</div>

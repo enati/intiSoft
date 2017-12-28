@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url
+from django.views.generic import TemplateView
+
 from . import views
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import cache_control, never_cache
 
 urlpatterns = [
     url(r'^contratos/OT/$', login_required(views.OTList.as_view()), name='ot-list'),
@@ -63,4 +65,5 @@ urlpatterns = [
                                name='pdt-create'),
     url(r'^pdt/update/(?P<pk>\d+)/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.PDTUpdate.as_view())),
                                             name='pdt-update'),
+    url(r'^pdt/detail/(?P<pk>\d+)/$', never_cache(login_required(views.PDTDetail.as_view())), name='pdt-detail'),
 ]

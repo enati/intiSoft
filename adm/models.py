@@ -286,7 +286,6 @@ class Instrumento(TimeStampedModel, AuthStampedModel):
         ordering = ["fecha_llegada"]
 
 
-
 def yearNow():
     return datetime.datetime.now().year
 
@@ -324,6 +323,46 @@ class PDT(TimeStampedModel, AuthStampedModel):
             self.delete()
             return True
 
+    def get_total_servicios(self):
+        count = 0
+        for ot in self.ot_set.all().exclude(estado='cancelado'):
+            count += ot.get_servicios()
+        for otml in self.otml_set.all().exclude(estado='cancelado'):
+            count += otml.get_servicios()
+        for sot in self.sot_set.all().exclude(estado='cancelada'):
+            count += sot.get_servicios()
+        for rut in self.rut_set.all().exclude(estado='cancelada'):
+            count += rut.get_servicios()
+        return count
+
+    def get_total_contratos(self):
+        count = 0
+        count += len(self.ot_set.all().exclude(estado='cancelado'))
+        count += len(self.otml_set.all().exclude(estado='cancelado'))
+        count += len(self.sot_set.all().exclude(estado='cancelada'))
+        count += len(self.rut_set.all().exclude(estado='cancelada'))
+        return count
+
+    def get_total_facturacion(self):
+        count = 0
+        for ot in self.ot_set.all().exclude(estado='cancelado'):
+            count += ot.get_facturacion()
+        for otml in self.otml_set.all().exclude(estado='cancelado'):
+            count += otml.get_facturacion()
+        for sot in self.sot_set.all().exclude(estado='cancelada'):
+            count += sot.get_facturacion()
+        for rut in self.rut_set.all().exclude(estado='cancelada'):
+            count += rut.get_facturacion()
+        return count
+
+    def get_total_importe_neto(self):
+        count = 0
+        count += sum(self.ot_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
+        count += sum(self.otml_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
+        count += sum(self.sot_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
+        count += sum(self.rut_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
+        return count
+
     class Meta:
         ordering = ['anio', 'codigo']
         permissions = (("read_pdt", "Can read pdt"),)
@@ -343,6 +382,12 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
     pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=True)
+
+    def get_servicios(self):
+        count = 0
+        for ot_linea in self.ot_linea_set.all():
+            count += ot_linea.cantidad
+        return count
 
     class Meta:
         abstract = True
@@ -447,6 +492,13 @@ class OT(Contrato):
         self.delete()
         return True
 
+    def get_facturacion(self):
+        count = 0
+        if self.estado in ['no_pago', 'pagado']:
+            for factura in self.factura_set.all():
+                count += factura.importe
+        return count
+
     class Meta:
         permissions = (("cancel_ot", "Can cancel OT"),
                        ("finish_ot", "Can finish OT"),
@@ -535,6 +587,13 @@ class OTML(Contrato):
         self.delete()
         return True
 
+    def get_facturacion(self):
+        count = 0
+        if self.estado in ['no_pago', 'pagado']:
+            for factura in self.factura_set.all():
+                count += factura.importe
+        return count
+
     class Meta:
         permissions = (("cancel_otml", "Can cancel OT-ML"),
                        ("finish_otml", "Can finish OT-ML"),
@@ -587,7 +646,7 @@ class SOT(Contrato):
     fecha_prevista = models.DateField("Fecha Prevista")
     solicitante = models.CharField("Area Solicitante", max_length=4, choices=AREAS)
     descuento_fijo = models.BooleanField("Descuento Fijo")
-   # Campos para la relacion inversa
+    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
 
@@ -646,6 +705,12 @@ class SOT(Contrato):
             self.save()
         self.delete()
         return True
+
+    def get_facturacion(self):
+        count = 0
+        if self.estado in ['pendiente', 'cobrada']:
+            count = self.importe_neto
+        return count
 
     class Meta:
         permissions = (("cancel_sot", "Can cancel SOT"),
@@ -756,6 +821,12 @@ class RUT(Contrato):
             self.save()
         self.delete()
         return True
+
+    def get_facturacion(self):
+        count = 0
+        if self.estado in ['pendiente', 'cobrada']:
+            count = self.importe_neto
+        return count
 
     class Meta:
         permissions = (("cancel_rut", "Can cancel RUT"),

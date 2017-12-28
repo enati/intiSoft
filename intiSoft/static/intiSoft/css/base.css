@@ -341,3 +341,18 @@ ul#id_agentes {
     column-gap: 150px;
     list-style-type: none
 }
+
+input[type=checkbox]
+{
+  -webkit-appearance:checkbox;
+}
+
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+a.ref:hover {
+    font-weight: bold;
+    color: black;
+}

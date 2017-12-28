@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import ListView, CreateView, DeleteView, UpdateView
+from django.shortcuts import render
+from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm, \
@@ -2218,6 +2219,10 @@ class UsuarioUpdate(UpdateView):
     def get_success_url(self):
         return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
 
+#===========================================
+#================== PDT ====================
+#===========================================
+
 
 class PDTList(ListView):
     model = PDT
@@ -2243,8 +2248,8 @@ class PDTList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(PDTList, self).get_context_data(**kwargs)
-        field_names = ['anio', 'tipo', 'codigo', 'nombre', 'cantidad_servicios', 'cantidad_contratos', 'facturacion_prevista', 'generacion_neta']
-        field_labels = ['Año', 'Tipo de Plan', 'Código', 'Nombre', 'Cantidad de Servicios', 'Cantidad de OT/SOT/RUT', 'Facturación Anual Prevista por OT', 'Generación Neta']
+        field_names = ['anio', 'tipo', 'codigo', 'nombre', 'cantidad_servicios', 'cantidad_contratos', 'facturacion_prevista']
+        field_labels = ['Año', 'Tipo de Plan', 'Código', 'Nombre', 'Cantidad de Servicios', 'Cantidad de OT/SOT/RUT', 'Facturación Anual']
 
         context['fields'] = list(zip(field_names, field_labels))
         # Para la paginacion
@@ -2318,3 +2323,13 @@ class PDTUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('adm:pdt-update', kwargs={'pk': self.object.id})
+
+
+class PDTDetail(TemplateView):
+    template_name = "adm/pdt_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PDTDetail, self).get_context_data(**kwargs)
+        pdt_id = kwargs.get('pk', None)
+        context['pdt'] = PDT.objects.get(id=pdt_id)
+        return context

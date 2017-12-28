@@ -1,5 +1,6 @@
 {% extends "intiSoft/base.html" %}
 {% block content %}
+
 <div class="row">
     <div class="col-md-offset-6 col-md-6">
         {% include "intiSoft/paginator.html" %}
@@ -44,6 +45,8 @@
                         </div>
                     </td>
                 {% endfor %}
+            <td>Importe Neto de OT/SOT/RUT</td>
+            <td></td>
             <td></td>
             </thead>
             <tbody>
@@ -57,10 +60,20 @@
                         <td>{{ pdt.tipo }}</td>
                         <td>{{ pdt.codigo }}</td>
                         <td class="col-md-5">{{ pdt.nombre }}</td>
-                        <td class="col-md-1">{{ pdt.cantidad_servicios }}</td>
-                        <td class="col-md-1">{{ pdt.cantidad_contratos }}</td>
-                        <td class="col-md-1">$ {{ pdt.facturacion_prevista }}</td>
-                        <td class="col-md-1">$ {{ pdt.generacion_neta }}</td>
+                        <td class="col-md-1"><span style="color:red">{{ pdt.get_total_servicios }}</span><strong>/</strong>{{ pdt.cantidad_servicios }}</td>
+                        <td class="col-md-1"><span style="color:red">{{ pdt.get_total_contratos }}</span><strong>/</strong>{{ pdt.cantidad_contratos }}</td>
+                        <td class="col-md-1"><span style="color:red">${{ pdt.get_total_facturacion }}</span><strong>/</strong>${{ pdt.facturacion_prevista }}</td>
+                        <td class="col-md-1">${{ pdt.get_total_importe_neto }}</td>
+                        <td>
+                            <a data-toggle="modal" data-target="#modal" href="{% url 'adm:pdt-detail' pdt.id %}">
+                                <button  onclick="trlink=false;" type="button" class="btn btn-default"
+                                    {% if 'adm.read_pdt' not in user.get_all_permissions %}
+                                    disabled
+                                    {% endif %}>
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                </button>
+                            </a>
+                        </td>
                         <td>
                             <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
                                 data-model="PDT" type="button" class="btn btn-default"
@@ -80,6 +93,13 @@
 <div class="row">
     <div class="col-md-offset-6 col-md-6">
         {% include "intiSoft/paginator.html" %}
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal draggable fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
     </div>
 </div>
 {% include "intiSoft/modals.html" %}

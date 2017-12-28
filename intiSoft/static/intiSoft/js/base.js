@@ -584,6 +584,12 @@ $(document).ready(function() {
         return false;
     });
 
+    $('#modal').on('hide.bs.modal', function (event) {
+         // Si no lo destruyo queda cacheado
+         $(this).data('bs.modal', null);
+         trlink=true;
+    });
+
     $('#myModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var action = button.data('action')
@@ -729,5 +735,11 @@ $(document).ready(function() {
             $('#id_descuento').attr('readonly', false);
         }
     });
+
+    $('.modal.draggable>.modal-dialog').draggable({
+        cursor: 'move',
+        handle: '.modal-header'
+    });
+    $('.modal.draggable>.modal-dialog>.modal-content>.modal-header').css('cursor', 'move');
 
 });

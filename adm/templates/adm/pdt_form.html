@@ -203,7 +203,7 @@
                          for="id_cantidad_servicios">
                             Cantidad de Servicios
                         </label>
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             {% if edit %}
                                 {{ form.cantidad_servicios }}
                                 {% for error in form.cantidad_servicios.errors %}
@@ -221,7 +221,7 @@
                          for="id_cantidad_contratos">
                             Cantidad de OT/SOT/RUT Anuales
                         </label>
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             {% if edit %}
                                 {{ form.cantidad_contratos }}
                                 {% for error in form.cantidad_contratos.errors %}
@@ -241,7 +241,7 @@
                          for="id_facturacion_prevista">
                             Facturación Prevista
                         </label>
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             {% if edit %}
                                 <div class="input-group" style="z-index:0">
                                     <div class="input-group-addon">$</div>
@@ -263,7 +263,7 @@
                          for="id_generacion_neta">
                             Generación Neta
                         </label>
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             {% if edit %}
                                 <div class="input-group" style="z-index:0">
                                     <div class="input-group-addon">$</div>
@@ -287,7 +287,7 @@
                     <!-- Agentes -->
                     <h4 class="text-danger">Agentes Involucrados</h4>
                     <div class="form-group">
-                        <div class="col-md-3">
+                        <div class="col-md-12">
                             {% if edit %}
                                 {{ form.agentes }}
                                 {% for error in form.agentes.errors %}
@@ -296,7 +296,13 @@
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                {{ form.agentes|disable }}
+                                <ul style="list-style:none">
+                                    {% for agente in form.instance.agentes.all %}
+                                    <li>
+                                        {{ agente.first_name | add:" " | add:agente.last_name }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
                             {% endif %}
                         </div>
                     </div>
