@@ -10,7 +10,7 @@ import os
 
 def genWord(vals):
     #Windows
-    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
+    path = '/home/rocco/www/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -126,7 +126,7 @@ def genWord(vals):
 
 def genSOT(vals):
     #Windows
-    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
+    path = '/home/rocco/www/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -221,7 +221,7 @@ def genSOT(vals):
 
 def genRUT(vals):
     #Windows
-    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
+    path = '/home/rocco/www/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
@@ -309,7 +309,7 @@ def genRUT(vals):
 
 def genSI(vals):
     #Windows
-    path = '/home/rocco/Proyectos/intiSoft/Plantillas/'
+    path = '/home/rocco/www/intiSoft/Plantillas/'
 
     document = Document(path + vals['plantilla'])
 
