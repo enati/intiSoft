@@ -23,6 +23,12 @@ import re
 from django.db.models import Q
 import operator
 from django.core import serializers
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
+from reportlab.platypus import Paragraph, Frame
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -60,6 +66,225 @@ def less_five(orig_date):
 #===========================================
 #======= FUNCIONES ROUTEABLES ==============
 #===========================================
+
+def pdtToPdf(request, *args, **kwargs):
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="PDT.pdf"'
+
+    width, height = A4
+    styles = getSampleStyleSheet()
+    styleN = styles['Normal']
+    styleH = styles['Heading1']
+    headerStyle = ParagraphStyle(name='Normal',
+                                fontSize=6)
+    tableStyle = TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                                  ('BOX', (0, 0), (-1, -1), 1, colors.black),
+                                  ('LINEABOVE', (0, 1), (4, 1), 1, colors.black)])
+
+    story = []
+
+    pdt_id = kwargs.get('pk')
+    pdt_obj = PDT.objects.get(id=pdt_id)
+
+    # Create the PDF object, using the response object as its "file."
+    canvas = Canvas(response, pagesize=A4)
+
+    frame = Frame(0, 0, width, height, leftPadding=10, bottomPadding=50,
+                  rightPadding=10, topPadding=50, id=1, showBoundary=0)
+
+    # Header
+    header = Paragraph(datetime.now().strftime('%d/%m/%y %H:%m'), headerStyle)
+    w, h = header.wrap(width, 20)
+    print w, width
+    header.drawOn(canvas, width - 45, height - 15)
+
+    # Elementos a dibujar
+    story.append(Paragraph(pdt_obj.nombre, styleH))
+
+    # OTs
+    story.append(Paragraph('Resumen de OTs', styleN))
+
+    ot_data = [['Número', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+    for ot in pdt_obj.ot_set.all():
+        ot_data.append([ot.codigo, ot.get_servicios(), '$' + str(ot.importe_bruto), '$' + str(ot.importe_neto), '$' + str(ot.get_facturacion())])
+
+    ot_table = Table(ot_data, splitByRow=1, style=tableStyle, spaceBefore=10, spaceAfter=30)
+    story.append(ot_table)
+
+    # OTMLs
+    story.append(Paragraph('Resumen de OTMLs', styleN))
+
+    otml_data = [['Número', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+    for otml in pdt_obj.otml_set.all():
+        otml_data.append([otml.codigo, otml.get_servicios(), '$' + str(otml.importe_bruto), '$' + str(otml.importe_neto),
+                        '$' + str(otml.get_facturacion())])
+
+    otml_table = Table(otml_data, splitByRow=1, style=tableStyle, spaceBefore=10, spaceAfter=30)
+    story.append(otml_table)
+
+    # SOTs
+    story.append(Paragraph('Resumen de SOTs', styleN))
+
+    sot_data = [['Número', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+    for sot in pdt_obj.sot_set.all():
+        sot_data.append([sot.codigo, sot.get_servicios(), '$' + str(sot.importe_bruto), '$' + str(sot.importe_neto), '$' + str(sot.get_facturacion())])
+
+    sot_table = Table(sot_data, splitByRow=1, style=tableStyle, spaceBefore=10, spaceAfter=30)
+    story.append(sot_table)
+
+    # RUTs
+    story.append(Paragraph('Resumen de RUTs', styleN))
+
+    rut_data = [['Número', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+    for rut in pdt_obj.rut_set.all():
+        rut_data.append(
+            [rut.codigo, rut.get_servicios(), '$' + str(rut.importe_bruto), '$' + str(rut.importe_neto),
+             '$' + str(rut.get_facturacion())])
+
+    rut_table = Table(rut_data, splitByRow=1, style=tableStyle, spaceBefore=10, spaceAfter=30)
+    story.append(rut_table)
+
+    for s in story:
+        while frame.add(s, canvas) == 0:
+            splited_parts = frame.split(s, canvas)
+            if len(splited_parts) > 1:
+                frame.add(splited_parts[0], canvas)
+                s = splited_parts[1]
+            canvas.showPage()
+            frame = Frame(0, 0, width, height, leftPadding=10, bottomPadding=50,
+                          rightPadding=10, topPadding=50, id=2, showBoundary=0)
+
+    canvas.save()
+
+    return response
+
+
+
+# def pdtToPdf_old(request, *args, **kwargs):
+#     # Create the HttpResponse object with the appropriate PDF headers.
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="PDT.pdf"'
+#
+#     width, height = A4
+#     x_pos = height
+#     bottom_margin = 100
+#
+#     # Create the PDF object, using the response object as its "file."
+#     p = canvas.Canvas(response, pagesize=A4)
+#
+#     pdt_id = kwargs.get('pk')
+#     pdt_obj = PDT.objects.get(id=pdt_id)
+#
+#     # TITULO
+#     p.drawString(100, x_pos - 100, pdt_obj.nombre)
+#     x_pos -= 100
+#
+#     # SECCION OT
+#     p.drawString(100, x_pos - 50, "Resumen de OTs")
+#     x_pos -= 50
+#
+#     # Tabla OT
+#     ot_data = [['Código', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+#
+#     # Aprox 12px cada row
+#     x_pos -= 20 + 18
+#
+#     for i, ot in enumerate(pdt_obj.ot_set.all()):
+#         if x_pos - 18 > bottom_margin:
+#             ot_data.append([ot.codigo, ot.get_servicios(), '$' + str(ot.importe_bruto), '$' + str(ot.importe_neto), '$' + str(ot.get_facturacion())])
+#             x_pos -= 18
+#         else:
+#             p.getPageNumber()
+#
+#     ot_table = Table(ot_data)
+#     ot_table.setStyle(TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+#                                   ('BOX', (0, 0), (-1, -1), 1, colors.black),
+#                                   ('LINEABOVE', (0, 1), (4, 1), 1, colors.black)]))
+#
+#     ot_table.wrapOn(p, width, height)
+#     ot_table.drawOn(p, 100, x_pos)
+#     #x_pos -= 18 * (len(pdt_obj.ot_set.all()) + 1)
+#
+#     # SECCION OTML
+#     p.drawString(100, x_pos - 50, "Resumen de OTMLs")
+#     x_pos -= 50
+#
+#     # Tabla OT
+#     otml_data = [['Código', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+#
+#     # Aprox 12px cada row
+#     x_pos -= 20 + 18
+#
+#     for i, otml in enumerate(pdt_obj.otml_set.all()):
+#         if x_pos - 18 > bottom_margin:
+#             otml_data.append([otml.codigo, otml.get_servicios(), '$' + str(otml.importe_bruto), '$' + str(otml.importe_neto),
+#                             '$' + str(ot.get_facturacion())])
+#             x_pos -= 18
+#         else:
+#             p.getPageNumber()
+#
+#     otml_table = Table(otml_data)
+#     otml_table.setStyle(TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+#                                   ('BOX', (0, 0), (-1, -1), 1, colors.black),
+#                                   ('LINEABOVE', (0, 1), (4, 1), 1, colors.black)]))
+#     otml_table.wrapOn(p, width, height)
+#     otml_table.drawOn(p, 100, x_pos)
+#
+#     # SECCION SOT
+#     p.drawString(100, x_pos - 50, "Resumen de SOTs")
+#     x_pos -= 50
+#
+#     # Tabla SOT
+#     sot_data = [['Código', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+#
+#     # Aprox 12px cada row
+#     x_pos -= 20 + 18
+#     for i, sot in enumerate(pdt_obj.sot_set.all()):
+#         if x_pos - 18 > bottom_margin:
+#             sot_data.append([sot.codigo, sot.get_servicios(), '$' + str(sot.importe_bruto), '$' + str(sot.importe_neto),
+#                             '$' + str(sot.get_facturacion())])
+#             x_pos -= 18
+#         else:
+#             p.getPageNumber()
+#
+#     sot_table = Table(sot_data)
+#     sot_table.setStyle(TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+#                                   ('BOX', (0, 0), (-1, -1), 1, colors.black),
+#                                   ('LINEABOVE', (0, 1), (4, 1), 1, colors.black)]))
+#     sot_table.wrapOn(p, width, height)
+#     sot_table.drawOn(p, 100, x_pos)
+#
+#     # SECCION RUT
+#     p.drawString(100, x_pos - 50, "Resumen de RUTs")
+#     x_pos -= 50
+#
+#     # Tabla RUT
+#     rut_data = [['Código', 'Servicios', 'Importe Bruto', 'Importe Neto', 'Facturado']]
+#
+#     # Aprox 12px cada row
+#     x_pos -= 20 + 18
+#     for i, rut in enumerate(pdt_obj.rut_set.all()):
+#         if x_pos - 18 > bottom_margin:
+#             rut_data.append([rut.codigo, rut.get_servicios(), '$' + str(rut.importe_bruto), '$' + str(rut.importe_neto),
+#                              '$' + str(rut.get_facturacion())])
+#             x_pos -= 18
+#         else:
+#             p.showPage()
+#             x_pos = height - 100
+#
+#     rut_table = Table(rut_data)
+#     rut_table.setStyle(TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+#                                    ('BOX', (0, 0), (-1, -1), 1, colors.black),
+#                                    ('LINEABOVE', (0, 1), (4, 1), 1, colors.black)]))
+#     rut_table.wrapOn(p, width, height)
+#     rut_table.drawOn(p, 100, x_pos)
+#
+#     # Close the PDF object cleanly, and we're done.
+#     p.showPage()
+#     p.save()
+#     return response
+
 
 def filterOT(request, area):
     ofertatec = OfertaTec.objects.all().filter(area__in=[area, 'TODAS'])
@@ -1920,7 +2145,6 @@ class PresupuestoUpdate(UpdateView):
         return context
 
     def get_success_url(self):
-        #import pdb; pdb.set_trace()
         return reverse_lazy('adm:presup-update', kwargs={'pk': self.object.id})
 
     def get(self, request, *args, **kwargs):
