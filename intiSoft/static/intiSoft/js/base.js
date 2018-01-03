@@ -316,6 +316,7 @@ $(document).ready(function() {
                 method: 'get',
                 data: {'presup_id': presup_id},
                 success: function(data){
+                    $('#id_pdt option:contains(' + data['pdt'] + ')').prop('selected', true);
                     $("#id_fecha_solicitado").text(data['fecha_solicitado']);
                     $("#id_fecha_realizado").text(data['fecha_realizado']);
                     $("#id_fecha_aceptado").text(data['fecha_aceptado']);

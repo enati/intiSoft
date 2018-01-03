@@ -122,6 +122,9 @@ class OTForm(forms.ModelForm):
             'importe_bruto': {
                 'required': 'Campo obligatorio.',
             },
+            'pdt': {
+                'required': 'Campo obligatorio.',
+            }
         }
 
         widgets = {
@@ -241,6 +244,9 @@ class OTMLForm(forms.ModelForm):
             'usuario': {
                 'required': 'Campo obligatorio.',
             },
+            'pdt': {
+                'required': 'Campo obligatorio.',
+            }
         }
 
         widgets = {
@@ -393,6 +399,9 @@ class SOTForm(forms.ModelForm):
                 'solicitante': {
                     'required': 'Campo obligatorio.',
                 },
+                'pdt': {
+                    'required': 'Campo obligatorio.',
+                }
             }
 
         widgets = {
@@ -548,6 +557,9 @@ class RUTForm(forms.ModelForm):
             'presupuesto': {
                 'required': 'Campo obligatorio.',
             },
+            'pdt': {
+                'required': 'Campo obligatorio.',
+            }
         }
 
         widgets = {
@@ -627,6 +639,9 @@ class SIForm(forms.ModelForm):
             'ejecutor': {
                 'required': 'Campo obligatorio.',
             },
+            'pdt': {
+                'required': 'Campo obligatorio.',
+            }
         }
 
         widgets = {
@@ -1075,7 +1090,8 @@ class PresupuestoForm(forms.ModelForm):
                   'asistencia',
                   'calibracion',
                   'in_situ',
-                  'lia']
+                  'lia',
+                  'pdt']
 
         error_messages = {
             'fecha_solicitado': {
@@ -1093,6 +1109,9 @@ class PresupuestoForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
                 'invalid': 'Fecha invalida.',
             },
+            'pdt': {
+                'required': 'Campo obligatorio.',
+            }
         }
         widgets = {
                 'fecha_solicitado': forms.DateInput(attrs={'class':
@@ -1235,7 +1254,7 @@ class PDTForm(forms.ModelForm):
 
         widgets = {
             'nombre': forms.Textarea(attrs={'rows': 2}),
-            'agentes': forms.CheckboxSelectMultiple()
+            'agentes': forms.CheckboxSelectMultiple(),
         }
 
         error_messages = {

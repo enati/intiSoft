@@ -128,6 +128,88 @@ def nextCode():
                      #HAVING gap_ends_at IS NOT NULL""")
 
 
+def yearNow():
+    return datetime.datetime.now().year
+
+
+class PDT(TimeStampedModel, AuthStampedModel):
+    """ Planes de Trabajo """
+    YEARS = []
+    for y in range(2017, datetime.datetime.now().year + 3):
+        YEARS.append((str(y), str(y)))
+
+    TIPO_PLAN = [('POA', 'POA'), ('PDI', 'PDI')]
+
+    # Indica si el registro es una contribucion de un plan de otro centro
+    contribucion = models.BooleanField("Contribución", default=False)
+    anio = models.CharField("Año", max_length=4, choices=YEARS, default=yearNow, null=True)
+    tipo = models.CharField("Tipo de Plan", max_length=3, choices=TIPO_PLAN, null=True, blank=False)
+    nombre = models.CharField("Nombre", max_length=500)
+    codigo = models.CharField("Código", max_length=5, unique=True,
+                     error_messages={'unique': "Código duplicado."})
+    cantidad_servicios = models.PositiveIntegerField("Cantidad de Servicios", default=0, null=True)
+    cantidad_contratos = models.PositiveIntegerField("Cantidad de OT/SOT/RUT Anuales", default=0, null=True)
+    facturacion_prevista = models.FloatField("Facturación Anual Prevista por OT", default=0, null=True)
+    generacion_neta = models.FloatField("Generación Neta", default=0, null=True)
+    agentes = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return "%s - %s" % (self.codigo, self.nombre)
+
+    def _delete(self):
+        """Faltarian las validaciones"""
+        # Chequeo que no este asociada a ningun documento
+        if self.ot_set.all() or self.otml_set.all() or self.sot_set.all() or self.rut_set.all() or self.si_set.all():
+            return False
+        else:
+            self.delete()
+            return True
+
+    def get_total_servicios(self):
+        count = 0
+        for ot in self.ot_set.all().exclude(estado='cancelado'):
+            count += ot.get_servicios()
+        for otml in self.otml_set.all().exclude(estado='cancelado'):
+            count += otml.get_servicios()
+        for sot in self.sot_set.all().exclude(estado='cancelada'):
+            count += sot.get_servicios()
+        for rut in self.rut_set.all().exclude(estado='cancelada'):
+            count += rut.get_servicios()
+        return count
+
+    def get_total_contratos(self):
+        count = 0
+        count += len(self.ot_set.all().exclude(estado='cancelado'))
+        count += len(self.otml_set.all().exclude(estado='cancelado'))
+        count += len(self.sot_set.all().exclude(estado='cancelada'))
+        count += len(self.rut_set.all().exclude(estado='cancelada'))
+        return count
+
+    def get_total_facturacion(self):
+        count = 0
+        for ot in self.ot_set.all().exclude(estado='cancelado'):
+            count += ot.get_facturacion()
+        for otml in self.otml_set.all().exclude(estado='cancelado'):
+            count += otml.get_facturacion()
+        for sot in self.sot_set.all().exclude(estado='cancelada'):
+            count += sot.get_facturacion()
+        for rut in self.rut_set.all().exclude(estado='cancelada'):
+            count += rut.get_facturacion()
+        return count
+
+    def get_total_importe_neto(self):
+        count = 0
+        count += sum(self.ot_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
+        count += sum(self.otml_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
+        count += sum(self.sot_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
+        count += sum(self.rut_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
+        return count
+
+    class Meta:
+        ordering = ['anio', 'codigo']
+        permissions = (("read_pdt", "Can read pdt"),)
+
+
 @reversion.register(follow=["usuario", "turno_set", "instrumento_set"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
@@ -158,6 +240,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     calibracion = models.BooleanField('Calibración', default=False)
     in_situ = models.BooleanField('In Situ', default=False)
     lia = models.BooleanField('LIA', default=False)
+    pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
 
     def __str__(self):
         return self.codigo
@@ -286,88 +369,6 @@ class Instrumento(TimeStampedModel, AuthStampedModel):
         ordering = ["fecha_llegada"]
 
 
-def yearNow():
-    return datetime.datetime.now().year
-
-
-class PDT(TimeStampedModel, AuthStampedModel):
-    """ Planes de Trabajo """
-    YEARS = []
-    for y in range(2017, datetime.datetime.now().year + 3):
-        YEARS.append((str(y), str(y)))
-
-    TIPO_PLAN = [('POA', 'POA'), ('PDI', 'PDI')]
-
-    # Indica si el registro es una contribucion de un plan de otro centro
-    contribucion = models.BooleanField("Contribución", default=False)
-    anio = models.CharField("Año", max_length=4, choices=YEARS, default=yearNow)
-    tipo = models.CharField("Tipo de Plan", max_length=3, choices=TIPO_PLAN)
-    nombre = models.CharField("Nombre", max_length=500)
-    codigo = models.CharField("Código", max_length=5, unique=True,
-                     error_messages={'unique': "Código duplicado."})
-    cantidad_servicios = models.PositiveIntegerField("Cantidad de Servicios", default=0)
-    cantidad_contratos = models.PositiveIntegerField("Cantidad de OT/SOT/RUT Anuales", default=0)
-    facturacion_prevista = models.FloatField("Facturación Anual Prevista por OT", default=0)
-    generacion_neta = models.FloatField("Generación Neta", default=0)
-    agentes = models.ManyToManyField(User)
-
-    def __unicode__(self):
-        return "%s - %s" % (self.codigo, self.nombre)
-
-    def _delete(self):
-        """Faltarian las validaciones"""
-        # Chequeo que no este asociada a ningun documento
-        if self.ot_set.all() or self.otml_set.all() or self.sot_set.all() or self.rut_set.all() or self.si_set.all():
-            return False
-        else:
-            self.delete()
-            return True
-
-    def get_total_servicios(self):
-        count = 0
-        for ot in self.ot_set.all().exclude(estado='cancelado'):
-            count += ot.get_servicios()
-        for otml in self.otml_set.all().exclude(estado='cancelado'):
-            count += otml.get_servicios()
-        for sot in self.sot_set.all().exclude(estado='cancelada'):
-            count += sot.get_servicios()
-        for rut in self.rut_set.all().exclude(estado='cancelada'):
-            count += rut.get_servicios()
-        return count
-
-    def get_total_contratos(self):
-        count = 0
-        count += len(self.ot_set.all().exclude(estado='cancelado'))
-        count += len(self.otml_set.all().exclude(estado='cancelado'))
-        count += len(self.sot_set.all().exclude(estado='cancelada'))
-        count += len(self.rut_set.all().exclude(estado='cancelada'))
-        return count
-
-    def get_total_facturacion(self):
-        count = 0
-        for ot in self.ot_set.all().exclude(estado='cancelado'):
-            count += ot.get_facturacion()
-        for otml in self.otml_set.all().exclude(estado='cancelado'):
-            count += otml.get_facturacion()
-        for sot in self.sot_set.all().exclude(estado='cancelada'):
-            count += sot.get_facturacion()
-        for rut in self.rut_set.all().exclude(estado='cancelada'):
-            count += rut.get_facturacion()
-        return count
-
-    def get_total_importe_neto(self):
-        count = 0
-        count += sum(self.ot_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
-        count += sum(self.otml_set.all().exclude(estado='cancelado').values_list('importe_neto', flat=True))
-        count += sum(self.sot_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
-        count += sum(self.rut_set.all().exclude(estado='cancelada').values_list('importe_neto', flat=True))
-        return count
-
-    class Meta:
-        ordering = ['anio', 'codigo']
-        permissions = (("read_pdt", "Can read pdt"),)
-
-
 def user_unicode(self):
     return  u'%s %s' % (self.first_name, self.last_name)
 
@@ -381,7 +382,7 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     importe_bruto = models.FloatField("Importe Bruto", blank=False, null=True, default=0)
     descuento = models.FloatField("Descuento", blank=False, null=True, default=0)
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
-    pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=True)
+    pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
 
     def get_servicios(self):
         count = 0

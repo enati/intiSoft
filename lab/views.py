@@ -4,7 +4,7 @@ from django.views.generic.edit import UpdateView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse_lazy, reverse
 from .models import Turno, OfertaTec_Linea
-from adm.models import OfertaTec, Presupuesto, OT, SI
+from adm.models import OfertaTec, Presupuesto, OT, SI, PDT
 from datetime import datetime
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -1087,6 +1087,7 @@ def get_presup(request, *args, **kwargs):
         presup_id = request.GET['presup_id']
         presup_obj = Presupuesto.objects.get(pk=presup_id)
         turnos_activos = presup_obj.get_turnos_activos()
+        data['pdt'] = presup_obj.pdt.nombre if presup_obj.pdt else '---'
         data['fecha_solicitado'] = presup_obj.fecha_solicitado.strftime("%d/%m/%Y")
         data['fecha_realizado'] = presup_obj.fecha_realizado.strftime("%d/%m/%Y") if presup_obj.fecha_realizado else ''
         data['fecha_aceptado'] = presup_obj.fecha_aceptado.strftime("%d/%m/%Y") if presup_obj.fecha_aceptado else ''

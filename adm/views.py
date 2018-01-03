@@ -2230,7 +2230,7 @@ class PDTList(ListView):
     paginate_by = 30
 
     def get_queryset(self):
-        queryset = PDT.objects.all()
+        queryset = PDT.objects.all().exclude(codigo='0')
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
