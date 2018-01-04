@@ -65,8 +65,5 @@ target/
 #Plantillas
 Plantillas/
 
-#Static
-static/
-
 #PyCharm
 .idea/
