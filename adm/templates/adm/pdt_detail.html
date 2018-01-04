@@ -1,3 +1,4 @@
+{% load static %}
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
     </button>
@@ -60,4 +61,10 @@
 </table>
 </div>
 <div class="modal-footer">
+    <a href="{% url 'adm:pdt-viewXLS' pdt.id %}">
+        <img style="width: 30px" src="{% static 'intiSoft/img/xls.png' %}"/>
+    </a>
+    <a href="{% url 'adm:pdt-viewPDF' pdt.id %}">
+        <img style="width: 30px" src="{% static 'intiSoft/img/pdf.png' %}"/>
+    </a>
 </div>
