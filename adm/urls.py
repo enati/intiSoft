@@ -67,4 +67,5 @@ urlpatterns = [
                                             name='pdt-update'),
     url(r'^pdt/detail/(?P<pk>\d+)/$', never_cache(login_required(views.PDTDetail.as_view())), name='pdt-detail'),
     url(r'^pdt/viewPDF/(?P<pk>\d+)/$', never_cache(views.pdtToPdf), name='pdt-viewPDF'),
+    url(r'^pdt/viewXLS/(?P<pk>\d+)/$', never_cache(views.pdtToXls), name='pdt-viewXLS'),
 ]

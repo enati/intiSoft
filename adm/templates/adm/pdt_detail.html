@@ -61,7 +61,10 @@
 </table>
 </div>
 <div class="modal-footer">
+    <a href="{% url 'adm:pdt-viewXLS' pdt.id %}">
+        <img style="width: 30px" src="{% static 'intiSoft/img/xls.png' %}"/>
+    </a>
     <a href="{% url 'adm:pdt-viewPDF' pdt.id %}">
-        <img style="width: 20px" src="{% static 'intiSoft/img/pdf.png' %}"/>
+        <img style="width: 30px" src="{% static 'intiSoft/img/pdf.png' %}"/>
     </a>
 </div>
