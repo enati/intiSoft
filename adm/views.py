@@ -213,7 +213,10 @@ def pdtToPdf(request, *args, **kwargs):
                   rightPadding=10, topPadding=50, id=1, showBoundary=0)
 
     # Header
-    now = datetime.now().strftime('%d/%m/%y %H:%m')
+    now = datetime.now().strftime('%d/%m/%y %H:%M')
+    print "==========================="
+    print now
+    print "==========================="
     header = Paragraph(now, headerStyle)
     header.wrap(width, 20)
 
