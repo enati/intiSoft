@@ -40,11 +40,12 @@ class TurnoForm(forms.ModelForm):
             initArea = self.instance.area
         self.fields['area'].widget.attrs['style'] = "visibility:hidden"
         if self.instance and self.isRev:
-            # Si estoy revisionando solo dejo readonly el presupuesto y la SI
-            self.fields['presupuesto'].widget.attrs['disabled'] = True
-            self.fields['presupuesto'].required = False
-            self.fields['si'].widget.attrs['disabled'] = True
-            self.fields['si'].required = False
+            if self.instance.estado != 'en_espera':
+                # Si estoy revisionando solo dejo readonly el presupuesto y la SI
+                self.fields['presupuesto'].widget.attrs['disabled'] = True
+                self.fields['presupuesto'].required = False
+                self.fields['si'].widget.attrs['disabled'] = True
+                self.fields['si'].required = False
         else:
             if self.instance and self.instance.estado == 'en_espera':
                 # Filtro los presupuestos que no estan en borrador
