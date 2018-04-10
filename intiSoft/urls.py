@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from  .forms import MyAuthenticationForm
+from .forms import MyAuthenticationForm
 from . import views as myViews
 from django.contrib.auth import views
 
@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^lab/', include('lab.urls', namespace="lab")),
     url(r'^adm/', include('adm.urls', namespace="adm")),
+    url(r'^recent_activity/', include('activity_log.urls', namespace="activity_log")),
     url(r'^login/$', views.login,
         {'template_name': 'intiSoft/login.html',
         'authentication_form': MyAuthenticationForm},
@@ -33,4 +34,5 @@ urlpatterns = [
     url('^$', myViews.index, name='index'),
     url(r'^profile/(?P<pk>\d+)/$', myViews.ProfileView.as_view(),
         name='user-profile'),
+
 ]

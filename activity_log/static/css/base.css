@@ -1,0 +1,16 @@
+#activityTable, #activityTable tbody tr td{
+    font-size: 10px !important;
+    border: none !important;
+}
+#hline {
+    border-top: 1.5px solid #eee;
+    margin:5px;
+}
+a, a:visited  {
+    color: #777;
+    text-decoration: none !important;
+}
+a:hover {
+    color: #333;
+}
+

@@ -1,0 +1,15 @@
+<a onclick="viewActivityList()" style="cursor: pointer;"><span id="viewActivityText">Ver actividad reciente</span></a>
+<div id="recentActivityBox" class="col-md-12" style="display: none">
+    <div id="hline" class="col-md-12"></div>
+    <table class="table" id="activityTable">
+            {% for row in recent_activity %}
+                <tr>
+                    <td class="col-md-3">{{ row.datetime|date:'d/m/Y H:i'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ row.activity }} | {{ row.comments }}</td>
+                </tr>
+            {% endfor %}
+    </table>
+</div>
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'intiSoft/css/bootstrap.min.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}"/>
+<script type="text/javascript" src="{% static 'js/base.js' %}"></script>

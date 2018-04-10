@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'lab',
     'adm',
     'intiSoft',
+    'activity_log',
     'smart_pagination',
     'reversion',
     'django_permanent'

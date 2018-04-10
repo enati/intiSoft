@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'lab',
     'adm',
+    'activity_log',
     'intiSoft',
     'smart_pagination',
     'reversion',
