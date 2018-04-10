@@ -253,8 +253,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     def write_activity_log(self, activity, comments="Registro automático"):
         content_type_obj = ContentType.objects.get(model="presupuesto")
-        ActivityLog.objects.create(datetime=datetime.now(),
-                                   content_type=content_type_obj,
+        ActivityLog.objects.create(content_type=content_type_obj,
                                    object_id=self.pk,
                                    activity=activity,
                                    comments=comments)
