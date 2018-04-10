@@ -4,7 +4,7 @@
     <table class="table" id="activityTable">
             {% for row in recent_activity %}
                 <tr>
-                    <td class="col-md-3">{{ row.datetime|date:'d/m/Y H:i'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ row.activity }} | {{ row.comments }}</td>
+                    <td class="col-md-3">{{ row.datetime|date:'d/m/Y H:i'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ row.activity }} | {{ row.comments }} | Usuario: {{ row.created_by.username }}</td>
                 </tr>
             {% endfor %}
     </table>
