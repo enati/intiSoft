@@ -281,8 +281,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.save()
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
-            turno.estado = 'activo'
-            turno.save()
+            turno._toState_activo()
 
         self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
@@ -294,8 +293,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         # Paso a borrador el turno asociado
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
-            turno.estado = 'en_espera'
-            turno.save()
+            turno._toState_en_espera()
 
         self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
@@ -324,14 +322,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         # Cancelo el turno activo asociado, de haberlo
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
-                turno.estado = 'cancelado'
-                turno.save()
+                turno._toState_cancelado()
 
         self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _delete(self):
-        old_status = self.estado
         # Solo se pueden borrar los presupuestos en estado borrador
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar presupuestos en estado Borrador', '')
@@ -365,7 +361,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         for t in self.turno_set.all():
             t.delete()
 
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
+        self.write_activity_log("Presupuesto #%s eliminado" % self.codigo)
         return True
 
     def _vigente(self):

@@ -82,6 +82,20 @@
                 $("select[id=id_si]").attr('disabled', 'disabled');
             };
 
+            {% if object %}
+            $.ajax({
+                url: '/recent_activity/',
+                method: 'get',
+                data: {
+                        'content_type_id': 7,
+                        'object_id': {{ object.id }}
+                },
+                success:
+                    function(data) {
+                        $('#recent_activity_table').html(data);
+                    },
+            });
+            {% endif %}
 
         });
     </script>
@@ -100,7 +114,10 @@
         </div>
     </div>
 </div>
-{% load intiSoft_filters %}
+<div class="row">
+    <div id="recent_activity_table" class="col-md-offset-1 col-md-10">
+    </div>
+</div>
 <div class="row">
     {% if form.errors or ofertatec_linea_form.errors %}
         <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">

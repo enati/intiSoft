@@ -731,6 +731,7 @@ def createRevision(request, *args, **kwargs):
         if obj.presupuesto:
             obj.presupuesto.revisionar = True
             obj.presupuesto.save()
+        obj.write_activity_log("Revision #%d creada" % obj.nro_revision)
         return JsonResponse({'ok': 'ok'})
     except RegistrationError as e:
         raise e
@@ -746,6 +747,8 @@ def rollBackRevision(request, *args, **kwargs):
             ultRev = turnoVers.first()
             ultRev.revision.revert(True)
             ultRev.revision.delete()
+
+        obj.write_activity_log("Revision #%d eliminada" % obj.nro_revision)
         return JsonResponse({'ok': 'ok', 'redirect': redirect})
     except:
         return JsonResponse({'err': 'err', 'redirect': redirect})

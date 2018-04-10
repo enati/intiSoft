@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.core.urlresolvers import reverse
 from adm.models import Presupuesto, Usuario, OfertaTec, SI
@@ -11,6 +12,8 @@ from django.dispatch import receiver
 from lab.signals import *
 from intiSoft.exception import StateError
 import reversion
+from django.contrib.contenttypes.models import ContentType
+from activity_log.models import ActivityLog
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -72,6 +75,20 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
     revisionar = models.BooleanField(default=False)
     area = models.CharField(max_length=10, choices=AREAS)
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(Turno, self).save(*args, **kwargs)
+            self.write_activity_log("Turno #%d creado" % self.id)
+            return res
+        super(Turno, self).save(*args, **kwargs)
+
+    def write_activity_log(self, activity, comments="Registro automático"):
+        content_type_obj = ContentType.objects.get(model="turno")
+        ActivityLog.objects.create(content_type=content_type_obj,
+                                   object_id=self.pk,
+                                   activity=activity,
+                                   comments=comments)
+
     def _revisionar(self):
         """ Chequeo si es necesario hacer una revision del turno. Solo se revisionan
             los turnos en_espera o activos tales que:
@@ -114,8 +131,23 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         except:
             return False
 
+    def _toState_activo(self):
+        old_state = self.estado
+        self.estado = 'activo'
+        self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
+        return True
+
+    def _toState_en_espera(self):
+        old_state = self.estado
+        self.estado = 'en_espera'
+        self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
+        return True
+
     def _toState_finalizado(self):
         """Faltarian las validaciones"""
+        old_state = self.estado
         if self.estado != 'activo':
             raise StateError('El turno debe estar activo antes de poder finalizarlo.', '')
         self.estado = 'finalizado'
@@ -133,6 +165,8 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             if not turnos_pendientes:
                 self.si.estado = 'finalizada'
                 self.si.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelado(self):
@@ -141,6 +175,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         Luego, si el turno que se quiere cancelar es el unico turno activo de la SI,
         hay que volverla a estado Borrador.
         """
+        old_state = self.estado
         self.estado = 'cancelado'
         self.save()
         if self.si:
@@ -148,6 +183,8 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             if not turnosAsociados:
                 self.si.estado = 'borrador'
                 self.si.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
@@ -162,6 +199,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             raise StateError('El turno no se puede borrar ya que esta asociado a una SI que se encuentra finalizada/cancelada', '')
         else:
             self.delete()
+            self.write_activity_log("Turno #%d eliminado" % self.id)
             return True
 
     class Meta:

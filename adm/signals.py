@@ -12,16 +12,14 @@ def check_state(sender, **kwargs):
                 instance.estado = 'aceptado'
                 turnoList = instance.get_turnos_activos()
                 for turno in turnoList:
-                    turno.estado = 'activo'
-                    turno.save()
+                    turno._toState_activo()
                 #Escribo el log de actividades
                 instance.write_activity_log("Cambio de estado: %s -> %s" % (old_status, instance.estado))
             else:
                 instance.estado = 'borrador'
                 turnoList = instance.get_turnos_activos()
                 for turno in turnoList:
-                    turno.estado = 'en_espera'
-                    turno.save()
+                    turno._toState_en_espera()
                 #Escribo el log de actividades
                 instance.write_activity_log("Cambio de estado: %s -> %s" % (old_status, instance.estado))
 
