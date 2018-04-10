@@ -5,7 +5,7 @@ Para insertar la tabla en un template:
         url: '/recent_activity/',                        //Url donde se incluyeron las url del modulo
         method: 'get',
         data: {
-                'content_type_id': 10           //Content_type del modelo,
+                'content_type_id': 10,           //Content_type del modelo,
                 'object_id': {{ object.id }}    //Id del objeto que se quiere ver
         },
         success:

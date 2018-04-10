@@ -10,13 +10,27 @@
                 $(".datepicker").datepicker({"maxDate": '0'});
             }
 
-          $(".datepicker").datepicker("option", "maxDate", '0');
+            $(".datepicker").datepicker("option", "maxDate", '0');
 
-          $(".inline.{{ instrumento_linea_form.prefix }}").formset({
+            $(".inline.{{ instrumento_linea_form.prefix }}").formset({
                 prefix: "{{ instrumento_linea_form.prefix }}",
                 added: renewDatePickers,
             });
 
+            {% if object %}
+            $.ajax({
+                url: '/recent_activity/',
+                method: 'get',
+                data: {
+                        'content_type_id': 10,
+                        'object_id': {{ object.id }}
+                },
+                success:
+                    function(data) {
+                        $('#recent_activity_table').html(data);
+                    },
+            });
+            {% endif %}
         });
     </script>
 {% endblock %}
@@ -32,6 +46,10 @@
                 </button>
             {% endfor %}
         </div>
+    </div>
+</div>
+<div class="row">
+    <div id="recent_activity_table" class="col-md-offset-1 col-md-10">
     </div>
 </div>
 <div class="row">

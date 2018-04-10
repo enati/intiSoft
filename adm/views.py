@@ -451,6 +451,8 @@ def createRevision(request, *args, **kwargs):
         obj.nro_revision += 1
         obj.revisionar = False
         obj.save()
+
+        obj.write_activity_log("Revision #%d creada" % obj.nro_revision)
         return JsonResponse({'ok': 'ok'})
     except:
         return JsonResponse({'err': 'err'})
@@ -466,6 +468,8 @@ def rollBackRevision(request, *args, **kwargs):
             ultRev = presupVers.first()
             ultRev.revision.revert(True)
             ultRev.revision.delete()
+
+        obj.write_activity_log("Revision #%d eliminada" % obj.nro_revision)
         return JsonResponse({'ok': 'ok', 'redirect': redirect})
     except:
         return JsonResponse({'err': 'err', 'redirect': redirect})

@@ -2,6 +2,10 @@
     font-size: 10px !important;
     border: none !important;
 }
+#recentActivityBox {
+    height: 200px;
+    overflow-y: auto;
+}
 #hline {
     border-top: 1.5px solid #eee;
     margin:5px;

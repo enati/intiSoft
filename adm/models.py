@@ -13,7 +13,6 @@ from intiSoft.exception import StateError
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-import datetime
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -129,13 +128,13 @@ def nextCode():
 
 
 def yearNow():
-    return datetime.datetime.now().year
+    return datetime.now().year
 
 
 class PDT(TimeStampedModel, AuthStampedModel):
     """ Planes de Trabajo """
     YEARS = []
-    for y in range(2017, datetime.datetime.now().year + 3):
+    for y in range(2017, datetime.now().year + 3):
         YEARS.append((str(y), str(y)))
 
     TIPO_PLAN = [('POA', 'POA'), ('PDI', 'PDI')]
@@ -245,6 +244,22 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     def __str__(self):
         return self.codigo
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(Presupuesto, self).save(*args, **kwargs)
+            self.write_activity_log("Presupuesto #%s creado" % self.codigo)
+            return res
+        super(Presupuesto, self).save(*args, **kwargs)
+
+    def write_activity_log(self, activity, comments="Registro automático"):
+        content_type_obj = ContentType.objects.get(model="presupuesto")
+        ActivityLog.objects.create(datetime=datetime.now(),
+                                   content_type=content_type_obj,
+                                   object_id=self.pk,
+                                   activity=activity,
+                                   comments=comments)
+        return True
+
     def get_area(self):
         areas = []
         for turno in self.get_turnos_activos():
@@ -262,15 +277,19 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     def _toState_aceptado(self):
         """Faltarian las validaciones"""
+        old_status = self.estado
         self.estado = 'aceptado'
         self.save()
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
             turno.estado = 'activo'
             turno.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_borrador(self):
+        old_status = self.estado
         self.estado = 'borrador'
         self.save()
         # Paso a borrador el turno asociado
@@ -278,19 +297,27 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         for turno in turnoList:
             turno.estado = 'en_espera'
             turno.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_en_proceso_de_facturacion(self):
+        old_status = self.estado
         self.estado = 'en_proceso_de_facturacion'
         self.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_finalizado(self):
+        old_status = self.estado
         self.estado = 'finalizado'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_cancelado(self):
+        old_status = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar los presupuestos finalizados.', '')
         self.estado = 'cancelado'
@@ -300,9 +327,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         for turno in turnoList:
                 turno.estado = 'cancelado'
                 turno.save()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _delete(self):
+        old_status = self.estado
         # Solo se pueden borrar los presupuestos en estado borrador
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar presupuestos en estado Borrador', '')
@@ -335,6 +365,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         # Borro todos los turnos asociados
         for t in self.turno_set.all():
             t.delete()
+
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _vigente(self):
