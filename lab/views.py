@@ -747,6 +747,7 @@ def rollBackRevision(request, *args, **kwargs):
             ultRev = turnoVers.first()
             ultRev.revision.revert(True)
             ultRev.revision.delete()
+        self.write_activity_log("Presupuesto #%s eliminado" % self.codigo)
 
         obj.write_activity_log("Revision #%d eliminada" % obj.nro_revision)
         return JsonResponse({'ok': 'ok', 'redirect': redirect})

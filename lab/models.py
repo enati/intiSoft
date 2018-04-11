@@ -198,8 +198,8 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         elif self.si and self.si.estado in ['finalizada', 'cancelada']:
             raise StateError('El turno no se puede borrar ya que esta asociado a una SI que se encuentra finalizada/cancelada', '')
         else:
-            self.delete()
             self.write_activity_log("Turno #%d eliminado" % self.id)
+            self.delete()
             return True
 
     class Meta:

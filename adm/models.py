@@ -331,6 +331,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         # Solo se pueden borrar los presupuestos en estado borrador
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar presupuestos en estado Borrador', '')
+        self.write_activity_log("Presupuesto #%s eliminado" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -360,8 +361,6 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         # Borro todos los turnos asociados
         for t in self.turno_set.all():
             t.delete()
-
-        self.write_activity_log("Presupuesto #%s eliminado" % self.codigo)
         return True
 
     def _vigente(self):
@@ -411,6 +410,13 @@ class Contrato(TimeStampedModel, AuthStampedModel, PermanentModel):
     fecha_realizado = models.DateField("Fecha de Realización", blank=False, null=True)
     pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
 
+    def write_activity_log(self, activity, comments="Registro automático"):
+        content_type_obj = ContentType.objects.get(model=self.__class__.__name__)
+        ActivityLog.objects.create(content_type=content_type_obj,
+                                   object_id=self.pk,
+                                   activity=activity,
+                                   comments=comments)
+
     def get_servicios(self):
         count = 0
         for ot_linea in self.ot_linea_set.all():
@@ -456,28 +462,42 @@ class OT(Contrato):
     factura_set = GenericRelation("Factura", verbose_name="Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(OT, self).save(*args, **kwargs)
+            self.write_activity_log("OT #%s creada" % self.codigo)
+            return res
+        super(OT, self).save(*args, **kwargs)
+
     def _toState_no_pago(self):
+        old_state = self.estado
         self.estado = 'no_pago'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_sin_facturar(self):
+        old_state = self.estado
         self.estado = 'sin_facturar'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_pagado(self, flag):
+        old_state = self.estado
         # Antes de finalizar la OT chequeo que el presupuesto pueda ser finalizado
         if self.presupuesto.estado != 'en_proceso_de_facturacion':
             raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'pagado'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         if flag:
             # Finalizo el presupuesto asociado
             self.presupuesto._toState_finalizado()
-            return True
+        return True
 
     def _toState_cancelado(self):
+        old_state = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
@@ -487,11 +507,13 @@ class OT(Contrato):
             if factura.estado != 'cancelada':
                 factura.estado = 'cancelada'
                 factura.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'sin_facturar':
             raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
+        self.write_activity_log("OT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -558,21 +580,36 @@ class OTML(Contrato):
     factura_set = GenericRelation("Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(OTML, self).save(*args, **kwargs)
+            self.write_activity_log("OTML #%s creada" % self.codigo)
+            return res
+        super(OTML, self).save(*args, **kwargs)
+
     def _toState_no_pago(self):
+        old_state = self.estado
         self.estado = 'no_pago'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_sin_facturar(self):
+        old_state = self.estado
         self.estado = 'sin_facturar'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_pagado(self):
+        old_state = self.estado
         self.estado = 'pagado'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
+        return True
 
     def _toState_cancelado(self):
+        old_state = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
@@ -582,11 +619,13 @@ class OTML(Contrato):
             if factura.estado != 'cancelada':
                 factura.estado = 'cancelada'
                 factura.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'sin_facturar':
             raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
+        self.write_activity_log("OTML #%d eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
