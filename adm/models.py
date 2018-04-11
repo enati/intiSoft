@@ -625,7 +625,7 @@ class OTML(Contrato):
     def _delete(self):
         if self.estado != 'sin_facturar':
             raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
-        self.write_activity_log("OTML #%d eliminada" % self.codigo)
+        self.write_activity_log("OTML #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -716,16 +716,25 @@ class SOT(Contrato):
     # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(SOT, self).save(*args, **kwargs)
+            self.write_activity_log("SOT #%s creada" % self.codigo)
+            return res
+        super(SOT, self).save(*args, **kwargs)
 
     def get_area(self):
         return self.solicitante
 
     def _toState_pendiente(self):
+        old_state = self.estado
         self.estado = 'pendiente'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cobrada(self, flag):
+        old_state = self.estado
         if flag:
             # Antes de finalizar la SOT chequeo que el presupuesto pueda ser finalizado
             if self.presupuesto.estado != 'en_proceso_de_facturacion':
@@ -733,18 +742,22 @@ class SOT(Contrato):
             self.presupuesto._toState_finalizado()
         self.estado = 'cobrada'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelada(self):
+        old_state = self.estado
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las SOT cobradas.', '')
         self.estado = 'cancelada'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar SOTs en estado Borrador', '')
+        self.write_activity_log("SOT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -832,16 +845,25 @@ class RUT(Contrato):
    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            res = super(RUT, self).save(*args, **kwargs)
+            self.write_activity_log("RUT #%s creada" % self.codigo)
+            return res
+        super(RUT, self).save(*args, **kwargs)
 
     def get_area(self):
         return self.solicitante
 
     def _toState_pendiente(self):
+        old_state = self.estado
         self.estado = 'pendiente'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cobrada(self, flag):
+        old_state = self.estado
         if flag:
             # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
             if self.presupuesto.estado != 'en_proceso_de_facturacion':
@@ -849,18 +871,22 @@ class RUT(Contrato):
             self.presupuesto._toState_finalizado()
         self.estado = 'cobrada'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelada(self):
+        old_state = self.estado
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las RUT cobradas.', '')
         self.estado = 'cancelada'
         self.save()
+        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar RUTs en estado Borrador', '')
+        self.write_activity_log("RUT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite

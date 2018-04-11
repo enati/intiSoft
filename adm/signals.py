@@ -34,6 +34,8 @@ def remember_fecha_aceptado(sender, **kwargs):
 
 def toState_pendiente(sender, **kwargs):
     instance = kwargs.get('instance')
+    old_state = instance.estado
     if instance.pk:
         if instance.fecha_envio_ut and instance.estado == 'borrador':
             instance.estado = 'pendiente'
+            instance.write_activity_log("Cambio de estado: %s -> %s" % (old_state, instance.estado))
