@@ -5,7 +5,7 @@ from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
 from adm.signals import *
-from django.db.models.signals import post_init, pre_save
+from django.db.models.signals import post_init, pre_save, post_save, post_delete, pre_delete
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
 from django.db import connection
@@ -13,6 +13,7 @@ from intiSoft.exception import StateError
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -212,8 +213,6 @@ class PDT(TimeStampedModel, AuthStampedModel):
 @reversion.register(follow=["usuario", "turno_set", "instrumento_set"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
-    old_fecha_aceptado = None
-
     ESTADOS = (
         ('borrador', 'Borrador'),     # El primer valor es el que se guarda en la DB
         ('aceptado', 'Aceptado'),
@@ -244,12 +243,6 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     def __str__(self):
         return self.codigo
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(Presupuesto, self).save(*args, **kwargs)
-            self.write_activity_log("Presupuesto #%s creado" % self.codigo)
-            return res
-        super(Presupuesto, self).save(*args, **kwargs)
 
     def write_activity_log(self, activity, comments="Registro automático"):
         content_type_obj = ContentType.objects.get(model="presupuesto")
@@ -276,45 +269,33 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     def _toState_aceptado(self):
         """Faltarian las validaciones"""
-        old_status = self.estado
         self.estado = 'aceptado'
         self.save()
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
             turno._toState_activo()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_borrador(self):
-        old_status = self.estado
         self.estado = 'borrador'
         self.save()
         # Paso a borrador el turno asociado
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
             turno._toState_en_espera()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_en_proceso_de_facturacion(self):
-        old_status = self.estado
         self.estado = 'en_proceso_de_facturacion'
         self.save()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_finalizado(self):
-        old_status = self.estado
         self.estado = 'finalizado'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _toState_cancelado(self):
-        old_status = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar los presupuestos finalizados.', '')
         self.estado = 'cancelado'
@@ -323,15 +304,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
                 turno._toState_cancelado()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_status, self.estado))
         return True
 
     def _delete(self):
         # Solo se pueden borrar los presupuestos en estado borrador
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar presupuestos en estado Borrador', '')
-        self.write_activity_log("Presupuesto #%s eliminado" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -379,8 +357,10 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
                        ("read_presupuesto", "Can read presupuesto"))
 
 # Signals
-pre_save.connect(check_state, sender=Presupuesto)
-post_init.connect(remember_fecha_aceptado, sender=Presupuesto)
+pre_save.connect(check_state, sender=Presupuesto, dispatch_uid="presupuesto.check_state")
+pre_save.connect(log_state_change, sender=Presupuesto, dispatch_uid="presupuesto.log_state_change")
+post_save.connect(log_create, sender=Presupuesto, dispatch_uid="presupuesto.log_create")
+post_delete.connect(on_delete_presupuesto, sender=Presupuesto, dispatch_uid="presupuesto.on_delete_presupuesto")
 
 
 @reversion.register()
@@ -462,42 +442,29 @@ class OT(Contrato):
     factura_set = GenericRelation("Factura", verbose_name="Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(OT, self).save(*args, **kwargs)
-            self.write_activity_log("OT #%s creada" % self.codigo)
-            return res
-        super(OT, self).save(*args, **kwargs)
 
     def _toState_no_pago(self):
-        old_state = self.estado
         self.estado = 'no_pago'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_sin_facturar(self):
-        old_state = self.estado
         self.estado = 'sin_facturar'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_pagado(self, flag):
-        old_state = self.estado
         # Antes de finalizar la OT chequeo que el presupuesto pueda ser finalizado
         if self.presupuesto.estado != 'en_proceso_de_facturacion':
             raise StateError('El presupuesto debe estar en proceso de facturación antes de poder finalizarlo', '')
         self.estado = 'pagado'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         if flag:
             # Finalizo el presupuesto asociado
             self.presupuesto._toState_finalizado()
         return True
 
     def _toState_cancelado(self):
-        old_state = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
@@ -507,13 +474,11 @@ class OT(Contrato):
             if factura.estado != 'cancelada':
                 factura.estado = 'cancelada'
                 factura.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'sin_facturar':
             raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
-        self.write_activity_log("OT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -554,6 +519,11 @@ class OT(Contrato):
                        ("finish_ot", "Can finish OT"),
                        ("read_ot", "Can read OT"))
 
+# Signals
+pre_save.connect(log_state_change, sender=OT, dispatch_uid="ot.log_state_change")
+post_save.connect(log_create, sender=OT, dispatch_uid="ot.log_create")
+post_delete.connect(on_delete_ot, sender=OT, dispatch_uid="ot.on_delete_ot")
+
 
 class OTML(Contrato):
 
@@ -580,36 +550,22 @@ class OTML(Contrato):
     factura_set = GenericRelation("Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(OTML, self).save(*args, **kwargs)
-            self.write_activity_log("OTML #%s creada" % self.codigo)
-            return res
-        super(OTML, self).save(*args, **kwargs)
-
     def _toState_no_pago(self):
-        old_state = self.estado
         self.estado = 'no_pago'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_sin_facturar(self):
-        old_state = self.estado
         self.estado = 'sin_facturar'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_pagado(self):
-        old_state = self.estado
         self.estado = 'pagado'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelado(self):
-        old_state = self.estado
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
@@ -619,13 +575,11 @@ class OTML(Contrato):
             if factura.estado != 'cancelada':
                 factura.estado = 'cancelada'
                 factura.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'sin_facturar':
             raise StateError('Solo se pueden borrar OTs que estén sin facturar', '')
-        self.write_activity_log("OTML #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -665,6 +619,11 @@ class OTML(Contrato):
         permissions = (("cancel_otml", "Can cancel OT-ML"),
                        ("finish_otml", "Can finish OT-ML"),
                        ("read_otml", "Can read OT-ML"))
+
+# Signals
+pre_save.connect(log_state_change, sender=OTML, dispatch_uid="otml.log_state_change")
+post_save.connect(log_create, sender=OTML, dispatch_uid="otml.log_create")
+post_delete.connect(on_delete_otml, sender=OTML, dispatch_uid="otml.on_delete_otml")
 
 
 # Ultimo codigo disponible (teniendo en cuenta saltos,
@@ -716,25 +675,15 @@ class SOT(Contrato):
     # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(SOT, self).save(*args, **kwargs)
-            self.write_activity_log("SOT #%s creada" % self.codigo)
-            return res
-        super(SOT, self).save(*args, **kwargs)
-
     def get_area(self):
         return self.solicitante
 
     def _toState_pendiente(self):
-        old_state = self.estado
         self.estado = 'pendiente'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cobrada(self, flag):
-        old_state = self.estado
         if flag:
             # Antes de finalizar la SOT chequeo que el presupuesto pueda ser finalizado
             if self.presupuesto.estado != 'en_proceso_de_facturacion':
@@ -742,16 +691,13 @@ class SOT(Contrato):
             self.presupuesto._toState_finalizado()
         self.estado = 'cobrada'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelada(self):
-        old_state = self.estado
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las SOT cobradas.', '')
         self.estado = 'cancelada'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
@@ -798,7 +744,10 @@ class SOT(Contrato):
                        ("read_sot", "Can read SOT"))
 
 # Signals
-pre_save.connect(toState_pendiente, sender=SOT)
+pre_save.connect(toState_pendiente, sender=SOT, dispatch_uid="sot.toState_pendiente")
+pre_save.connect(log_state_change, sender=SOT, dispatch_uid="sot.log_state_change")
+post_save.connect(log_create, sender=SOT, dispatch_uid="sot.log_create")
+post_delete.connect(on_delete_sot, sender=SOT, dispatch_uid="sot.on_delete_sot")
 
 
 # Ultimo codigo disponible (teniendo en cuenta saltos,
@@ -845,25 +794,15 @@ class RUT(Contrato):
    # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(RUT, self).save(*args, **kwargs)
-            self.write_activity_log("RUT #%s creada" % self.codigo)
-            return res
-        super(RUT, self).save(*args, **kwargs)
-
     def get_area(self):
         return self.solicitante
 
     def _toState_pendiente(self):
-        old_state = self.estado
         self.estado = 'pendiente'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cobrada(self, flag):
-        old_state = self.estado
         if flag:
             # Antes de finalizar la RUT chequeo que el presupuesto pueda ser finalizado
             if self.presupuesto.estado != 'en_proceso_de_facturacion':
@@ -871,22 +810,18 @@ class RUT(Contrato):
             self.presupuesto._toState_finalizado()
         self.estado = 'cobrada'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_cancelada(self):
-        old_state = self.estado
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las RUT cobradas.', '')
         self.estado = 'cancelada'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _delete(self):
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar RUTs en estado Borrador', '')
-        self.write_activity_log("RUT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
@@ -927,7 +862,10 @@ class RUT(Contrato):
                        ("read_rut", "Can read RUT"))
 
 # Signals
-pre_save.connect(toState_pendiente, sender=RUT)
+pre_save.connect(toState_pendiente, sender=RUT, dispatch_uid="rut.toState_pendiente")
+pre_save.connect(log_state_change, sender=RUT, dispatch_uid="rut.log_state_change")
+post_save.connect(log_create, sender=RUT, dispatch_uid="rut.log_create")
+post_delete.connect(on_delete_rut, sender=RUT, dispatch_uid="rut.on_delete_rut")
 
 
 # Ultimo codigo disponible (teniendo en cuenta saltos,
@@ -981,6 +919,16 @@ class SI(Contrato):
             return self.turno_set.select_related().filter(estado__in=['en_espera',
                                                                       'activo',
                                                                       'finalizado'])
+
+    def _toState_borrador(self):
+        self.estado = 'borrador'
+        self.save()
+        return True
+
+    def _toState_pendiente(self):
+        self.estado = 'pendiente'
+        self.save()
+        return True
 
     def _toState_finalizada(self):
         # Si la SI esta asociada a un turno, se finaliza automaticamente al finalizar el turno.
@@ -1038,6 +986,11 @@ class SI(Contrato):
         permissions = (("cancel_si", "Can cancel SOT"),
                        ("finish_si", "Can finish SOT"),
                        ("read_si", "Can read SI"))
+
+# Signals
+pre_save.connect(log_state_change, sender=SI, dispatch_uid="si.log_state_change")
+post_save.connect(log_create, sender=SI, dispatch_uid="si.post_save")
+post_delete.connect(on_delete_si, sender=SI, dispatch_uid="si.on_delete_si")
 
 
 class Tarea_Linea(TimeStampedModel, AuthStampedModel):

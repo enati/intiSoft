@@ -7,7 +7,7 @@ from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
 from django.core.validators import RegexValidator
 from datetime import datetime, timedelta
-from django.db.models.signals import pre_save, post_save, m2m_changed
+from django.db.models.signals import pre_save, post_save, m2m_changed, post_init, post_delete
 from django.dispatch import receiver
 from lab.signals import *
 from intiSoft.exception import StateError
@@ -75,13 +75,6 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
     revisionar = models.BooleanField(default=False)
     area = models.CharField(max_length=10, choices=AREAS)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            res = super(Turno, self).save(*args, **kwargs)
-            self.write_activity_log("Turno #%d creado" % self.id)
-            return res
-        super(Turno, self).save(*args, **kwargs)
-
     def write_activity_log(self, activity, comments="Registro automático"):
         content_type_obj = ContentType.objects.get(model="turno")
         ActivityLog.objects.create(content_type=content_type_obj,
@@ -132,22 +125,17 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             return False
 
     def _toState_activo(self):
-        old_state = self.estado
         self.estado = 'activo'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_en_espera(self):
-        old_state = self.estado
         self.estado = 'en_espera'
         self.save()
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
         return True
 
     def _toState_finalizado(self):
         """Faltarian las validaciones"""
-        old_state = self.estado
         if self.estado != 'activo':
             raise StateError('El turno debe estar activo antes de poder finalizarlo.', '')
         self.estado = 'finalizado'
@@ -163,10 +151,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
             # Si todavia quedan turnos pendientes no finalizo la SI
             turnos_pendientes = Turno.objects.filter(si_id=self.si.id, estado__in=['en_espera', 'activo'])
             if not turnos_pendientes:
-                self.si.estado = 'finalizada'
-                self.si.save()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
+                self.si._toState_finalizada()
         return True
 
     def _toState_cancelado(self):
@@ -175,16 +160,12 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         Luego, si el turno que se quiere cancelar es el unico turno activo de la SI,
         hay que volverla a estado Borrador.
         """
-        old_state = self.estado
         self.estado = 'cancelado'
         self.save()
         if self.si:
             turnosAsociados = self.si.get_turnos_activos()
             if not turnosAsociados:
-                self.si.estado = 'borrador'
-                self.si.save()
-
-        self.write_activity_log("Cambio de estado: %s -> %s" % (old_state, self.estado))
+                self.si._toState_borrador()
         return True
 
     def _delete(self):
@@ -198,7 +179,6 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         elif self.si and self.si.estado in ['finalizada', 'cancelada']:
             raise StateError('El turno no se puede borrar ya que esta asociado a una SI que se encuentra finalizada/cancelada', '')
         else:
-            self.write_activity_log("Turno #%d eliminado" % self.id)
             self.delete()
             return True
 
@@ -273,7 +253,10 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                        )
 
 # Signals
-pre_save.connect(check_state, sender=Turno)
+pre_save.connect(check_state, sender=Turno, dispatch_uid="turno.check_state")
+pre_save.connect(log_state_change, sender=Turno, dispatch_uid="turno.log_state_change")
+post_save.connect(log_create, sender=Turno, dispatch_uid="turno.log_create")
+post_delete.connect(log_delete, sender=Turno, dispatch_uid="turno.log_delete")
 
 
 @reversion.register(follow=["ofertatec"])

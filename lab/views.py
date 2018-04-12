@@ -57,7 +57,7 @@ class TurnoList(ListView):
         for turno in queryset.exclude(revisionar=True):
             if turno._revisionar():
                 turno.revisionar = True
-            turno.save()
+                turno.save()
 
     def get_queryset(self):
         queryset = Turno.objects.all().order_by('-fecha_inicio')

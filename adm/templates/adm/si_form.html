@@ -14,6 +14,21 @@
             $(".inline.{{ tarea_linea_form.prefix }}").formset({
                 prefix: "{{ tarea_linea_form.prefix }}",
             });
+
+            {% if object %}
+            $.ajax({
+                url: '/recent_activity/',
+                method: 'get',
+                data: {
+                        'content_type_id': 23,
+                        'object_id': {{ object.id }}
+                },
+                success:
+                    function(data) {
+                        $('#recent_activity_table').html(data);
+                    },
+            });
+            {% endif %}
         });
     </script>
 {% endblock %}
@@ -27,6 +42,10 @@
                 {{ choice.1 }}
             </button>
         {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div id="recent_activity_table" class="col-md-offset-1 col-md-10">
     </div>
 </div>
 <div class="row">
