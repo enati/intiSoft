@@ -703,7 +703,6 @@ class SOT(Contrato):
     def _delete(self):
         if self.estado != 'borrador':
             raise StateError('Solo se pueden borrar SOTs en estado Borrador', '')
-        self.write_activity_log("SOT #%s eliminada" % self.codigo)
         # Dado que el modelo es persistente, hay problemas cuando elimino una instancia y quiero reusar
         # el mismo codigo para uno nuevo ya que no se admiten duplicados.
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
