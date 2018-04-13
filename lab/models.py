@@ -154,13 +154,14 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                 self.si._toState_finalizada()
         return True
 
-    def _toState_cancelado(self):
+    def _toState_cancelado(self, obs=''):
         """
         Si el turno esta asociado a una SI, la SI esta en estado Pendiente.
         Luego, si el turno que se quiere cancelar es el unico turno activo de la SI,
         hay que volverla a estado Borrador.
         """
         self.estado = 'cancelado'
+        self._obs = obs
         self.save()
         if self.si:
             turnosAsociados = self.si.get_turnos_activos()

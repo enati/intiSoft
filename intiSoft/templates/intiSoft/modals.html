@@ -27,6 +27,40 @@
 </div>
 <!-- /.modal -->
 
+<div class="modal fade" id="textBoxModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body" style="text-align:center">
+            <h4></h4>
+            <p></p>
+            <br/>
+                <form id="textBoxModalForm" action={% if postUrl %}{{postUrl}}{% else %}''{% endif %} method="POST">
+                {% csrf_token %}
+                    <div class="form-group">
+                        <input id="inputField2" type="hidden" name="action" value="id"></input>
+                        <label for="textarea" style="float: left">Especifique el motivo:</label>
+                        <textarea class="form-control" id="textarea" name="observations" rows="3"></textarea>
+                        <label class="error"></label>
+                    </div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button id="submitBtn" disabled type="submit" class="btn btn-primary" name="name" value="value">Aceptar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <div class="modal fade" id="myErrorModal">
     <div class="modal-dialog">
         <div class="modal-content">

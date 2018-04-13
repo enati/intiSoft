@@ -148,7 +148,7 @@
                     {% if 'adm.cancel_otml' in user.get_all_permissions and object.estado not in "['pagado', 'cancelado']" %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="OT-ML" data-id={{object.id}}
-                           data-toggle="modal" data-target="#myModal">Cancelar OT</a>
+                           data-toggle="modal" data-target="#textBoxModal">Cancelar OT</a>
                     </li>
                     {% endif %}
                 </ul>

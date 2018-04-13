@@ -94,7 +94,7 @@
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="presupuesto" type="button" class="btn btn-default"
-                                data-id={{presup.id}} data-toggle="modal" data-target="#myModal"
+                                data-id={{presup.id}} data-toggle="modal" data-target="#textBoxModal"
                                 {% if presup.estado in "['finalizado', 'cancelado']" or 'adm.cancel_presupuesto' not in user.get_all_permissions  %}
                                     disabled
                                 {% endif %}>

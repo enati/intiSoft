@@ -736,8 +736,9 @@ class OTList(ListView):
             if request.user.has_perm('adm.cancel_ot'):
                 ot_id = request.POST.get('Cancelar')
                 ot_obj = OT.objects.get(pk=ot_id)
+                obs = request.POST.get('observations', '')
                 try:
-                    ot_obj._toState_cancelado()
+                    ot_obj._toState_cancelado(obs)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -1042,8 +1043,9 @@ class OTMLList(ListView):
             if request.user.has_perm('adm.cancel_otml'):
                 otml_id = request.POST.get('Cancelar')
                 otml_obj = OTML.objects.get(pk=otml_id)
+                obs = request.POST.get('observations', '')
                 try:
-                    otml_obj._toState_cancelado()
+                    otml_obj._toState_cancelado(obs)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -1301,8 +1303,9 @@ class SOTList(ListView):
             if request.user.has_perm('adm.cancel_sot'):
                 sot_id = request.POST.get('Cancelar')
                 sot_obj = SOT.objects.get(pk=sot_id)
+                obs = request.POST.get('observations', '')
                 try:
-                    sot_obj._toState_cancelada()
+                    sot_obj._toState_cancelada(obs)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -1566,8 +1569,9 @@ class RUTList(ListView):
             if request.user.has_perm('adm.cancel_rut'):
                 rut_id = request.POST.get('Cancelar')
                 rut_obj = RUT.objects.get(pk=rut_id)
+                obs = request.POST.get('observations', '')
                 try:
-                    rut_obj._toState_cancelada()
+                    rut_obj._toState_cancelada(obs)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
@@ -1827,9 +1831,10 @@ class SIList(ListView):
             if request.user.has_perm('adm.cancel_si'):
                 si_id = request.POST.get('Cancelar')
                 si_obj = SI.objects.get(pk=si_id)
+                obs = request.POST.get('observations', '')
                 if si_obj.ejecutor in userGroups:
                     try:
-                        si_obj._toState_cancelada()
+                        si_obj._toState_cancelada(obs)
                     except StateError as e:
                         response_dict['ok'] = False
                         response_dict['msg'] = e.message
@@ -1965,7 +1970,7 @@ class PresupuestoList(ListView):
         for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
             if ((presup.fecha_realizado + timedelta(days=21) < datetime.now().date() and not(presup.asistencia)) or
                (presup.fecha_realizado + timedelta(days=60) < datetime.now().date() and presup.asistencia)):
-                presup._toState_cancelado()
+                presup._toState_cancelado(obs="Registro automático: Presupuesto vencido")
 
     def get_queryset(self):
         queryset = Presupuesto.objects.select_related().order_by('-codigo')
@@ -2048,8 +2053,9 @@ class PresupuestoList(ListView):
             if request.user.has_perm('adm.cancel_presupuesto'):
                 presup_id = request.POST.get('Cancelar')
                 presup_obj = Presupuesto.objects.get(pk=presup_id)
+                obs = request.POST.get('observations', '')
                 try:
-                    presup_obj._toState_cancelado()
+                    presup_obj._toState_cancelado(obs)
                 except StateError as e:
                     response_dict['ok'] = False
                     response_dict['msg'] = e.message
