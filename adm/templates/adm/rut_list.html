@@ -89,7 +89,7 @@
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="RUT" type="button" class="btn btn-default"
-                                data-id={{rut.id}} data-toggle="modal" data-target="#myModal"
+                                data-id={{rut.id}} data-toggle="modal" data-target="#textBoxModal"
                                 {% if rut.estado in "['cobrada', 'cancelada']" or 'adm.cancel_rut' not in user.get_all_permissions or rut.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>

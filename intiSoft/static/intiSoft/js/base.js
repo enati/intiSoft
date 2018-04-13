@@ -683,13 +683,73 @@ $(document).ready(function() {
             submitButton.name = action
             submitButton.value = id
 
-
             inputField.name = action
             inputField.value = id
         }
 
         trlink=true;
-    })
+    });
+
+    $('#textBoxModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var action = button.data('action')
+        var model = button.data('model')
+        var id = button.data('id')
+        var f = document.getElementById('textBoxForm')
+        var submitButton = document.getElementById('submitBtn')
+        var inputField = document.getElementById('inputField2')
+        var modal = $(this)
+        modal.find('.modal-title').text(action +' '+ model)
+
+        submitButton.name = action
+        submitButton.value = id
+
+        inputField.name = action
+        inputField.value = id
+
+        trlink=true;
+    });
+
+    $('#textBoxModal').on('hide.bs.modal', function (event) {
+         // Si no lo destruyo queda cacheado
+         $(this).data('bs.modal', null);
+         trlink=true;
+    });
+
+    $('textarea[name=observations]').bind('input propertychange', function() {
+        if($.trim($('[name=observations]').val()) == '' ||
+           ($.trim($('[name=observations]').val())).indexOf('Registro automático') >= 0){
+            $("#submitBtn").prop('disabled', true);
+        } else {
+            $("#submitBtn").prop('disabled', false);
+        }
+    });
+
+    $('#textBoxModalForm').on('submit', function() {
+        $.ajax({
+            url     : $(this).attr('action'),
+            type    : $(this).attr('method'),
+            dataType: 'json',
+            data    : $(this).serialize(),
+            success : function( json ) {
+                        if (json.ok) {
+                            $('#textBoxModal').modal('hide');
+                            window.location = window.location.href.split("?")[0];
+                            window.location.reload();
+                        }
+                        else {
+                            $('#textBoxModal').modal('hide');
+                            $('#myErrorModal .modal-body h4').text(json.msg);
+                            $('#myErrorModal').modal('show');
+                        }
+            },
+            error   : function( json ) {
+                     alert("ERROR!");
+                     $('#textBoxModal').modal('hide');
+            }
+        });
+        return false;
+    });
 
     $('.dropdown').on({
         "hide.bs.dropdown": function () {

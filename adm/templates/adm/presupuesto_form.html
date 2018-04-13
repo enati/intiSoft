@@ -151,7 +151,7 @@
                     {% if 'adm.cancel_presupuesto' in user.get_all_permissions and object.estado in "['borrador', 'aceptado', 'en_proces_de_facturacion']" %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="presupuesto" data-id={{object.id}}
-                           data-toggle="modal" data-target="#myModal">Cancelar Presupuesto</a>
+                           data-toggle="modal" data-target="#textBoxModal">Cancelar Presupuesto</a>
                     </li>
                     {% endif %}
                     <li role="separator" class="divider" />

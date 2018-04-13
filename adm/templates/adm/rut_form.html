@@ -134,7 +134,7 @@
                     {% if 'adm.cancel_rut' in user.get_all_permissions and object.estado not in "['cobrada', 'cancelada']" %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="RUT" data-id={{object.id}}
-                           data-toggle="modal" data-target="#myModal">Cancelar RUT</a>
+                           data-toggle="modal" data-target="#textBoxModal">Cancelar RUT</a>
                     </li>
                     {% endif %}
                     <li role="separator" class="divider" />

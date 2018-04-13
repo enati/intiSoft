@@ -12,7 +12,13 @@ def log_state_change(sender, instance, **kwargs):
     if instance.pk:
         estado_orig = sender.objects.get(pk=instance.pk).estado
         if estado_orig != instance.estado:
-            instance.write_activity_log("Cambio de estado: %s -> %s" % (estado_orig, instance.estado))
+            try:
+                if instance._obs:
+                    instance.write_activity_log("Cambio de estado: %s -> %s" % (estado_orig, instance.estado), instance._obs)
+                else:
+                    instance.write_activity_log("Cambio de estado: %s -> %s" % (estado_orig, instance.estado))
+            except:
+                instance.write_activity_log("Cambio de estado: %s -> %s" % (estado_orig, instance.estado))
 
 
 # post_delete

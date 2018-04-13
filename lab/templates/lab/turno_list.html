@@ -127,7 +127,7 @@
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="turno" type="button" class="btn btn-default"
-                                data-id={{turno.id}} data-toggle="modal" data-target="#myModal"
+                                data-id={{turno.id}} data-toggle="modal" data-target="#textBoxModal"
                                 {% if turno.estado == 'cancelado' or turno.estado == 'finalizado' or cancel_perm not in user.get_all_permissions %}
                                     disabled
                                 {% endif %}>

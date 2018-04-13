@@ -782,12 +782,14 @@ class Recibo_LineaForm(forms.ModelForm):
         fields = ['comprobante_cobro',
                   'numero',
                   'fecha',
-                  'importe']
+                  'importe',
+                  'observaciones']
         widgets = {
             'fecha': forms.DateInput(attrs={'class': 'datepicker',
                                                       'readonly': True},),
             'importe': forms.TextInput(),
-            }
+            'observaciones': forms.Textarea(attrs={'rows': 2}),
+        }
         error_messages = {
             'numero': {
                 'required': 'Campo obligatorio.',

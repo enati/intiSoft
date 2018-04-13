@@ -89,7 +89,7 @@
                         <td>
                             <button onclick="trlink=false;" title="Cancelar" data-action="Cancelar"
                                 data-model="SOT" type="button" class="btn btn-default"
-                                data-id={{sot.id}} data-toggle="modal" data-target="#myModal"
+                                data-id={{sot.id}} data-toggle="modal" data-target="#textBoxModal"
                                 {% if sot.estado in "['cobrada', 'cancelada']" or 'adm.cancel_sot' not in user.get_all_permissions or sot.get_area not in userGroups %}
                                     disabled
                                 {% endif %}>

@@ -213,7 +213,7 @@
                     {% if turno.estado != 'cancelado' and turno.estado != 'finalizado' and cancel_perm in user.get_all_permissions %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="turno" data-id={{object.id}}
-                           data-toggle="modal" data-target="#myModal">Cancelar Turno</a>
+                           data-toggle="modal" data-target="#textBoxModal">Cancelar Turno</a>
                     </li>
                     {% endif %}
                     {% if form.instance.si == None %}

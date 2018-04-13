@@ -157,7 +157,7 @@
                     {% if 'adm.cancel_ot' in user.get_all_permissions and object.estado not in "['pagado', 'cancelado']" %}
                     <li>
                         <a href="#" data-action="Cancelar" data-model="OT" data-id={{object.id}}
-                           data-toggle="modal" data-target="#myModal">Cancelar OT</a>
+                           data-toggle="modal" data-target="#textBoxModal">Cancelar OT</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -582,6 +582,7 @@
                                                 <td>Numero</td>
                                                 <td>Fecha</td>
                                                 <td>Importe</td>
+                                                <td>Observaciones</td>
                                             </thead>
                                             <tbody>
                                                 {% for r_form in f_form.nested.0 %}
@@ -620,6 +621,13 @@
                                                                     {{ r_form.importe.value | floatformat }}
                                                                 {% endif %}
                                                             </div>
+                                                        </td>
+                                                        <td>
+                                                            {% if edit %}
+                                                                {{ r_form.observaciones }} {{ r_form.observaciones.errors }}
+                                                            {% else %}
+                                                                {{ r_form.observaciones.value | default_if_none:"" }}
+                                                            {% endif %}
                                                             {% if edit %}
                                                                 {% if r_form.instance.pk %}
                                                                     {{ r_form.DELETE }}

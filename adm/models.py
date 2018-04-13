@@ -295,15 +295,16 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         self.save()
         return True
 
-    def _toState_cancelado(self):
+    def _toState_cancelado(self, obs=''):
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar los presupuestos finalizados.', '')
         self.estado = 'cancelado'
+        self._obs = obs
         self.save()
         # Cancelo el turno activo asociado, de haberlo
         turnoList = self.get_turnos_activos()
         for turno in turnoList:
-                turno._toState_cancelado()
+                turno._toState_cancelado(obs='Registro automático: Presupuesto cancelado')
         return True
 
     def _delete(self):
@@ -464,10 +465,11 @@ class OT(Contrato):
             self.presupuesto._toState_finalizado()
         return True
 
-    def _toState_cancelado(self):
+    def _toState_cancelado(self, obs=''):
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
+        self._obs = obs
         self.save()
         ## Cancelo las facturas asociadas, de haberlas
         for factura in self.factura_set.all():
@@ -565,10 +567,11 @@ class OTML(Contrato):
         self.save()
         return True
 
-    def _toState_cancelado(self):
+    def _toState_cancelado(self, obs=''):
         if self.estado == 'finalizado':
             raise StateError('No se pueden cancelar las OT pagadas.', '')
         self.estado = 'cancelado'
+        self._obs = obs
         self.save()
         ## Cancelo las facturas asociadas, de haberlas
         for factura in self.factura_set.all():
@@ -693,10 +696,11 @@ class SOT(Contrato):
         self.save()
         return True
 
-    def _toState_cancelada(self):
+    def _toState_cancelada(self, obs=''):
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las SOT cobradas.', '')
         self.estado = 'cancelada'
+        self._obs = obs
         self.save()
         return True
 
@@ -811,10 +815,11 @@ class RUT(Contrato):
         self.save()
         return True
 
-    def _toState_cancelada(self):
+    def _toState_cancelada(self, obs=''):
         if self.estado == 'cobrada':
             raise StateError('No se pueden cancelar las RUT cobradas.', '')
         self.estado = 'cancelada'
+        self._obs = obs
         self.save()
         return True
 
@@ -940,13 +945,14 @@ class SI(Contrato):
         self.save()
         return True
 
-    def _toState_cancelada(self):
+    def _toState_cancelada(self, obs=''):
         if self.estado == 'finalizada':
             raise StateError('No se pueden cancelar las SI finalizadas.', '')
         # Cancelo los turnos asociados
         for turno in self.turno_set.all():
-            turno._toState_cancelado()
+            turno._toState_cancelado("Registro automático: SI cancelada")
         self.estado = 'cancelada'
+        self._obs = obs
         self.save()
         return True
 
@@ -1090,6 +1096,7 @@ class Recibo(TimeStampedModel, AuthStampedModel):
     fecha = models.DateField("Fecha", blank=False, null=True)
     importe = models.FloatField("Importe", blank=True, null=True, default=0)
     factura = models.ForeignKey(Factura, verbose_name="Factura", on_delete=models.CASCADE)
+    observaciones = models.TextField("Observaciones", max_length=500, blank=True, null=True)
 
     #def save(self, *args, **kwargs):
         #if not self.pk:

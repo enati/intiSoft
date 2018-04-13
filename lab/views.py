@@ -130,7 +130,8 @@ class TurnoList(ListView):
             if request.user.has_perm('lab.cancel_turno_' + self.lab):
                 turno_id = request.POST.get('Cancelar')
                 turno_obj = Turno.objects.get(pk=turno_id)
-                turno_obj._toState_cancelado()
+                obs = request.POST.get('observations', '')
+                turno_obj._toState_cancelado(obs)
             else:
                 raise PermissionDenied
         if 'Eliminar' in request.POST:
