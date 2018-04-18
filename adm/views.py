@@ -1971,8 +1971,8 @@ class PresupuestoList(ListView):
         Para las asistencias el plazo es 60 dias corridos.
         """
         for presup in queryset.filter(estado='borrador').exclude(fecha_realizado=None):
-            if ((presup.fecha_realizado + timedelta(days=21) < datetime.now().date() and not(presup.asistencia)) or
-               (presup.fecha_realizado + timedelta(days=60) < datetime.now().date() and presup.asistencia)):
+            if ((presup.fecha_realizado + timedelta(days=21) < datetime.now().date() and presup.tipo != 'asistencia') or
+               (presup.fecha_realizado + timedelta(days=60) < datetime.now().date() and presup.tipo == 'asistencia')):
                 presup._toState_cancelado(obs="Registro automático: Presupuesto vencido")
 
     def get_queryset(self):
