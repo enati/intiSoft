@@ -502,7 +502,7 @@ $(document).ready(function() {
         $.ajax({
             url: domain + '/adm/presup/viewWord/'+id+'/'+template,
             method: 'get',
-            success: function(){ location.href = '/adm/presup/viewWord/'+id+'/'+template },
+            success: function(){ domain + location.href = '/adm/presup/viewWord/'+id+'/'+template },
             error: function(data){alert('ERROR')}
         });
         trlink=true;
