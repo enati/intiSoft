@@ -342,7 +342,7 @@ def viewWord(request, *args, **kwargs):
 
 
 def viewSOT(request, *args, **kwargs):
-    sot_id = args.get('pk')
+    sot_id = kwargs.get('pk')
     sot_obj = SOT.objects.get(id=sot_id)
     vals = {}
     vals['nro_ejecutor'] = sot_obj.ejecutor.nro_usuario
