@@ -11,7 +11,6 @@ import os
 def genWord(vals):
     #Windows
     path = '/home/rocco/www/intiSoft/Plantillas/'
-    path = '/home/nati/Desktop/intiSoft/Plantillas/'
     document = Document(path + vals['plantilla'])
 
     # Documento temporal para la tabla de OTs
