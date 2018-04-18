@@ -491,67 +491,23 @@ $(document).ready(function() {
     //    });
     //};
 
-    $("#id_asistencia").click(function() {
-        var id = $("#viewWord").data('id');
-        document.getElementById("id_calibracion").checked = false;
-        document.getElementById("id_in_situ").checked = false;
-        document.getElementById("id_lia").checked = false;
-        //postForm();
-    });
 
-    $("#id_calibracion").click(function() {
-        var id = $("#viewWord").data('id');
-        document.getElementById("id_asistencia").checked = false;
-        document.getElementById("id_in_situ").checked = false;
-        document.getElementById("id_lia").checked = false;
-        //postForm();
-    });
+    //$("#viewWord").click(function(e) {
+    //    postForm();
+    //});
 
-    $("#id_in_situ").click(function() {
-
-        document.getElementById("id_asistencia").checked = false;
-        document.getElementById("id_calibracion").checked = false;
-        document.getElementById("id_lia").checked = false;
-        //postForm();
-    });
-
-    $("#id_lia").click(function() {
-        var id = $("#viewWord").data('id');
-        document.getElementById("id_asistencia").checked = false;
-        document.getElementById("id_calibracion").checked = false;
-        document.getElementById("id_in_situ").checked = false;
-        //postForm();
-    });
-
-    $("#viewWord").click(function(e) {
+    $('#viewWord').click(function(event) {
         var id = $(this).data('id')
-        asist = document.getElementById("id_asistencia");
-        calib = document.getElementById("id_calibracion");
-        in_situ = document.getElementById("id_in_situ");
-        lia = document.getElementById("id_lia");
-
-        if (!asist.checked &
-            !calib.checked &
-            !in_situ.checked &
-            !lia.checked)
-        {
-            $('#myErrorModal .modal-body h4').text("No hay ninguna plantilla seleccionada.");
-            $('#myErrorModal').modal('show');
-            return false
-        }
+        var template = $("#id_tipo").val();
+        $.ajax({
+            url: domain + '/adm/presup/viewWord/'+id+'/'+template,
+            method: 'get',
+            success: function(){ location.href = '/adm/presup/viewWord/'+id+'/'+template },
+            error: function(data){alert('ERROR')}
+        });
+        trlink=true;
+        return false;
     });
-
-    //$('#viewWord').click(function(event) {
-         //   var id = $(this).data('id')
-         //   $.ajax({
-         //   url: '/adm/presup/viewWord/',
-         //   method: 'get',
-         //   data: {'presup_id': id},
-         //   success: function(){ location.href = '/adm/presup/viewWord/' }
-         //});
-            //trlink=true;
-            //return false;
-        //});
 
 
     $('#myForm').on('submit', function() {

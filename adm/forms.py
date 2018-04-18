@@ -12,7 +12,7 @@ from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group, User
 
-editable_fields = ['fecha_realizado', 'fecha_aceptado', 'asistencia', 'calibracion', 'in_situ', 'lia']
+editable_fields = ['fecha_realizado', 'fecha_aceptado', 'tipo']
 
 
 def bootstrap_format(f, **kwargs):
@@ -995,10 +995,6 @@ class PresupuestoForm(forms.ModelForm):
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'presup_code'
         self.fields['codigo'].widget.attrs['form'] = 'presupForm'
-        self.fields['asistencia'].widget.attrs['class'] = ''
-        self.fields['calibracion'].widget.attrs['class'] = ''
-        self.fields['in_situ'].widget.attrs['class'] = ''
-        self.fields['lia'].widget.attrs['class'] = ''
         if self.instance and self.instance.estado != 'borrador':
             for f in self.fields:
                 if (f not in editable_fields) or\
@@ -1047,29 +1043,6 @@ class PresupuestoForm(forms.ModelForm):
         else:
             return self.cleaned_data['estado']
 
-    #def clean_asistencia(self):
-        #if self.instance and self.instance.estado != 'borrador':
-            #return self.instance.asistencia
-        #else:
-            #return self.cleaned_data['asistencia']
-
-    #def clean_calibracion(self):
-        #if self.instance and self.instance.estado != 'borrador':
-            #return self.instance.calibracion
-        #else:
-            #return self.cleaned_data['calibracion']
-
-    #def clean_in_situ(self):
-        #if self.instance and self.instance.estado != 'borrador':
-            #return self.instance.in_situ
-        #else:
-            #return self.cleaned_data['in_situ']
-
-    #def clean_lia(self):
-        #if self.instance and self.instance.estado != 'borrador':
-            #return self.instance.lia
-        #else:
-            #return self.cleaned_data['lia']
 
     def clean(self):
         cleaned_data = super(PresupuestoForm, self).clean()
@@ -1089,10 +1062,7 @@ class PresupuestoForm(forms.ModelForm):
                   'fecha_realizado',
                   'fecha_aceptado',
                   'estado',
-                  'asistencia',
-                  'calibracion',
-                  'in_situ',
-                  'lia',
+                  'tipo',
                   'pdt']
 
         error_messages = {

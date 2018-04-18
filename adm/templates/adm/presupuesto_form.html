@@ -96,7 +96,7 @@
             {% if form.instance.estado in "['borrador', 'aceptado']" %}
                 {% if revision %}
                     <div class="col-md-2">
-                        <input type="submit" value="Guardar" class="btn btn-danger" form="presupForm">
+                        <input id="save" type="submit" value="Guardar" class="btn btn-danger" form="presupForm">
                     </div>
                     <div class="col-md-2" style="padding-left: 0px">
                         <a class="cancel btn btn-default" href="#" onclick="rollBackPresupuesto()">
@@ -157,7 +157,7 @@
                     <li role="separator" class="divider" />
                     {% if 'adm.add_presupuesto' in user.get_all_permissions %}
                     <li>
-                        <a id="viewWord" href="{% url 'adm:presup-viewWord' object.id %}" data-id="{{object.id}}">Generar Presupuesto</a>
+                        <a id="viewWord" href="" data-id="{{object.id}}">Generar Presupuesto</a>
                     </li>
                     {% endif %}
                     {% if object.estado in "['borrador', 'aceptado']" %}
@@ -230,59 +230,17 @@
                         </br>
                         <div id="plantilla" class="col-md-12">
                             <label class="col-md-2" style="text-align:left"
-                             for="id_asistencia">Asistencia</label>
-                            <div class="col-md-1">
+                             for="id_tipo">Tipo de Presupuesto</label>
+                            <div class="col-md-2">
                                 {% if edit %}
-                                    {{ form.asistencia }}
-                                    {% for error in form.asistencia.errors %}
+                                    {{ form.tipo }}
+                                    {% for error in form.tipo.errors %}
                                        <div class="alert alert-error">
                                            <strong>{{ error|escape }}</strong>
                                        </div>
                                    {% endfor %}
                                 {% else %}
-                                    {{ form.asistencia|disable }}
-                                {% endif %}
-                            </div>
-                            <label class="col-md-2" style="text-align:left"
-                                 for="id_calibracion">Calibración</label>
-                            <div class="col-md-1">
-                                {% if edit %}
-                                    {{ form.calibracion }}
-                                   {% for error in form.calibracion.errors %}
-                                       <div class="alert alert-error">
-                                           <strong>{{ error|escape }}</strong>
-                                       </div>
-                                   {% endfor %}
-                                {% else %}
-                                    {{ form.calibracion|disable }}
-                                {% endif %}
-                            </div>
-                            <label class="col-md-2" style="text-align:left"
-                                 for="id_in_situ">In Situ</label>
-                            <div class="col-md-1">
-                                {% if edit %}
-                                    {{ form.in_situ }}
-                                    {% for error in form.in_situ.errors %}
-                                       <div class="alert alert-error">
-                                           <strong>{{ error|escape }}</strong>
-                                       </div>
-                                   {% endfor %}
-                                {% else %}
-                                    {{ form.in_situ|disable }}
-                                {% endif %}
-                            </div>
-                            <label class="col-md-2" style="text-align:left"
-                                 for="id_lia">LIA</label>
-                            <div class="col-md-1">
-                                {% if edit %}
-                                    {{ form.lia }}
-                                    {% for error in form.lia.errors %}
-                                       <div class="alert alert-error">
-                                           <strong>{{ error|escape }}</strong>
-                                       </div>
-                                   {% endfor %}
-                                {% else %}
-                                    {{ form.lia|disable }}
+                                    {{ form.tipo|disable }}
                                 {% endif %}
                             </div>
                         </div>
@@ -579,59 +537,17 @@
                             </br>
                             <div id="plantilla" class="col-md-12">
                                 <label class="col-md-2" style="text-align:left"
-                                 for="id_asistencia">Asistencia</label>
+                                 for="id_tipo">Tipo de Presupuesto</label>
                                 <div class="col-md-1">
                                     {% if edit %}
-                                        {{ form.asistencia }}
-                                        {% for error in form.asistencia.errors %}
+                                        {{ form.tipo }}
+                                        {% for error in form.tipo.errors %}
                                            <div class="alert alert-error">
                                                <strong>{{ error|escape }}</strong>
                                            </div>
                                        {% endfor %}
                                     {% else %}
-                                        {{ form.asistencia|disable }}
-                                    {% endif %}
-                                </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_calibracion">Calibración</label>
-                                <div class="col-md-1">
-                                    {% if edit %}
-                                        {{ form.calibracion }}
-                                       {% for error in form.calibracion.errors %}
-                                           <div class="alert alert-error">
-                                               <strong>{{ error|escape }}</strong>
-                                           </div>
-                                       {% endfor %}
-                                    {% else %}
-                                        {{ form.calibracion|disable }}
-                                    {% endif %}
-                                </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_in_situ">In Situ</label>
-                                <div class="col-md-1">
-                                    {% if edit %}
-                                        {{ form.in_situ }}
-                                        {% for error in form.in_situ.errors %}
-                                           <div class="alert alert-error">
-                                               <strong>{{ error|escape }}</strong>
-                                           </div>
-                                       {% endfor %}
-                                    {% else %}
-                                        {{ form.in_situ|disable }}
-                                    {% endif %}
-                                </div>
-                                <label class="col-md-2" style="text-align:left"
-                                     for="id_lia">LIA</label>
-                                <div class="col-md-1">
-                                    {% if edit %}
-                                        {{ form.lia }}
-                                        {% for error in form.lia.errors %}
-                                           <div class="alert alert-error">
-                                               <strong>{{ error|escape }}</strong>
-                                           </div>
-                                       {% endfor %}
-                                    {% else %}
-                                        {{ form.lia|disable }}
+                                        {{ form.tipo|disable }}
                                     {% endif %}
                                 </div>
                             </div>

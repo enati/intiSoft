@@ -291,6 +291,7 @@ def filterOT(request, area):
 
 def viewWord(request, *args, **kwargs):
     presup_id = kwargs.get('pk')
+    presup_template = kwargs.get('template')
     presup_obj = Presupuesto.objects.get(id=presup_id)
     vals = {}
     turnos_activos = presup_obj.get_turnos_activos()
@@ -322,14 +323,16 @@ def viewWord(request, *args, **kwargs):
 
     vals['plantilla'] = ''
 
-    if presup_obj.asistencia:
+    if presup_template == 'asistencia':
         vals['plantilla'] = 'Presupuesto Asistencia.docx'
-    elif presup_obj.calibracion:
+    elif presup_template == 'calibracion':
         vals['plantilla'] = 'Presupuesto Calibracion.docx'
-    elif presup_obj.in_situ:
+    elif presup_template == 'in_situ':
         vals['plantilla'] = 'Presupuesto In Situ.docx'
-    elif presup_obj.lia:
+    elif presup_template == 'lia':
         vals['plantilla'] = 'Presupuesto LIA.docx'
+    elif presup_template == 'mat_ref':
+        vals['plantilla'] = 'Materiales de Referencia.docx'
 
     for turno in turnos_activos:
         for o in turno.ofertatec_linea_set.get_queryset():
@@ -339,7 +342,7 @@ def viewWord(request, *args, **kwargs):
 
 
 def viewSOT(request, *args, **kwargs):
-    sot_id = kwargs.get('pk')
+    sot_id = args.get('pk')
     sot_obj = SOT.objects.get(id=sot_id)
     vals = {}
     vals['nro_ejecutor'] = sot_obj.ejecutor.nro_usuario

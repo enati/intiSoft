@@ -11,7 +11,7 @@ import os
 def genWord(vals):
     #Windows
     path = '/home/rocco/www/intiSoft/Plantillas/'
-
+    path = '/home/nati/Desktop/intiSoft/Plantillas/'
     document = Document(path + vals['plantilla'])
 
     # Documento temporal para la tabla de OTs
@@ -64,6 +64,8 @@ def genWord(vals):
     if vals['plantilla'] == 'Presupuesto LIA.docx':
         table.column_cells(0)[10].paragraphs[0].add_run(vals['fecha_inicio'], 'OT_TableStyle')
         table.column_cells(0)[10].paragraphs[3].add_run(vals['fecha_fin'], 'OT_TableStyle')
+    if vals['plantilla'] == 'Materiales de Referencia.docx':
+        table.column_cells(0)[9].paragraphs[0].add_run(vals['fecha_fin'], 'OT_TableStyle')
 
     # OT's
     if vals['ofertatec']:

@@ -101,7 +101,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                 elif (hoy > fecha_limite):
                     # El instrumento no llego pasados 2 dias habiles a la fecha de inicio
                     # y no es in_situ ni asistencia
-                    if not (self.presupuesto.in_situ or self.presupuesto.asistencia):
+                    if (self.presupuesto.tipo not in ('in_situ', 'asistencia')):
                         return True
             return False
         except:
@@ -117,8 +117,7 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
                 if self.presupuesto and\
                     (not (self.presupuesto.instrumento_set.last().fecha_instrumento and self.presupuesto.fecha_aceptado)
                     and pasado_manana >= self.fecha_inicio)\
-                    and not (self.presupuesto.in_situ)\
-                    and not (self.presupuesto.asistencia):
+                    and (self.presupuesto.tipo not in ('in_situ', 'asistencia')):
                         return True
             return False
         except:

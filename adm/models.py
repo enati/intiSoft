@@ -221,6 +221,14 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
         ('cancelado', 'Cancelado'),
     )
 
+    TIPOS = (
+        ('calibracion', 'Calibración'),
+        ('asistencia', 'Asistencia'),
+        ('in_situ', 'In Situ'),
+        ('lia', 'LIA'),
+        ('mat_ref', 'Materiales de Referencia'),
+    )
+
     estado = models.CharField('Estado', max_length=25, choices=ESTADOS, default='borrador')
     codigo = models.CharField('Nro. Presupuesto', max_length=15,
                               unique=True, default=nextCode,
@@ -234,10 +242,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
                                 on_delete=models.PROTECT)
     revisionar = models.BooleanField('Revisionar', default=False)
     nro_revision = models.IntegerField('Nro. Revisión', default=0)
-    asistencia = models.BooleanField('Asistencia', default=False)
-    calibracion = models.BooleanField('Calibración', default=False)
-    in_situ = models.BooleanField('In Situ', default=False)
-    lia = models.BooleanField('LIA', default=False)
+    tipo = models.CharField('Tipo', max_length=11, choices=TIPOS, default='calibracion')
     pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
 
     def __str__(self):
