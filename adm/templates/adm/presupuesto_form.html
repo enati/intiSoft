@@ -415,8 +415,8 @@
                                                       {% elif t.estado == 'cancelado' %} "danger"
                                                   {% endif %}
                                             >
-                                                <td>{{ t.fecha_inicio }}</td>
-                                                <td>{{ t.fecha_fin }}</td>
+                                                <td>{{ t.fecha_inicio | default_if_none:"-" }}</td>
+                                                <td>{{ t.fecha_fin | default_if_none:"-" }}</td>
                                                 <td>{{ t.area }}</td>
                                             </tr>
                                         {% endfor %}

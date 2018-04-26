@@ -303,6 +303,8 @@ def viewWord(request, *args, **kwargs):
     vals['solicitante'] = presup_obj.usuario.nombre
     vals['contacto'] = presup_obj.usuario.nombre
     vals['ofertatec'] = []
+    vals['fecha_inicio'] = ''
+    vals['fecha_fin'] = ''
     # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision del primer turno
     if turnos_activos:
         # Si todavia no esta completa la fecha_realizado del presupuesto pongo la fecha de hoy
@@ -311,15 +313,13 @@ def viewWord(request, *args, **kwargs):
         turnoFechaInicioAnterior = turnos_activos[0]
         turnos_activos = turnos_activos.order_by('-fecha_fin')
         turnoFechaFinPosterior = turnos_activos[0]
-        date_less_five = turnoFechaInicioAnterior.fecha_inicio - timedelta(days=7)
-        if date_less_five <= fecha_realizado:
-            vals['fecha_inicio'] = turnoFechaInicioAnterior.fecha_inicio.strftime('%d/%m/%Y')
-        else:
-            vals['fecha_inicio'] = less_five(turnoFechaInicioAnterior.fecha_inicio)
+        if turnoFechaInicioAnterior.fecha_inicio:
+            date_less_five = turnoFechaInicioAnterior.fecha_inicio - timedelta(days=7)
+            if date_less_five <= fecha_realizado:
+                vals['fecha_inicio'] = turnoFechaInicioAnterior.fecha_inicio.strftime('%d/%m/%Y')
+            else:
+                vals['fecha_inicio'] = less_five(turnoFechaInicioAnterior.fecha_inicio)
         vals['fecha_fin'] = plus_five(turnoFechaFinPosterior.fecha_fin)
-    else:
-        vals['fecha_inicio'] = ''
-        vals['fecha_fin'] = ''
 
     vals['plantilla'] = ''
 
