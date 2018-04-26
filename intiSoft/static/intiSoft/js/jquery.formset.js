@@ -94,6 +94,7 @@
                     if (buttonRow.is(':hidden') && showAddButton()) buttonRow.show();
                     // If a post-delete callback was provided, call it with the deleted form:
                     if (options.removed) options.removed(row);
+                    $('#ofertatec_formtable').trigger('row-deleted');
                     return false;
                 });
             };
@@ -180,6 +181,16 @@
                 row.insertBefore(buttonRow).show();
                 row.find(childElementSelector).each(function() {
                     updateElementIndex($(this), options.prefix, formCount);
+                });
+                row.find(childElementSelector).not(options.keepFieldValues).each(function() {
+                    var elem = $(this);
+                    // If this is a checkbox or radiobutton, uncheck it.
+                    // This fixes Issue 1, reported by Wilson.Andrew.J:
+                    if (elem.is('input:checkbox') || elem.is('input:radio')) {
+                        elem.attr('checked', false);
+                    } else {
+                        elem.val('');
+                    }
                 });
                 totalForms.val(formCount + 1);
                 // Check if we've exceeded the maximum allowed number of forms:

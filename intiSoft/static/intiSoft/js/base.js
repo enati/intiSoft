@@ -280,6 +280,9 @@ $(document).ready(function() {
             splitted_id[splitted_id.length-1] = 'codigo';
             codigo_id = '#'.concat(splitted_id.join("-"));
             codigo = $(codigo_id);
+            splitted_id[splitted_id.length-1] = 'cantidad';
+            cantidad_id = '#'.concat(splitted_id.join("-"));
+            cantidad = $(cantidad_id);
             splitted_id[splitted_id.length-1] = 'precio';
             precio_id = '#'.concat(splitted_id.join("-"));
             precio = $(precio_id);
@@ -298,7 +301,10 @@ $(document).ready(function() {
                 data: {'ot_id': ot_id},
                 success: function(data){
                     codigo.val(data['codigo']);
+                    cantidad.val(1);
+                    cantidad.trigger("input");// Para actualizar el importe bruto/neto
                     precio.val(data['precio']);
+                    precio.trigger("input"); // Para actualizar el importe bruto/neto
                     detalle.val(data['detalle']);
                     tipo_servicio.val(data['tipo_servicio']);
                     precio_total.val(data['precio_total']);
@@ -332,6 +338,7 @@ $(document).ready(function() {
 
                     // Borro todas las lineas de oferta tecnologica actuales
                     $('#ofertatec_formtable a.delete-row').click()
+                    $('#ofertatec_formtable').trigger('row-deleted');
                     if (data['ofertatec'].length > 0) {
                         // Traigo las lineas de oferta tecnologica del presupuesto
                         for (i=0; i<data['ofertatec'].length; i++) {
@@ -345,6 +352,7 @@ $(document).ready(function() {
                             $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
                             $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
                             $('#ofertatec_formtable tr:last>td>textarea').val(data['ofertatec'][i].observaciones);
+                            $('#ofertatec_formtable').trigger('row-added');
                         }
                     };
                 },
@@ -385,29 +393,47 @@ $(document).ready(function() {
         }
     });
 
-    $("[id^=id_ofertatec][id$=cant_horas], [id^=id_ofertatec][id$=cantidad], [id^=id_ofertatec][id$=precio]")
-        .on('change', function (e) {
-            var cant_horas_id = $(this).attr('id'),
-                formset_number = cant_horas_id.split("-")[1],
-                cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
-                cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
-                precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
-                precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
-                acc = precio;
+    function recalculateTotal() {
+        //Recalculo el importe neto y el bruto
+        var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
+            total = 0,
+            importe_bruto = $("[id$=id_importe_bruto]"),
+            importe_neto = $("[id$=id_importe_neto]"),
+            descuento_val = parseFloat($("[id$=id_descuento]").val());
 
-                if (!isNaN(cant_horas)) {
-                    acc *= cant_horas;
-                }
-                if (!isNaN(cantidad)) {
-                    acc *= cantidad;
-                }
-                precio_total.val(acc);
+        for (var i=0; i<otLinePrice_list.length; i++) {
+            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
+                var line_total = parseFloat(otLinePrice_list[i].value);
+                if (!isNaN(line_total))
+                    total += line_total;
+            }
+        }
+        importe_bruto.val(total);
+        if (!isNaN(descuento_val))
+            importe_neto.val(total - descuento_val);
+        else
+            importe_neto.val(total);
+    }
+
+    $("#ofertatec_formtable").on('row-deleted', function(e) {
+        recalculateTotal();
     });
 
-    $("[id^=id_adm-ot][id$=cantidad], [id^=id_adm-ot][id$=cant_horas], [id^=id_adm-ot][id$=precio]")
-            .on('change', function (e) {
-                var cant_horas_id = $(this).attr('id'),
-                    formset_number = cant_horas_id.split("-")[4],
+    $("#ofertatec_formtable").on('row-added', function(e) {
+        recalculateTotal();
+    });
+
+    $("#id_descuento").on('input', function() {
+        recalculateTotal();
+    });
+
+    $("[id^=id_adm-ot][id$=cantidad]," +
+      "[id^=id_adm-ot][id$=cant_horas]," +
+      "[id^=id_adm-ot][id$=precio]")
+            .on('input', function (e) {
+                // Recalculo los campos cantidad, cantidad_horas, precio y precio_total.
+                var input_id = $(this).attr('id'),
+                    formset_number = input_id.split("-")[4],
                     cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
                     cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
                     precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
@@ -421,21 +447,10 @@ $(document).ready(function() {
                     acc *= cantidad;
                 }
                 precio_total.val(acc);
-    });
 
-    $("[id^=id_adm-ot][id$=cant_horas]").on('change', function (e) {
-        cant_horas_id = $(this).attr('id')
-        formset_number = cant_horas_id.split("-")[4];
-        cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val());
-        cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val());
-        precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val());
-        precio_total = $("[id$="+formset_number+"-precio_total"+"]");
-        if (isNaN(cant_horas)) {
-            precio_total.val(precio);
-        }
-        else {
-            precio_total.val(cantidad*cant_horas*precio);
-        }
+                // Recalculo los campos importe neto e importe bruto
+                recalculateTotal();
+
     });
 
     $("[id^=id_adm-factura][id$=numero]").on('change', function (e) {

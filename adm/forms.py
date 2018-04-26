@@ -41,6 +41,8 @@ class OTForm(forms.ModelForm):
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'OTForm'
+        self.fields['importe_bruto'].widget.attrs['readonly'] = True
+        self.fields['importe_neto'].widget.attrs['readonly'] = True
         if self.instance:
             if self.instance.estado in ['sin_facturar']:
                 # Solo se deben poder crear OTS a presupuestos aceptados
@@ -65,13 +67,13 @@ class OTForm(forms.ModelForm):
             return self.cleaned_data['fecha_aviso']
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.estado != 'sin_facturar':
+        if self.instance and self.instance.pk:
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.estado != 'sin_facturar':
+        if self.instance and self.instance.pk:
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
@@ -141,6 +143,8 @@ class OTMLForm(forms.ModelForm):
         super(OTMLForm, self).__init__(*args, **kwargs)
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'OTMLForm'
+        self.fields['importe_neto'].widget.attrs['readonly'] = True
+        self.fields['importe_bruto'].widget.attrs['readonly'] = True
         if self.instance:
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
@@ -162,13 +166,13 @@ class OTMLForm(forms.ModelForm):
         return codigo
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.estado != 'sin_facturar':
+        if self.instance and self.instance.pk:
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.estado != 'sin_facturar':
+        if self.instance and self.instance.pk:
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
@@ -270,6 +274,8 @@ class SOTForm(forms.ModelForm):
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
+        self.fields['importe_bruto'].widget.attrs['readonly'] = True
+        self.fields['importe_neto'].widget.attrs['readonly'] = True
         if self.instance:
             # Solo se deben poder crear SOTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
@@ -312,6 +318,18 @@ class SOTForm(forms.ModelForm):
             return self.instance.ejecutor
         else:
             return self.cleaned_data['ejecutor']
+
+    def clean_importe_bruto(self):
+        if self.instance and self.instance.pk:
+            return self.instance.importe_bruto
+        else:
+            return self.cleaned_data['importe_bruto']
+
+    def clean_importe_neto(self):
+        if self.instance and self.instance.pk:
+            return self.instance.importe_neto
+        else:
+            return self.cleaned_data['importe_neto']
 
     def clean_fecha_prevista(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -431,6 +449,8 @@ class RUTForm(forms.ModelForm):
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
+        self.fields['importe_bruto'].widget.attrs['readonly'] = True
+        self.fields['importe_neto'].widget.attrs['readonly'] = True
         if self.instance:
             # Solo se deben poder crear RUTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
@@ -468,6 +488,18 @@ class RUTForm(forms.ModelForm):
             return self.instance.fecha_realizado
         else:
             return self.cleaned_data['fecha_realizado']
+
+    def clean_importe_bruto(self):
+        if self.instance and self.instance.pk:
+            return self.instance.importe_bruto
+        else:
+            return self.cleaned_data['importe_bruto']
+
+    def clean_importe_neto(self):
+        if self.instance and self.instance.pk:
+            return self.instance.importe_neto
+        else:
+            return self.cleaned_data['importe_neto']
 
     def clean_fecha_prevista(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -888,6 +920,18 @@ class CustomInlineFormset(BaseGenericInlineFormSet):
 
 
 class OT_LineaForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(OT_LineaForm, self).__init__(*args, **kwargs)
+        self.fields['precio_total'].widget.attrs['readonly'] = True
+
+
+    def clean_precio_total(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.precio_total
+        else:
+            return self.cleaned_data['precio_total']
 
     class Meta:
 
