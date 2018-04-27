@@ -427,6 +427,27 @@ $(document).ready(function() {
         recalculateTotal();
     });
 
+     $("[id^=id_ofertatec][id$=cant_horas]," +
+       "[id^=id_ofertatec][id$=cantidad]," +
+       "[id^=id_ofertatec][id$=precio]")
+        .on('input', function (e) {
+            var cant_horas_id = $(this).attr('id'),
+                formset_number = cant_horas_id.split("-")[1],
+                cantidad = parseFloat($("[id$="+formset_number+"-cantidad"+"]").val()),
+                cant_horas = parseFloat($("[id$="+formset_number+"-cant_horas"+"]").val()),
+                precio = parseFloat($("[id$="+formset_number+"-precio"+"]").val()),
+                precio_total = $("[id$="+formset_number+"-precio_total"+"]"),
+                acc = precio;
+
+                if (!isNaN(cant_horas)) {
+                    acc *= cant_horas;
+                }
+                if (!isNaN(cantidad)) {
+                    acc *= cantidad;
+                }
+                precio_total.val(acc);
+    });
+
     $("[id^=id_adm-ot][id$=cantidad]," +
       "[id^=id_adm-ot][id$=cant_horas]," +
       "[id^=id_adm-ot][id$=precio]")
@@ -459,21 +480,6 @@ $(document).ready(function() {
         importe_id = field_id.split("numero")[0] + 'importe'
         $('#'+importe_id).val(importe);
 
-    });
-
-    $("#btnImporteNeto").on('click', function(e) {
-        var otLinePrice_list = $("[id^=id_adm-ot][id$=precio_total]"),
-            total = 0,
-            importe_bruto = $("[id$=id_importe_bruto]"),
-            importe_neto = $("[id$=id_importe_neto]"),
-            descuento_val = parseFloat($("[id$=id_descuento]").val());
-        for (var i=0; i<otLinePrice_list.length; i++) {
-            if (otLinePrice_list[i].closest('tr').style.display != 'none') {
-                total += parseFloat(otLinePrice_list[i].value);
-            }
-        }
-        importe_bruto.val(total);
-        importe_neto.val(total - descuento_val);
     });
 
     $("select#id_codigo").on('change keyup', function (e) {
