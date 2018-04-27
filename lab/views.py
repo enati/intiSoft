@@ -66,8 +66,8 @@ class TurnoList(ListView):
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
-                    if vals[0] == 'usuario__nombre':
-                        queryset = queryset.extra(select={"usuario": "COALESCE('presupuesto__usuario__nombre', 'si__solicitante')"}, order_by=["usuario"])
+                    if vals[0] in ['usuario', '-usuario']:
+                        queryset = queryset.extra(select={"usuario": "COALESCE('presupuesto__usuario__nombre', 'si__solicitante') as usuario"}, order_by=[vals[0]])
                     else:
                         queryset = queryset.order_by(vals[0])
                 if key == 'search':
@@ -95,7 +95,7 @@ class TurnoList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TurnoList, self).get_context_data(**kwargs)
-        field_names = ['estado', 'usuario__nombre',
+        field_names = ['estado', 'usuario',
                        'fecha_inicio', 'fecha_fin',
                        'presupuesto__instrumento__fecha_llegada',
                        'presupuesto__fecha_aceptado',

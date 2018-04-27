@@ -38,7 +38,10 @@
             <thead>
                 {% for name, label in fields %}
                     <td>
-                        <div class="dropdown">
+                        {% if name in "estado" %}
+                            {{ label }}
+                        {% else %}
+                            <div class="dropdown">
                             <span class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                                aria-expanded="false"> {{ label }}
                                <span class="caret"></span>
@@ -48,6 +51,7 @@
                                 <li><a name="order_by" href="{{ '?order_by=-'|add:name|add:'&'|add:request.GET.urlencode }}">Orden descendente</a></li>
                             </ul>
                         </div>
+                        {% endif %}
                     </td>
                 {% endfor %}
             <td></td>

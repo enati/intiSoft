@@ -358,6 +358,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
             return False
 
     class Meta:
+        ordering = ["-codigo"]
         permissions = (("finish_presupuesto", "Can finish presupuesto"),
                        ("cancel_presupuesto", "Can cancel presupuesto"),
                        ("read_presupuesto", "Can read presupuesto"))

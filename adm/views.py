@@ -705,9 +705,11 @@ class OTList(ListView):
         t_inicial = time()
         context = super(OTList, self).get_context_data(**kwargs)
         field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
-                       'codigo', 'fecha_realizado', 'importe_bruto', 'area', 'factura', 'factura__fecha',
-                       'factura__importe', 'factura__fecha_aviso',
-                       'recibo', 'recibo__tipo', 'recibo__fecha', 'recibo__importe', 'remito']
+                       'codigo', 'fecha_realizado', 'importe_bruto', 'presupuesto__turno__area',
+                       'factura_set__numero', 'factura_set__fecha',
+                       'factura_set__importe', 'factura_set__fecha_aviso',
+                       'factura_set__recibo__numero', 'factura_set__recibo__comprobante_cobro', 'factura_set__recibo__fecha',
+                       'factura_set__recibo__importe', 'remito__numero']
         field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
@@ -1014,8 +1016,9 @@ class OTMLList(ListView):
         context = super(OTMLList, self).get_context_data(**kwargs)
 
         field_names = ['estado', 'vpe', 'vpr', 'vpuu', 'usuario', 'usuarioRep', 'codigo', 'fecha_realizado',
-                       'importe_bruto', 'factura', 'factura__fecha', 'factura__importe',
-                       'recibo__comprobante_cobro', 'recibo__numero', 'recibo__fecha', 'recibo__importe']
+                       'importe_bruto', 'factura_set__numero', 'factura_set__fecha', 'factura_set__importe',
+                       'factura_set__recibo__comprobante_cobro', 'factura_set__recibo__numero',
+                       'factura_set__recibo__fecha', 'factura_set__recibo__importe']
         field_labels = ['Estado', 'VPE', 'VPR', 'VPUU', 'Usuario', 'Usuario Representado', 'Nro. OT', 'Fecha',
                         'Imp. Bruto', 'Nro. Factura', 'Fecha', 'Imp.',
                         'Comprobante', 'Nro.', 'Fecha', 'Imp.']
@@ -1976,7 +1979,7 @@ class PresupuestoList(ListView):
                 presup._toState_cancelado(obs="Registro automático: Presupuesto vencido")
 
     def get_queryset(self):
-        queryset = Presupuesto.objects.select_related().order_by('-codigo')
+        queryset = Presupuesto.objects.select_related()
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
@@ -2010,11 +2013,11 @@ class PresupuestoList(ListView):
         context['tuple_paginated_list'] = list(zip(presupuestos_by_page, turnos_by_page))
 
         field_names = ['estado', 'codigo', 'usuario__nombre', 'usuario__nro_usuario',
-                       'ofertatec__area',
+                       'turno__area',
                        'fecha_realizado',
                        'fecha_aceptado',
                        'instrumento__fecha_llegada',
-                       'nro_recepcion']
+                       'instrumento__nro_recepcion']
         field_labels = ['Estado', 'Nro.', 'Usuario', 'Nro Usuario',
                         'Area',
                         'Fecha de Realizacion',
