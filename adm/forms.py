@@ -67,13 +67,13 @@ class OTForm(forms.ModelForm):
             return self.cleaned_data['fecha_aviso']
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
@@ -166,13 +166,13 @@ class OTMLForm(forms.ModelForm):
         return codigo
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'sin_facturar':
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
@@ -320,13 +320,13 @@ class SOTForm(forms.ModelForm):
             return self.cleaned_data['ejecutor']
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'borrador':
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'borrador':
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
@@ -490,13 +490,13 @@ class RUTForm(forms.ModelForm):
             return self.cleaned_data['fecha_realizado']
 
     def clean_importe_bruto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'borrador':
             return self.instance.importe_bruto
         else:
             return self.cleaned_data['importe_bruto']
 
     def clean_importe_neto(self):
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.estado != 'borrador':
             return self.instance.importe_neto
         else:
             return self.cleaned_data['importe_neto']
