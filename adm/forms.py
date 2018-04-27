@@ -726,17 +726,15 @@ class NestedGenericInlineFormset(BaseGenericInlineFormSet):
 
     def is_valid(self):
 
-        result = super(NestedGenericInlineFormset, self).is_valid()
+        is_valid = super(NestedGenericInlineFormset, self).is_valid()
 
-        if self.is_bound:
-            #import pdb; pdb.set_trace()
+        if self.is_bound and is_valid:
             # look at any nested formsets, as well
             for form in self.forms:
                 if not self._should_delete_form(form):
-                    result = True
                     for nested in form.nested:
-                        result &= nested.is_valid()
-        return result
+                        is_valid &= nested.is_valid()
+        return is_valid
 
     def save(self, commit=True):
 
