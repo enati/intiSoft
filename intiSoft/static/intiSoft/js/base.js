@@ -771,7 +771,9 @@ $(document).ready(function() {
         }
         else {
             $('#id_descuento').attr('readonly', false);
+            $("[id$=id_descuento]").val(0);
         }
+        $("[id$=id_descuento]").trigger("input");
     });
 
     $('.modal.draggable>.modal-dialog').draggable({
