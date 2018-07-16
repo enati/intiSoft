@@ -695,7 +695,7 @@ class OTList(ListView):
                                     Q(factura_set__numero__contains="%s" % arg) |
                                     Q(factura_set__importe__contains="%s" % arg) |
                                     Q(factura_set__recibo__in=recibosFiltered) |
-                                    Q(remito__numero__contains="%s" % arg))
+                                    Q(remito_set__numero__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
                     queryset = queryset.filter(QList).distinct()
         print "TIEMPO get_queryset: ", time() - t_inicial
@@ -709,7 +709,7 @@ class OTList(ListView):
                        'factura_set__numero', 'factura_set__fecha',
                        'factura_set__importe', 'factura_set__fecha_aviso',
                        'factura_set__recibo__numero', 'factura_set__recibo__comprobante_cobro', 'factura_set__recibo__fecha',
-                       'factura_set__recibo__importe', 'remito__numero']
+                       'factura_set__recibo__importe', 'remito_set__numero']
         field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
