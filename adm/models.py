@@ -1144,12 +1144,11 @@ class Remito(TimeStampedModel, AuthStampedModel):
 
     numero = models.CharField("Número", max_length=15)
     fecha = models.DateField("Fecha", blank=False, null=True)
-    ot = models.ForeignKey(OT, verbose_name="OT", on_delete=models.CASCADE)
     informe = models.BooleanField(default=False)         # Indica que el remito se realizo por un informe
     instrumento = models.BooleanField(default=False)     # Indica que el remito se realizo por un instrumento
     # Campos para relacion generica
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
-    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
