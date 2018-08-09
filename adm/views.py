@@ -2036,6 +2036,7 @@ class PresupuestoList(ListView):
     def _actualizar_precios(self, request, presup_id, *args, **kwargs):
         """Retorna True si se actualizaron los precios de las OTs"""
         obj_presup = Presupuesto.objects.get(pk=presup_id)
+        lineas_actualizadas = []
         if not obj_presup._vigente():
             turnoList = obj_presup.get_turnos_activos()
             for turno in turnoList:
@@ -2044,14 +2045,18 @@ class PresupuestoList(ListView):
                     obj_ofertatec = OfertaTec.objects.get(pk=linea.ofertatec.id)
                     if linea.precio != obj_ofertatec.precio:
                         linea.precio = obj_ofertatec.precio
-                        linea.save()
-                        obj_presup.nro_revision += 1
-                        obj_presup.save()
+                        cantidad = linea.cantidad or 1
+                        horas = linea.cant_horas or 1
+                        linea.precio_total = linea.precio * cantidad * horas
+                        lineas_actualizadas.append(linea)
+            if len(lineas_actualizadas) > 0:
+                createRevision(request, pk=obj_presup.pk)
+            for linea in lineas_actualizadas:
+                linea.save()
             return True
         # Si el presupuesto esta vigente no le hago modificaciones
         else:
             return False
-        #return HttpResponseRedirect(reverse_lazy('adm:presup-update', kwargs=kwargs))
 
     def post(self, request, *args, **kwargs):
         response_dict = {'ok': True, 'msg': None}
@@ -2136,6 +2141,7 @@ class PresupuestoUpdate(UpdateView):
         usuarioVersByRevision = []
         otLineaVersByRevision = []
         instrLineaVersByRevision = []
+        pdtVersByRevision = []
         if presupVers:
             for pv in presupVers:
                 revId = pv.revision.id
@@ -2153,7 +2159,11 @@ class PresupuestoUpdate(UpdateView):
                 # Todas las lineas de instrumento versionados en la revision revId
                 instr = objectsVersiones.filter(content_type__model='instrumento').order_by('object_id')
                 instrLineaVersByRevision.append(instr)
-        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision, instrLineaVersByRevision)
+                # Todas los PDT versionados en la revision revId
+                pdt = objectsVersiones.filter(content_type__model='pdt')
+                pdtVersByRevision.append(pdt)
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision,
+                                        instrLineaVersByRevision, pdtVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
 

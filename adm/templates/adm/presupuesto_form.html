@@ -477,242 +477,244 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-
-                            <h3 class="text-danger">Oferta Tecnológica</h3>
-                            <a class="btn btn-default
-                                {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
-                                    disabled
-                                {% endif %}"
-                                id="actBtn" data-action="Actualizar"
-                                data-model="presupuesto" data-id={{object.id}}
-                                data-toggle="modal" data-target="#myModal"
-                                >Actualizar Precios
-                            </a>
-                            <div class="col-md-12">
-                                <table id="ofertatec_table" class="table">
-                                    <thead>
-                                        <td>Código</td>
-                                        <td>Detalle</td>
-                                        <td>Tipo de Servicio</td>
-                                        <td>Cantidad</td>
-                                        <td>Observaciones</td>
-                                        <td>Horas</td>
-                                        <td>Precio Unitario</td>
-                                        <td>Precio Total</td>
-                                    </thead>
-                                    <tbody>
-                                        {% for t in turnos_activos %}
-                                            {% for o in t.ofertatec_linea_set.all %}
-                                                <tr>
-                                                    <td>{{ o.codigo }}</td>
-                                                    <td>{{ o.detalle}}</td>
-                                                    <td>{{ o.tipo_servicio}}</td>
-                                                    <td>{{ o.cantidad }}</td>
-                                                    <td>{{ o.observaciones }}</td>
-                                                    <td>{{ o.cant_horas | default_if_none:""}}</td>
-                                                    <td>{{ o.precio }}</td>
-                                                    <td>{{ o.precio_total }}</td>
-                                                </tr>
-                                            {% endfor %}
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
+                        <h3 class="text-danger">Oferta Tecnológica</h3>
+                        <a class="btn btn-default
+                            {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
+                                disabled
+                            {% endif %}"
+                            id="actBtn" data-action="Actualizar"
+                            data-model="presupuesto" data-id={{object.id}}
+                            data-toggle="modal" data-target="#myModal"
+                            >Actualizar Precios
+                        </a>
+                        <div class="col-md-12">
+                            <table id="ofertatec_table" class="table">
+                                <thead>
+                                    <td>Código</td>
+                                    <td>Detalle</td>
+                                    <td>Tipo de Servicio</td>
+                                    <td>Cantidad</td>
+                                    <td>Observaciones</td>
+                                    <td>Horas</td>
+                                    <td>Precio Unitario</td>
+                                    <td>Precio Total</td>
+                                </thead>
+                                <tbody>
+                                    {% for t in turnos_activos %}
+                                        {% for o in t.ofertatec_linea_set.all %}
+                                            <tr>
+                                                <td>{{ o.codigo }}</td>
+                                                <td>{{ o.detalle}}</td>
+                                                <td>{{ o.tipo_servicio}}</td>
+                                                <td>{{ o.cantidad }}</td>
+                                                <td>{{ o.observaciones }}</td>
+                                                <td>{{ o.cant_horas | default_if_none:""}}</td>
+                                                <td>{{ o.precio }}</td>
+                                                <td>{{ o.precio_total }}</td>
+                                            </tr>
                                         {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-        <!--
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                            <div style="float:right" id="total">
-                                <h3>Total {{total}}</h3>
-                            </div>
-        -->
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-
                     </form>
                 </div>
             </div>
-            {% for pv, tActv, uv, otList, instrList in presupVersions %}
-                <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
-                    <div class="col-md-12">
-                        <form class="form-horizontal" action="" method="">
-                            </br>
-                            <div id="plantilla" class="col-md-12">
-                                <label class="col-md-2" style="text-align:left"
-                                 for="id_tipo">Tipo de Presupuesto</label>
-                                <div class="col-md-1">
-                                    {% if edit %}
-                                        {{ form.tipo }}
-                                        {% for error in form.tipo.errors %}
-                                           <div class="alert alert-error">
-                                               <strong>{{ error|escape }}</strong>
-                                           </div>
-                                       {% endfor %}
-                                    {% else %}
-                                        {{ form.tipo|disable }}
-                                    {% endif %}
+            {% for pv, tActv, uv, otList, instrList, pdt in presupVersions %}
+            <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
+                <div class="col-md-12">
+                    <form class="form-horizontal" action="" method="">
+                        </br>
+                        <div id="plantilla" class="col-md-12">
+                            <label class="col-md-2" style="text-align:left"
+                             for="id_tipo">Tipo de Presupuesto</label>
+                            <div class="col-md-2">
+                                {% if edit %}
+                                    {{ form.tipo }}
+                                    {% for error in form.tipo.errors %}
+                                       <div class="alert alert-error">
+                                           <strong>{{ error|escape }}</strong>
+                                       </div>
+                                   {% endfor %}
+                                {% else %}
+                                    {{ form.tipo|disable }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Separador -->
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee;margin:15px"></div>
+                        <div class="col-md-6">
+                            <h3 class="text-danger">Presupuesto</h3>
+                            <!-- PDT -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_pdt">
+                                    Plan de Trabajo
+                                </label>
+                                <div class="col-md-7">
+                                    {{ pdt.0.field_dict.nombre }}
                                 </div>
                             </div>
-                            <!-- Separador -->
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee;margin:15px"></div>
-                            <div class="col-md-6">
-                                <h3 class="text-danger">Presupuesto</h3>
-                                <!-- Fecha de Solicitud -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                     for="id_fecha_solicitud">
-                                        Fecha de Solicitud
-                                    </label>
-                                    <div class="col-md-7">
-                                       {{ pv.field_dict.fecha_solicitado | default_if_none:"" }}
-                                    </div>
-                                </div>
-                                 <!-- Fecha de Realizacion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_fecha_realizado">
-                                        Fecha de Realización
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ pv.field_dict.fecha_realizado | default_if_none:"" }}
-                                    </div>
-                                </div>
-                                <!-- Fecha de Aceptacion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_fecha_aceptado">
-                                        Fecha de Aceptación
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ pv.field_dict.fecha_aceptado | default_if_none:"" }}
-                                    </div>
+                            <!-- Fecha de Solicitud -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_fecha_solicitud">
+                                    Fecha de Solicitud
+                                </label>
+                                <div class="col-md-7">
+                                   {{ pv.field_dict.fecha_solicitado | default_if_none:"" }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <h3 class="text-danger">Usuario</h3>
-                                <!-- Usuario -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_usuario">
-                                          Usuario
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ uv.0.field_dict.nombre }}
-                                    </div>
-                                </div>
-                                <!-- Numero de Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__nro_usuario">
-                                        Número
-                                    </label>
-                                    <div class="col-md-7">
-                                       <p id="id_nro_usuario">
-                                           {{ uv.0.field_dict.nro_usuario }}
-                                       </p>
-                                    </div>
-                                </div>
-                                <!-- Cuit de Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__cuit">
-                                        Cuit
-                                    </label>
-                                    <div class="col-md-7">
-                                       <p id="id_cuit">{{ uv.0.field_dict.cuit }}</p>
-                                    </div>
-                                </div>
-                                <!-- Rubro de Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__rubro">
-                                        Rubro
-                                    </label>
-                                    <div class="col-md-7">
-                                       <p id="id_rubro">{{ uv.0.field_dict.rubro }}</p>
-                                    </div>
+                             <!-- Fecha de Realizacion -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_fecha_realizado">
+                                    Fecha de Realización
+                                </label>
+                                <div class="col-md-7">
+                                    {{ pv.field_dict.fecha_realizado | default_if_none:"" }}
                                 </div>
                             </div>
-                            <!-- Separador -->
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
-                                <div class="col-md-12">
-                                    <div class="col-md-6">
-                                        <h3 class="text-danger">Turnos</h3>
-                                        <table id="turnos_table" class="table">
-                                            <thead>
-                                                <td>Fecha de Inicio</td>
-                                                <td>Fecha de Fin</td>
-                                                <td>Area</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for t in object.get_turnos_activos %}
-                                                    <tr class=
-                                                          {% if t.estado == 'en_espera' %} "neutral"
-                                                              {% elif t.estado == 'activo' %} "warning "
-                                                              {% elif t.estado == 'finalizado' %} "success"
-                                                              {% elif t.estado == 'cancelado' %} "danger"
-                                                          {% endif %}
-                                                    >
-                                                        <td>{{ t.fecha_inicio }}</td>
-                                                        <td>{{ t.fecha_fin }}</td>
-                                                        <td>{{ t.area }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h3 class="text-danger">Instrumentos</h3>
-                                        <table id="instrumento_formtable" class="table">
-                                            <thead>
-                                                <td>Llegada del instrumento</td>
-                                                <td>Recibo de recepcion</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for instr in instrList %}
-                                                    <tr>
-                                                        <td>
-                                                            {{ instr.field_dict.fecha_llegada | default_if_none:"" }}
-                                                        </td>
-                                                        <td>
-                                                            {{ instr.field_dict.nro_recepcion | default_if_none:"" }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Fecha de Aceptacion -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_fecha_aceptado">
+                                    Fecha de Aceptación
+                                </label>
+                                <div class="col-md-7">
+                                    {{ pv.field_dict.fecha_aceptado | default_if_none:"" }}
                                 </div>
                             </div>
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                            <h3 class="text-danger">Oferta Tecnológica</h3>
-                            <div class="col-md-12">
-                                <table id="ofertatec_table" class="table">
-                                    <thead>
-                                        <td>Código</td>
-                                        <td>Detalle</td>
-                                        <td>Tipo de Servicio</td>
-                                        <td>Cantidad</td>
-                                        <td>Observaciones</td>
-                                        <td>Horas</td>
-                                        <td>Precio Unitario</td>
-                                    </thead>
-                                    <tbody>
-                                        {% for o in otList %}
-                                            <tr>
-                                                <td>{{ o.field_dict.ofertatec }}</td>
-                                                <td>{{ o.field_dict.detalle}}</td>
-                                                <td>{{ o.field_dict.tipo_servicio}}</td>
-                                                <td>{{ o.field_dict.cantidad }}</td>
-                                                <td>{{ o.field_dict.observaciones }}</td>
-                                                <td>{{ o.field_dict.cant_horas | default_if_none:""}}</td>
-                                                <td>{{ o.field_dict.precio }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="text-danger">Usuario</h3>
+                            <!-- Usuario -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_usuario">
+                                      Usuario
+                                </label>
+                                <div class="col-md-7">
+                                    {{ uv.0.field_dict.nombre }}
+                                </div>
                             </div>
-                        </form>
-                    </div>
+                            <!-- Numero de Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_usuario__nro_usuario">
+                                    Número
+                                </label>
+                                <div class="col-md-7">
+                                   <p id="id_nro_usuario">
+                                       {{ uv.0.field_dict.nro_usuario }}
+                                   </p>
+                                </div>
+                            </div>
+                            <!-- Cuit de Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_usuario__cuit">
+                                    Cuit
+                                </label>
+                                <div class="col-md-7">
+                                   <p id="id_cuit">{{ uv.0.field_dict.cuit }}</p>
+                                </div>
+                            </div>
+                            <!-- Rubro de Usuario -->
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                  for="id_usuario__rubro">
+                                    Rubro
+                                </label>
+                                <div class="col-md-7">
+                                   <p id="id_rubro">{{ uv.0.field_dict.rubro }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Separador -->
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
+                        <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <h3 class="text-danger">Turnos</h3>
+                                    <table id="turnos_table" class="table">
+                                        <thead>
+                                            <td>Fecha de Inicio</td>
+                                            <td>Fecha de Fin</td>
+                                            <td>Area</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for t in object.get_turnos_activos %}
+                                                <tr class=
+                                                      {% if t.estado == 'en_espera' %} "neutral"
+                                                          {% elif t.estado == 'activo' %} "warning "
+                                                          {% elif t.estado == 'finalizado' %} "success"
+                                                          {% elif t.estado == 'cancelado' %} "danger"
+                                                      {% endif %}
+                                                >
+                                                    <td>{{ t.fecha_inicio }}</td>
+                                                    <td>{{ t.fecha_fin }}</td>
+                                                    <td>{{ t.area }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="text-danger">Instrumentos</h3>
+                                    <table id="instrumento_formtable" class="table">
+                                        <thead>
+                                            <td>Llegada del instrumento</td>
+                                            <td>Recibo de recepcion</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for instr in instrList %}
+                                                <tr>
+                                                    <td>
+                                                        {{ instr.field_dict.fecha_llegada | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ instr.field_dict.nro_recepcion | default_if_none:"" }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
+                        <h3 class="text-danger">Oferta Tecnológica</h3>
+                        <div class="col-md-12">
+                            <table id="ofertatec_table" class="table">
+                                <thead>
+                                    <td>Código</td>
+                                    <td>Detalle</td>
+                                    <td>Tipo de Servicio</td>
+                                    <td>Cantidad</td>
+                                    <td>Observaciones</td>
+                                    <td>Horas</td>
+                                    <td>Precio Unitario</td>
+                                    <td>Precio Total</td>
+                                </thead>
+                                <tbody>
+                                    {% for o in otList %}
+                                        <tr>
+                                            <td>{{ o.field_dict.codigo }}</td>
+                                            <td>{{ o.field_dict.detalle}}</td>
+                                            <td>{{ o.field_dict.tipo_servicio}}</td>
+                                            <td>{{ o.field_dict.cantidad }}</td>
+                                            <td>{{ o.field_dict.observaciones }}</td>
+                                            <td>{{ o.field_dict.cant_horas | default_if_none:""}}</td>
+                                            <td>{{ o.field_dict.precio }}</td>
+                                            <td>{{ o.field_dict.precio_total }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
                 </div>
+            </div>
             {% endfor %}
         </div>
     </div>

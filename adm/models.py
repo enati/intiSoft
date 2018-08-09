@@ -132,6 +132,7 @@ def yearNow():
     return datetime.now().year
 
 
+@reversion.register()
 class PDT(TimeStampedModel, AuthStampedModel):
     """ Planes de Trabajo """
     YEARS = []
@@ -210,7 +211,7 @@ class PDT(TimeStampedModel, AuthStampedModel):
         permissions = (("read_pdt", "Can read pdt"),)
 
 
-@reversion.register(follow=["usuario", "turno_set", "instrumento_set"])
+@reversion.register(follow=["usuario", "turno_set", "instrumento_set", "pdt"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     ESTADOS = (
