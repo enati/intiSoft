@@ -160,7 +160,7 @@
                         <a id="viewWord" href="" data-id="{{object.id}}">Generar Presupuesto</a>
                     </li>
                     {% endif %}
-                    {% if object.estado in "['borrador', 'aceptado']" %}
+                    {% if object.estado in "['borrador', 'aceptado']" and object.fecha_realizado %}
                     <li>
                         <a href="#" data-action="Revisionar" data-model="presupuesto" data-id={{object.id}}
                            data-toggle="modal" data-target="#revWarning">Revisionar</a>

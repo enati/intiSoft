@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
+
+import lab
 from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm, \
@@ -2049,7 +2051,9 @@ class PresupuestoList(ListView):
                         horas = linea.cant_horas or 1
                         linea.precio_total = linea.precio * cantidad * horas
                         lineas_actualizadas.append(linea)
-            if len(lineas_actualizadas) > 0:
+            if len(lineas_actualizadas) > 0 and obj_presup.fecha_realizado:
+                for turno in turnoList:
+                    lab.views.createRevision(request, pk=turno.pk)
                 createRevision(request, pk=obj_presup.pk)
             for linea in lineas_actualizadas:
                 linea.save()

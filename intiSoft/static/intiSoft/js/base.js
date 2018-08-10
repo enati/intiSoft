@@ -605,7 +605,8 @@ $(document).ready(function() {
         }
         if (action.localeCompare('Actualizar')==0) {
             modal.find('.modal-body h4').text("¿Está seguro que quiere actualizar los precios?")
-            modal.find('.modal-body p').text("Tenga en cuenta que esto dará lugar a una nueva revisión.")
+            modal.find('.modal-body p').text("Tenga en cuenta que, en caso de que el presupuesto ya haya sido enviado,\
+                                               esto dará lugar a una nueva revisión.")
         }
 
         //En OTs agrego opcion para finalizar solo OT u OT y presupuesto
