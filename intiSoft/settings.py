@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'smart_pagination',
     'reversion',
     'django_permanent',
+    'searchableselect',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -2,15 +2,17 @@
 from time import time
 from django import forms
 
+from adm.widgets import RelatedFieldWidgetCanAdd, NestedRelatedFieldWidgetCanAdd
 from lab.models import Turno
 from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, \
-    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT
+    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT, Contacto
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
 from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group, User
+from searchableselect.widgets import SearchableSelect
 
 editable_fields = ['fecha_realizado', 'fecha_aceptado', 'tipo']
 
@@ -1049,6 +1051,18 @@ class PresupuestoForm(forms.ModelForm):
                    (self.instance.estado != 'aceptado'):
                     self.fields[f].widget.attrs['disabled'] = True
                     self.fields[f].required = False
+        # Queryset contacto
+        self.fields['contacto'].queryset = Contacto.objects.none()
+        if 'usuario' in self.data:
+            try:
+                usuario_id = int(self.data.get('usuario'))
+                self.fields['contacto'].queryset = Contacto.objects.filter(usuario=usuario_id).order_by('nombre')
+            except (ValueError, TypeError):
+                pass    # Invalid input from the client, ignore and fallback to empty Contacto queryset
+        elif self.instance.pk:
+            self.fields['contacto'].queryset = self.instance.usuario.contacto_set.order_by('nombre')
+
+
 
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -1107,6 +1121,7 @@ class PresupuestoForm(forms.ModelForm):
         fields = ['codigo',
                   'fecha_solicitado',
                   'usuario',
+                  'contacto',
                   'fecha_realizado',
                   'fecha_aceptado',
                   'estado',
@@ -1143,6 +1158,14 @@ class PresupuestoForm(forms.ModelForm):
                 'fecha_aceptado': forms.DateInput(attrs={'class':
                                                                'datepicker',
                                                          'readonly': True},),
+                'usuario': RelatedFieldWidgetCanAdd(Usuario,
+                                                    add_related_url="adm:usuarios-create-modal",
+                                                    view_related_url="adm:usuarios-update-modal"),
+
+                'contacto': NestedRelatedFieldWidgetCanAdd(Usuario,
+                                                           Contacto,
+                                                           add_related_url="adm:contactos-create-modal",
+                                                           view_related_url="adm:contactos-update-modal"),
             }
 
 
@@ -1252,6 +1275,17 @@ class UsuarioForm(forms.ModelForm):
         }
 
 
+class ContactoForm(forms.ModelForm):
+    formfield_callback = base_bootstrap_format
+
+    class Meta:
+        model = Contacto
+        fields = ['usuario',
+                  'nombre',
+                  'telefono',
+                  'mail']
+
+
 class PDTForm(forms.ModelForm):
     formfield_callback = base_bootstrap_format
 
@@ -1291,3 +1325,26 @@ class PDTForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
         }
+
+
+class Contacto_LineaForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(Contacto_LineaForm, self).__init__(*args, **kwargs)
+        for f in self.fields:
+            self.fields[f].required = False
+
+    class Meta:
+        model = Contacto
+        fields = ['usuario',
+                  'nombre',
+                  'telefono',
+                  'mail']
+
+Contacto_LineaFormSet = inlineformset_factory(Usuario,
+                                              Contacto,
+                                              min_num=1,
+                                              extra=0,
+                                              formfield_callback=base_bootstrap_format,
+                                              form=Contacto_LineaForm,
+                                              formset=BaseInlineFormSet)

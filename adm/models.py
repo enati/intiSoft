@@ -74,6 +74,17 @@ class Usuario(TimeStampedModel, AuthStampedModel):
         ordering = ['nombre']
 
 
+class Contacto(TimeStampedModel, AuthStampedModel):
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    nombre = models.CharField("Nombre", max_length=100)
+    telefono = models.CharField("Telefono", max_length=20, blank=True)
+    mail = models.CharField("Mail", max_length=50, blank=True)
+
+    def __unicode__(self):
+        return self.nombre + " - " + unicode(self.usuario)
+
+
 @reversion.register()
 class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
 
@@ -132,6 +143,7 @@ def yearNow():
     return datetime.now().year
 
 
+@reversion.register()
 class PDT(TimeStampedModel, AuthStampedModel):
     """ Planes de Trabajo """
     YEARS = []
@@ -210,7 +222,7 @@ class PDT(TimeStampedModel, AuthStampedModel):
         permissions = (("read_pdt", "Can read pdt"),)
 
 
-@reversion.register(follow=["usuario", "turno_set", "instrumento_set"])
+@reversion.register(follow=["usuario", "turno_set", "instrumento_set", "pdt"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     ESTADOS = (
@@ -240,6 +252,8 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
                                       blank=True, null=True)
     usuario = models.ForeignKey(Usuario, verbose_name='Usuario',
                                 on_delete=models.PROTECT)
+    contacto = models.ForeignKey(Contacto, verbose_name='Contacto',
+                                on_delete=models.PROTECT, null=True, blank=True)
     revisionar = models.BooleanField('Revisionar', default=False)
     nro_revision = models.IntegerField('Nro. Revisión', default=0)
     tipo = models.CharField('Tipo', max_length=11, choices=TIPOS, default='calibracion')
@@ -1154,3 +1168,34 @@ class Remito(TimeStampedModel, AuthStampedModel):
     class Meta:
         ordering = ['id']
 
+
+class Provincia(TimeStampedModel, AuthStampedModel):
+
+    abreviatura = models.CharField("Abraviatura", max_length=3)
+    nombre = models.CharField("Nombre", max_length=50)
+
+
+class Localidad(TimeStampedModel, AuthStampedModel):
+
+    nombre = models.CharField("Nombre", max_length=50)
+    cp = models.CharField("CP", max_length=4)
+    provincia = models.ForeignKey(Provincia, on_delete=models.PROTECT)
+
+
+#class DireccionesUsuario(TimeStampedModel, AuthStampedModel):
+#
+#    calle = models.CharField("Dirección", max_length=50)
+#    numero = models.CharField("Número", max_length=10)
+#    piso = models.CharField("Piso/Dpto", max_length=10)
+#    codigo_postal = models.CharField("Código postal", max_length=4)
+#    localidad = models.CharField("Localidad")
+#    provincia = models.CharField
+
+
+#class ReciboIngreso(TimeStampedModel, AuthStampedModel):
+#
+#    instrumento = models.BooleanField(default=False)
+#    muestra = models.BooleanField(default=False)
+#    cantidad = models.PositiveIntegerField("Cantidad")
+#    descripcion = models.CharField("Descripción", max_length=250)
+#    fecha = models.DateField("Fecha de Ingreso")

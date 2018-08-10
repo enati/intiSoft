@@ -3,6 +3,8 @@
 {% block head %}
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
+
+    {{ form.media }}
     <script>
         $(function() {
             function renewDatePickers() {
@@ -31,6 +33,63 @@
                     },
             });
             {% endif %}
+
+            function updateNestedRelatedObjectLinks(triggeringLink, relatedLink) {
+
+                var $this = $(triggeringLink);
+                var $related = $(relatedLink);
+
+                var siblings = $related.nextAll('.add-another');
+
+                if (!siblings.length) {
+                    return;
+                }
+                var value = $this.val();
+                if (value) {
+                    siblings.each(function() {
+                        var elm = $(this);
+                        elm.attr('href', elm.attr('data-href-template').replace('__fk__', value));
+                    });
+                } else {
+                    siblings.removeAttr('href');
+                }
+            }
+
+            $("#id_usuario").on('change', function (e) {
+                $("#change_id_usuario").removeClass("disabled-link");
+                updateRelatedObjectLinks(this);
+                updateNestedRelatedObjectLinks(this, $("#id_contacto")[0]);
+
+                // Actualizo los contactos del usuario seleccionado
+                var url = $("#presupForm").attr("data-contactos-url");
+                var usuarioId = $(this).val();
+
+                $.ajax({
+                    url: url,
+                    data: { 'usuario': usuarioId },
+                    success: function(data) {
+                                $("#id_contacto").html(data);
+                    }
+                });
+
+            });
+
+            $("#id_contacto").on('change', function (e) {
+                $("#change_id_contacto").removeClass("disabled-link");
+                updateRelatedObjectLinks(this);
+            });
+
+            if ($("#id_usuario").val()) {
+                $("#id_usuario").change();
+            } else {
+                $("#change_id_usuario").addClass("disabled-link");
+            }
+
+            if ($("#id_contacto").val()) {
+                $("#id_contacto").change();
+            } else {
+                $("#change_id_contacto").addClass("disabled-link");
+            }
         });
     </script>
 {% endblock %}
@@ -184,7 +243,7 @@
 <div class="row">
     <div class="col-md-offset-1 col-md-10">
         <!-- Separador -->
-        <div class="col-md-12" style="border-top: 3px solid #eee"/>
+        <div class="col-md-12" style="border-top: 3px solid #eee"></div>
         <!-- Titulo -->
         <div class="col-md-12">
             <label id="title" for="id_codigo" class="col-md-3 text-danger" style="text-align:left">Presupuesto</label>
@@ -221,7 +280,8 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="{{ object.nro_revision }}">
                 <div class="col-md-12">
-                    <form id="presupForm" class="form-horizontal" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+                    <form id="presupForm" class="form-horizontal" action="" method="{% if edit %}POST{% else %}GET{% endif %}"
+                          data-contactos-url="{% url 'adm:ajax_load_contactos' %}">
                         {% if edit %}
                             {% csrf_token %}
                         {% else %}
@@ -245,7 +305,7 @@
                             </div>
                         </div>
                         <!-- Separador -->
-                        <div class="col-md-12" style="border-top: 1.5px solid #eee;margin:15px"></div>
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
                         <div class="col-md-6">
                             <h3 class="text-danger">Presupuesto</h3>
                             <!-- Estado del Presupuesto -->
@@ -353,7 +413,9 @@
                                 </label>
                                 <div class="col-md-6">
                                     {% if edit %}
-                                        {{ form.usuario }}
+                                        <div class="input-group">
+                                            {{ form.usuario }}
+                                        </div>
                                         {% for error in form.usuario.errors %}
                                             <div class="alert alert-error">
                                                 <strong>{{ error|escape }}</strong>
@@ -364,34 +426,25 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <!-- Numero de Usuario -->
+                            <!-- Contacto -->
                             <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_usuario__nro_usuario">
-                                    Número
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_contacto">
+                                      Contacto
                                 </label>
-                                <div class="col-md-7">
-                                   <p id="id_nro_usuario">{{ form.instance.usuario.nro_usuario }}</p>
-                                </div>
-                            </div>
-                            <!-- Cuit de Usuario -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_usuario__cuit">
-                                    Cuit
-                                </label>
-                                <div class="col-md-7">
-                                   <p id="id_cuit">{{ form.instance.usuario.cuit }}</p>
-                                </div>
-                            </div>
-                            <!-- Rubro de Usuario -->
-                            <div class="form-group">
-                                <label class="col-md-5" style="text-align:left"
-                                  for="id_usuario__rubro">
-                                    Rubro
-                                </label>
-                                <div class="col-md-7">
-                                   <p id="id_rubro">{{ form.instance.usuario.rubro }}</p>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        <div class="input-group">
+                                            {{ form.contacto }}
+                                        </div>
+                                        {% for error in form.contacto.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.contacto.nombre }}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -477,8 +530,9 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
+                        <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
 
+                        <div class="col-md-12">
                             <h3 class="text-danger">Oferta Tecnológica</h3>
                             <a class="btn btn-default
                                 {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
@@ -489,48 +543,40 @@
                                 data-toggle="modal" data-target="#myModal"
                                 >Actualizar Precios
                             </a>
-                            <div class="col-md-12">
-                                <table id="ofertatec_table" class="table">
-                                    <thead>
-                                        <td>Código</td>
-                                        <td>Detalle</td>
-                                        <td>Tipo de Servicio</td>
-                                        <td>Cantidad</td>
-                                        <td>Observaciones</td>
-                                        <td>Horas</td>
-                                        <td>Precio Unitario</td>
-                                        <td>Precio Total</td>
-                                    </thead>
-                                    <tbody>
-                                        {% for t in turnos_activos %}
-                                            {% for o in t.ofertatec_linea_set.all %}
-                                                <tr>
-                                                    <td>{{ o.codigo }}</td>
-                                                    <td>{{ o.detalle}}</td>
-                                                    <td>{{ o.tipo_servicio}}</td>
-                                                    <td>{{ o.cantidad }}</td>
-                                                    <td>{{ o.observaciones }}</td>
-                                                    <td>{{ o.cant_horas | default_if_none:""}}</td>
-                                                    <td>{{ o.precio }}</td>
-                                                    <td>{{ o.precio_total }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-        <!--
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                            <div style="float:right" id="total">
-                                <h3>Total {{total}}</h3>
-                            </div>
-        -->
-                        </div>
 
+                            <table id="ofertatec_table" class="table">
+                                <thead>
+                                    <td>Código</td>
+                                    <td>Detalle</td>
+                                    <td>Tipo de Servicio</td>
+                                    <td>Cantidad</td>
+                                    <td>Observaciones</td>
+                                    <td>Horas</td>
+                                    <td>Precio Unitario</td>
+                                    <td>Precio Total</td>
+                                </thead>
+                                <tbody>
+                                    {% for t in turnos_activos %}
+                                        {% for o in t.ofertatec_linea_set.all %}
+                                            <tr>
+                                                <td>{{ o.codigo }}</td>
+                                                <td>{{ o.detalle}}</td>
+                                                <td>{{ o.tipo_servicio}}</td>
+                                                <td>{{ o.cantidad }}</td>
+                                                <td>{{ o.observaciones }}</td>
+                                                <td>{{ o.cant_horas | default_if_none:""}}</td>
+                                                <td>{{ o.precio }}</td>
+                                                <td>{{ o.precio_total }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </form>
                 </div>
             </div>
-            {% for pv, tActv, uv, otList, instrList in presupVersions %}
+            {% for pv, tActv, uv, otList, instrList, pdt in presupVersions %}
                 <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
                     <div class="col-md-12">
                         <form class="form-horizontal" action="" method="">
@@ -538,7 +584,7 @@
                             <div id="plantilla" class="col-md-12">
                                 <label class="col-md-2" style="text-align:left"
                                  for="id_tipo">Tipo de Presupuesto</label>
-                                <div class="col-md-1">
+                                <div class="col-md-2">
                                     {% if edit %}
                                         {{ form.tipo }}
                                         {% for error in form.tipo.errors %}
@@ -555,6 +601,16 @@
                             <div class="col-md-12" style="border-top: 1.5px solid #eee;margin:15px"></div>
                             <div class="col-md-6">
                                 <h3 class="text-danger">Presupuesto</h3>
+                                <!-- PDT -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_pdt">
+                                        Plan de Trabajo
+                                    </label>
+                                    <div class="col-md-7">
+                                       {{ pdt.0 }}
+                                    </div>
+                                </div>
                                 <!-- Fecha de Solicitud -->
                                 <div class="form-group">
                                     <label class="control-label col-md-5" style="text-align:left"
@@ -633,82 +689,84 @@
                             </div>
                             <!-- Separador -->
                             <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
-                                <div class="col-md-12">
-                                    <div class="col-md-6">
-                                        <h3 class="text-danger">Turnos</h3>
-                                        <table id="turnos_table" class="table">
-                                            <thead>
-                                                <td>Fecha de Inicio</td>
-                                                <td>Fecha de Fin</td>
-                                                <td>Area</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for t in object.get_turnos_activos %}
-                                                    <tr class=
-                                                          {% if t.estado == 'en_espera' %} "neutral"
-                                                              {% elif t.estado == 'activo' %} "warning "
-                                                              {% elif t.estado == 'finalizado' %} "success"
-                                                              {% elif t.estado == 'cancelado' %} "danger"
-                                                          {% endif %}
-                                                    >
-                                                        <td>{{ t.fecha_inicio }}</td>
-                                                        <td>{{ t.fecha_fin }}</td>
-                                                        <td>{{ t.area }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h3 class="text-danger">Instrumentos</h3>
-                                        <table id="instrumento_formtable" class="table">
-                                            <thead>
-                                                <td>Llegada del instrumento</td>
-                                                <td>Recibo de recepcion</td>
-                                            </thead>
-                                            <tbody>
-                                                {% for instr in instrList %}
-                                                    <tr>
-                                                        <td>
-                                                            {{ instr.field_dict.fecha_llegada | default_if_none:"" }}
-                                                        </td>
-                                                        <td>
-                                                            {{ instr.field_dict.nro_recepcion | default_if_none:"" }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <h3 class="text-danger">Turnos</h3>
+                                    <table id="turnos_table" class="table">
+                                        <thead>
+                                            <td>Fecha de Inicio</td>
+                                            <td>Fecha de Fin</td>
+                                            <td>Area</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for t in object.get_turnos_activos %}
+                                                <tr class=
+                                                      {% if t.estado == 'en_espera' %} "neutral"
+                                                          {% elif t.estado == 'activo' %} "warning "
+                                                          {% elif t.estado == 'finalizado' %} "success"
+                                                          {% elif t.estado == 'cancelado' %} "danger"
+                                                      {% endif %}
+                                                >
+                                                    <td>{{ t.fecha_inicio }}</td>
+                                                    <td>{{ t.fecha_fin }}</td>
+                                                    <td>{{ t.area }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 class="text-danger">Instrumentos</h3>
+                                    <table id="instrumento_formtable" class="table">
+                                        <thead>
+                                            <td>Llegada del instrumento</td>
+                                            <td>Recibo de recepcion</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for instr in instrList %}
+                                                <tr>
+                                                    <td>
+                                                        {{ instr.field_dict.fecha_llegada | default_if_none:"" }}
+                                                    </td>
+                                                    <td>
+                                                        {{ instr.field_dict.nro_recepcion | default_if_none:"" }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                            <h3 class="text-danger">Oferta Tecnológica</h3>
+                            <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
+
                             <div class="col-md-12">
-                                <table id="ofertatec_table" class="table">
-                                    <thead>
-                                        <td>Código</td>
-                                        <td>Detalle</td>
-                                        <td>Tipo de Servicio</td>
-                                        <td>Cantidad</td>
-                                        <td>Observaciones</td>
-                                        <td>Horas</td>
-                                        <td>Precio Unitario</td>
-                                    </thead>
-                                    <tbody>
-                                        {% for o in otList %}
-                                            <tr>
-                                                <td>{{ o.field_dict.ofertatec }}</td>
-                                                <td>{{ o.field_dict.detalle}}</td>
-                                                <td>{{ o.field_dict.tipo_servicio}}</td>
-                                                <td>{{ o.field_dict.cantidad }}</td>
-                                                <td>{{ o.field_dict.observaciones }}</td>
-                                                <td>{{ o.field_dict.cant_horas | default_if_none:""}}</td>
-                                                <td>{{ o.field_dict.precio }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                <h3 class="text-danger">Oferta Tecnológica</h3>
+                                <div class="col-md-12">
+                                    <table id="ofertatec_table" class="table">
+                                        <thead>
+                                            <td>Código</td>
+                                            <td>Detalle</td>
+                                            <td>Tipo de Servicio</td>
+                                            <td>Cantidad</td>
+                                            <td>Observaciones</td>
+                                            <td>Horas</td>
+                                            <td>Precio Unitario</td>
+                                        </thead>
+                                        <tbody>
+                                            {% for o in otList %}
+                                                <tr>
+                                                    <td>{{ o.field_dict.ofertatec }}</td>
+                                                    <td>{{ o.field_dict.detalle}}</td>
+                                                    <td>{{ o.field_dict.tipo_servicio}}</td>
+                                                    <td>{{ o.field_dict.cantidad }}</td>
+                                                    <td>{{ o.field_dict.observaciones }}</td>
+                                                    <td>{{ o.field_dict.cant_horas | default_if_none:""}}</td>
+                                                    <td>{{ o.field_dict.precio }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -717,6 +775,7 @@
         </div>
     </div>
 </div>
+<div id="popup" class="modal fade" role="dialog"></div>
 {% url 'adm:presup-list' as action_url %}
 {% include "intiSoft/modals.html" with postUrl=action_url %}
 {% include "adm/modals.html" %}

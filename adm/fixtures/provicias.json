@@ -1,0 +1,232 @@
+[
+  {
+    "model": "adm.provincia",
+    "pk": 1,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "BA",
+      "nombre": "Buenos Aires"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 2,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "CA",
+      "nombre": "Catamarca"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 3,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "CH",
+      "nombre": "Chaco"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 4,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "CT",
+      "nombre": "Chubut"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 5,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "CB",
+      "nombre": "Córdoba"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 6,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "CR",
+      "nombre": "Corrientes"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 7,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "ER",
+      "nombre": "Entre Ríos"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 8,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "FO",
+      "nombre": "Formosa"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 9,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "JY",
+      "nombre": "Jujuy"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 10,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "LP",
+      "nombre": "La Pampa"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 11,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "LR",
+      "nombre": "La Rioja"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 12,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "MZ",
+      "nombre": "Mendoza"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 13,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "MI",
+      "nombre": "Misiones"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 14,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "NQ",
+      "nombre": "Neuquén"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 15,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "RN",
+      "nombre": "Río Negro"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 16,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SA",
+      "nombre": "Salta"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 17,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SJ",
+      "nombre": "San Juan"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 18,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SL",
+      "nombre": "San Luis"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 19,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SC",
+      "nombre": "Santa Cruz"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 20,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SF",
+      "nombre": "Santa Fe"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 21,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "SE",
+      "nombre": "Santiago del Estero"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 22,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "TF",
+      "nombre": "Tierra del Fuego"
+    }
+  },
+  {
+    "model": "adm.provincia",
+    "pk": 23,
+    "fields": {
+      "created": "2018-08-06T13:35:00Z",
+      "modified": "2018-08-06T13:35:00Z",
+      "abreviatura": "TUC",
+      "nombre": "Tucumán"
+    }
+  }
+]

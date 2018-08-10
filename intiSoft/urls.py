@@ -34,5 +34,4 @@ urlpatterns = [
     url('^$', myViews.index, name='index'),
     url(r'^profile/(?P<pk>\d+)/$', myViews.ProfileView.as_view(),
         name='user-profile'),
-
 ]

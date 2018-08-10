@@ -3,11 +3,12 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT
+import lab
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT, Contacto
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm, \
     Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm, \
-    Tarea_LineaFormSet, Instrumento_LineaFormSet, PDTForm
+    Tarea_LineaFormSet, Instrumento_LineaFormSet, PDTForm, Contacto_LineaFormSet, ContactoForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -31,6 +32,7 @@ from reportlab.platypus import Paragraph, Frame
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 import xlwt
+from django.utils.html import escape, escapejs
 
 #===========================================
 #========== VARIABLES GLOBALES =============
@@ -68,6 +70,13 @@ def less_five(orig_date):
 #===========================================
 #======= FUNCIONES ROUTEABLES ==============
 #===========================================
+
+
+def load_contactos(request):
+    usuario_id = int(request.GET.get('usuario'))
+    contactos = Contacto.objects.filter(usuario=usuario_id)
+    return render(request, 'adm/contacto_select.html', {'contactos': contactos})
+
 
 def pdtToXls(request, *args, **kwargs):
     pdt_id = kwargs.get('pk')
@@ -450,6 +459,7 @@ def createRevision(request, *args, **kwargs):
             # Store some meta-information.
             reversion.set_user(request.user)
             reversion.set_comment(actualRevNumber)
+
         # Actualizo el presupuesto
         obj.nro_revision += 1
         obj.revisionar = False
@@ -2136,6 +2146,7 @@ class PresupuestoUpdate(UpdateView):
         usuarioVersByRevision = []
         otLineaVersByRevision = []
         instrLineaVersByRevision = []
+        pdtVersByRevision = []
         if presupVers:
             for pv in presupVers:
                 revId = pv.revision.id
@@ -2153,7 +2164,11 @@ class PresupuestoUpdate(UpdateView):
                 # Todas las lineas de instrumento versionados en la revision revId
                 instr = objectsVersiones.filter(content_type__model='instrumento').order_by('object_id')
                 instrLineaVersByRevision.append(instr)
-        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision, instrLineaVersByRevision)
+                # Todos los pdt versionados en la revision revId
+                pdt = objectsVersiones.filter(content_type__model='pdt')
+                pdtVersByRevision.append(pdt)
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision,
+                                        instrLineaVersByRevision, pdtVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
 
@@ -2413,6 +2428,62 @@ class UsuarioCreate(CreateView):
     def get_success_url(self):
         return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
 
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        contacto_linea_form = Contacto_LineaFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  contacto_linea_form=contacto_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        contacto_linea_form = Contacto_LineaFormSet(self.request.POST)
+        if (form.is_valid() and contacto_linea_form.is_valid()):
+            return self.form_valid(form, contacto_linea_form)
+        else:
+            return self.form_invalid(form, contacto_linea_form)
+
+    def form_valid(self, form, contacto_linea_form):
+        """
+        Called if all forms are valid. Creates a Turno instance along with
+        associated OfertaTec_Lineas and then redirects to a
+        success page.
+        """
+        self.object = form.save()
+        contacto_linea_form.instance = self.object
+        contacto_linea_form.save()
+
+        if self.request.POST.get('_popup', 0):
+            nombre = self.object.nombre.upper()
+            id = self.object.id
+            return HttpResponse(
+                    '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+                    % (id, nombre))
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, contacto_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  contacto_linea_form=contacto_linea_form))
+
 
 class UsuarioDelete(DeleteView):
     model = Usuario
@@ -2455,6 +2526,129 @@ class UsuarioUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('adm:usuarios-update', kwargs={'pk': self.object.id})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates filled versions of the form
+        and its inline formsets.
+        """
+        self.object = Usuario.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        contacto_linea_form = Contacto_LineaFormSet(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  contacto_linea_form=contacto_linea_form))
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = Usuario.objects.get(pk=kwargs['pk'])
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        contacto_linea_form = Contacto_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid() and contacto_linea_form.is_valid()):
+            return self.form_valid(form, contacto_linea_form)
+        else:
+            return self.form_invalid(form, contacto_linea_form)
+
+    def form_valid(self, form, contacto_linea_form):
+        """
+        Called if all forms are valid. Creates a Turno instance along with
+        associated OfertaTec_Lineas and then redirects to a
+        success page.
+        """
+        form.save()
+        contacto_linea_form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, contacto_linea_form):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  contacto_linea_form=contacto_linea_form))
+
+
+class UsuarioCreateModal(UsuarioCreate):
+    template_name = "adm/usuario_modal.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(UsuarioCreateModal, self).get_context_data(**kwargs)
+        context['popup'] = self.request.GET.get('_popup', 0)
+        context['create'] = 1
+        return context
+
+    def form_valid(self, form, contacto_linea_form):
+        super(UsuarioCreateModal, self).form_valid(form, contacto_linea_form)
+
+        nombre = escape(self.object)
+        id = escape(self.object.id)
+        return HttpResponse(
+                '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+                % (id, nombre))
+
+
+class UsuarioUpdateModal(UsuarioUpdate):
+    template_name = "adm/usuario_modal.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(UsuarioUpdateModal, self).get_context_data(**kwargs)
+        context['popup'] = self.request.GET.get('_popup', 0)
+        return context
+
+
+class ContactoCreateModal(CreateView):
+    model = Contacto
+    template_name = "adm/contacto_modal.html"
+    form_class = ContactoForm
+    success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super(ContactoCreateModal, self).get_context_data(**kwargs)
+        context['popup'] = self.request.GET.get('_popup', 0)
+        context['parent_id'] = self.request.GET.get('parent_id', 0)
+        context['create'] = 1
+        context['edit'] = 1
+        return context
+
+
+    def form_valid(self, form):
+        super(ContactoCreateModal, self).form_valid(form)
+
+        nombre = escape(self.object)
+        id = escape(self.object.id)
+        return HttpResponse(
+                '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+                % (id, nombre))
+
+
+class ContactoUpdateModal(UpdateView):
+    model = Contacto
+    template_name = "adm/contacto_modal.html"
+    form_class = ContactoForm
+    success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super(ContactoUpdateModal, self).get_context_data(**kwargs)
+        context['popup'] = self.request.GET.get('_popup', 0)
+        context['parent_id'] = self.request.GET.get('parent_id', 0)
+        context['edit'] = 0
+        return context
+
+    def form_valid(self, form):
+        super(ContactoUpdateModal, self).form_valid(form)
+
+        nombre = escape(self.object)
+        id = escape(self.object.id)
+        return HttpResponse(
+            '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+            % (id, nombre))
 
 #===========================================
 #================== PDT ====================
@@ -2570,3 +2764,5 @@ class PDTDetail(TemplateView):
         pdt_id = kwargs.get('pk', None)
         context['pdt'] = PDT.objects.get(id=pdt_id)
         return context
+
+

@@ -20,6 +20,8 @@
     <script type="text/javascript" src="{% static 'intiSoft/js/daterangepicker.js' %}"></script>
 
     {% block head %}{% endblock%}
+
+    {% if not popup %}
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -53,6 +55,7 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
+    {% endif %}
 </head>
 
 <body>

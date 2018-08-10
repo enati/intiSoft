@@ -1,0 +1,217 @@
+{% extends "intiSoft/base.html" %}
+
+{% block head %}
+    {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
+    <script>
+        $(function() {
+            $(".inline.{{ contacto_linea_form.prefix }}").formset({
+                prefix: "{{ contacto_linea_form.prefix }}",
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+{% load intiSoft_filters %}
+<div class="row">
+    {% if form.errors %}
+        <div class="col-md-offset-1 col-md-10 bs-callout bs-callout-danger">
+            <h3>Error!</h3>
+            <strong> Hay problemas con los siguientes campos: </strong><br/>
+            <ul>
+            {% for error in form.errors %}
+                <li>{% get_verbose_name form.instance error %}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+<h2 class="text-danger">{% if create %}Nuevo Usuario{% else %}Ver Usuario{% endif %}</h2>
+<div class="row">
+    <div class="col-md-12 col-xs-12">
+        <form id="usuarioForm" class="form-horizontal" style="padding-top:5%" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+            <div class="col-md-12 col-xs-12">
+                {% csrf_token %}
+
+                <input type="hidden" name="_popup" value="1">
+                <div class="col-md-6 col-xs-6">
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4 col-xs-3" style="text-align:left"
+                         for="id_nombre">
+                            Nombre
+                        </label>
+                        <div class="col-md-6 col-xs-8">
+                            {% if edit %}
+                                {{ form.nombre }}
+                                {% for error in form.nombre.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.nombre | disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Rubro -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4 col-xs-3" style="text-align:left"
+                         for="id_rubro">
+                            Rubro
+                        </label>
+                        <div class="col-md-6 col-xs-8">
+                            {% if edit %}
+                                {{ form.rubro }}
+                                {% for error in form.rubro.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.rubro | disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Mail -->
+                    <div class="form-group">
+                        <label class="control-label col-md-4 col-xs-3" style="text-align:left"
+                         for="id_mail">
+                            Email
+                        </label>
+                        <div class="col-md-6 col-xs-8">
+                            {% if edit %}
+                                {{ form.mail }}
+                                {% for error in form.mail.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.mail | disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <!-- Nro de usuario -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-xs-5" style="text-align:left"
+                         for="id_nro_usuario">
+                            Número Usuario
+                        </label>
+                        <div class="col-md-4 col-xs-7">
+                            {% if edit %}
+                                {{ form.nro_usuario }}
+                                {% for error in form.nro_usuario.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.nro_usuario | disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- CUIT -->
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-xs-5" style="text-align:left"
+                         for="id_cuit">
+                            Cuit
+                        </label>
+                        <div class="col-md-4 col-xs-7">
+                            {% if edit %}
+                                {{ form.cuit }}
+                                {% for error in form.cuit.errors %}
+                                    <div class="alert alert-error">
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.cuit | disable }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <!-- Titulo -->
+            <div style="display:none" class="col-md-12 col-xs-12">
+                <h3 class="text-danger">Contactos</h3>
+                <!-- Separador -->
+                <div class="col-md-12 col-xs-12" style="border-top: 1.5px solid #eee"></div>
+                <div class="col-md-10 col-xs-12">
+                    {% if edit %}
+                        {{ contacto_linea_form.management_form }}
+                        {{ contacto_linea_form.non_form_errors }}
+                    {% endif %}
+                    <table id="contacto_formtable" class="table">
+
+                        <thead>
+                            <td width="40%">Nombre</td>
+                            <td width="20%">Teléfono</td>
+                            <td width="40%">Email</td>
+                        </thead>
+                        <tbody>
+                            {% for formContacto in contacto_linea_form %}
+                                {% if edit %}
+                                    {{ formContacto.id }}
+                                {% endif %}
+                                <tr class="inline {{ contacto_linea_form.prefix }}">
+                                    <td>
+                                        {% if edit %}
+                                            {{ formContacto.nombre }} {{ formContacto.nombre.errors }}
+                                        {% else %}
+                                            {{ formContacto.instance.nombre | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formContacto.telefono }} {{ formContacto.telefono.errors }}
+                                        {% else %}
+                                            {{ formContacto.instance.telefono }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formContacto.mail }} {{ formContacto.mail.errors }}
+                                        {% else %}
+                                            {{ formContacto.instance.mail }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit  %}
+                                            {% if formContacto.instance.pk %}
+                                                {{ formContacto.DELETE }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    {% if formContacto.errors %}
+                                        {% for error in formContacto.non_field_errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% if create %}
+    <div class="col-md-2">
+        <input type="submit" value="Guardar" class="btn btn-danger" style="float:right" form="usuarioForm">
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
