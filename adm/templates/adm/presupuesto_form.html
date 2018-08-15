@@ -1,10 +1,10 @@
 {% extends "intiSoft/base.html" %}
 
 {% block head %}
+    {{ form.media }}
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
 
-    {{ form.media }}
     <script>
         $(function() {
             function renewDatePickers() {
@@ -34,27 +34,6 @@
             });
             {% endif %}
 
-            function updateNestedRelatedObjectLinks(triggeringLink, relatedLink) {
-
-                var $this = $(triggeringLink);
-                var $related = $(relatedLink);
-
-                var siblings = $related.nextAll('.add-another');
-
-                if (!siblings.length) {
-                    return;
-                }
-                var value = $this.val();
-                if (value) {
-                    siblings.each(function() {
-                        var elm = $(this);
-                        elm.attr('href', elm.attr('data-href-template').replace('__fk__', value));
-                    });
-                } else {
-                    siblings.removeAttr('href');
-                }
-            }
-
             $("#id_usuario").on('change', function (e) {
                 $("#change_id_usuario").removeClass("disabled-link");
                 updateRelatedObjectLinks(this);
@@ -72,15 +51,23 @@
                     }
                 });
 
+                $("#id_contacto").trigger('change');
+
             });
 
             $("#id_contacto").on('change', function (e) {
-                $("#change_id_contacto").removeClass("disabled-link");
-                updateRelatedObjectLinks(this);
+                if ($(this).val() != "") {
+                    $("#change_id_contacto").removeClass("disabled-link");
+                    updateRelatedObjectLinks(this);
+                } else {
+                    $("#change_id_contacto").addClass("disabled-link");
+                }
             });
 
             if ($("#id_usuario").val()) {
-                $("#id_usuario").change();
+                $("#change_id_usuario").removeClass("disabled-link");
+                updateRelatedObjectLinks($("#id_usuario")[0]);
+                updateNestedRelatedObjectLinks($("#id_usuario")[0], $("#id_contacto")[0]);
             } else {
                 $("#change_id_usuario").addClass("disabled-link");
             }
@@ -91,6 +78,7 @@
                 $("#change_id_contacto").addClass("disabled-link");
             }
         });
+
     </script>
 {% endblock %}
 
@@ -576,7 +564,7 @@
                     </form>
                 </div>
             </div>
-            {% for pv, tActv, uv, otList, instrList, pdt in presupVersions %}
+            {% for pv, tActv, uv, cv, otList, instrList, pdt in presupVersions %}
                 <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
                     <div class="col-md-12">
                         <form class="form-horizontal" action="" method="">
@@ -654,36 +642,14 @@
                                         {{ uv.0.field_dict.nombre }}
                                     </div>
                                 </div>
-                                <!-- Numero de Usuario -->
+                                <!-- Contacto -->
                                 <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__nro_usuario">
-                                        Número
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id_contacto">
+                                          Contacto
                                     </label>
                                     <div class="col-md-7">
-                                       <p id="id_nro_usuario">
-                                           {{ uv.0.field_dict.nro_usuario }}
-                                       </p>
-                                    </div>
-                                </div>
-                                <!-- Cuit de Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__cuit">
-                                        Cuit
-                                    </label>
-                                    <div class="col-md-7">
-                                       <p id="id_cuit">{{ uv.0.field_dict.cuit }}</p>
-                                    </div>
-                                </div>
-                                <!-- Rubro de Usuario -->
-                                <div class="form-group">
-                                    <label class="col-md-5" style="text-align:left"
-                                      for="id_usuario__rubro">
-                                        Rubro
-                                    </label>
-                                    <div class="col-md-7">
-                                       <p id="id_rubro">{{ uv.0.field_dict.rubro }}</p>
+                                        {{ cv.0.field_dict.nombre }}
                                     </div>
                                 </div>
                             </div>

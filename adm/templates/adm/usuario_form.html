@@ -20,7 +20,10 @@
             <h3>Error!</h3>
             <strong> Hay problemas con los siguientes campos: </strong><br/>
             <ul>
-            {% for error in form.errors %}
+            {% for error in form.non_field_errors%}
+                <li>{{ error }}</li>
+            {% endfor %}
+            {% for error in form.field_errors %}
                 <li>{% get_verbose_name form.instance error %}</li>
             {% endfor %}
             </ul>
@@ -195,13 +198,6 @@
                         </div>
                     </div>
                 </div>
-                {% if form.errors %}
-                    {% for error in form.non_field_errors %}
-                        <div class="alert alert-error">
-                            <strong>{{ error|escape }}</strong>
-                        </div>
-                    {% endfor %}
-                {% endif %}
             </div>
             <!-- Titulo -->
             <div class="col-md-12">

@@ -1326,7 +1326,19 @@ class PDTForm(forms.ModelForm):
             },
         }
 
+"""
+class ContactoInlineFormset(BaseInlineFormSet):
+    def is_valid(self):
 
+        is_valid = super(ContactoInlineFormset, self).is_valid()
+
+        if self.is_bound and is_valid:
+            # look at any nested formsets, as well
+            for form in self.forms:
+                if self._should_delete_form(form):
+                    import pdb; pdb.set_trace()
+        return is_valid
+"""
 class Contacto_LineaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -1348,3 +1360,4 @@ Contacto_LineaFormSet = inlineformset_factory(Usuario,
                                               formfield_callback=base_bootstrap_format,
                                               form=Contacto_LineaForm,
                                               formset=BaseInlineFormSet)
+

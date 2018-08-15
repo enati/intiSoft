@@ -42,8 +42,8 @@
                             Usuario
                         </label>
                         <div class="col-md-6 col-xs-8">
-                            {% if form.instance %}
-                                {{ form.instance.usuario.nombre }}
+                            {% if not create %}
+                                {{ form.instance.usuario }}
                             {% else %}
                                 {{ form.usuario | disable }}
                                 <input type="hidden" name="usuario" value="{{parent_id}}">
@@ -118,7 +118,7 @@
             </div>
         </form>
     </div>
-    {% if created %}
+    {% if create %}
     <div class="col-md-2">
         <input type="submit" value="Guardar" class="btn btn-danger" style="float:right" form="contactoForm">
     </div>

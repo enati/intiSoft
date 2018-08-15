@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -12,7 +13,7 @@ from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, NON_FIELD_ERRORS
 from .utils import genWord, genSOT, genRUT, genSI
 from django.http import JsonResponse
 import json
@@ -21,7 +22,7 @@ from reversion.models import Version
 import reversion
 from time import time
 import re
-from django.db.models import Q
+from django.db.models import Q, ProtectedError
 import operator
 from django.core import serializers
 from reportlab.pdfgen.canvas import Canvas
@@ -71,7 +72,7 @@ def less_five(orig_date):
 #======= FUNCIONES ROUTEABLES ==============
 #===========================================
 
-
+@never_cache
 def load_contactos(request):
     usuario_id = int(request.GET.get('usuario'))
     contactos = Contacto.objects.filter(usuario=usuario_id)
@@ -2144,6 +2145,7 @@ class PresupuestoUpdate(UpdateView):
         presupVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='T_')
         turnoVersByRevision = []
         usuarioVersByRevision = []
+        contactoVersByRevision = []
         otLineaVersByRevision = []
         instrLineaVersByRevision = []
         pdtVersByRevision = []
@@ -2158,6 +2160,9 @@ class PresupuestoUpdate(UpdateView):
                 # Todos los usuarios versionados en la revision revId
                 uv = objectsVersiones.filter(content_type__model='usuario')
                 usuarioVersByRevision.append(uv)
+                # Todos los contactos versionados en la revision revId
+                cv = objectsVersiones.filter(content_type__model='contacto')
+                contactoVersByRevision.append(cv)
                 # Todas las lineas de ot versionados en la revision revId
                 ot = objectsVersiones.filter(content_type__model='ofertatec_linea').order_by('object_id')
                 otLineaVersByRevision.append(ot)
@@ -2167,8 +2172,8 @@ class PresupuestoUpdate(UpdateView):
                 # Todos los pdt versionados en la revision revId
                 pdt = objectsVersiones.filter(content_type__model='pdt')
                 pdtVersByRevision.append(pdt)
-        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, otLineaVersByRevision,
-                                        instrLineaVersByRevision, pdtVersByRevision)
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, contactoVersByRevision,
+                                        otLineaVersByRevision, instrLineaVersByRevision, pdtVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
 
@@ -2562,7 +2567,19 @@ class UsuarioUpdate(UpdateView):
         success page.
         """
         form.save()
-        contacto_linea_form.save()
+        # Para manejar los errores del delete
+        for contactoForm in contacto_linea_form:
+            if contactoForm not in contacto_linea_form.deleted_forms:
+                contactoForm.save()
+        for contactoForm in contacto_linea_form.deleted_forms:
+            instance = contactoForm.instance
+            if instance.pk:
+                try:
+                    instance.delete()
+                except ProtectedError:
+                    form._errors.setdefault(NON_FIELD_ERRORS, []).append(
+                        'No se puede eliminar el contacto ya que  tiene presupuestos asociados.')
+                    return self.form_invalid(form, contacto_linea_form)
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form, contacto_linea_form):
@@ -2623,8 +2640,9 @@ class ContactoCreateModal(CreateView):
 
         nombre = escape(self.object)
         id = escape(self.object.id)
+
         return HttpResponse(
-                '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+                '<script type="text/javascript">opener.dismissAddRelatedObjectPopup( window, \'%s\', \'%s\' );</script>'
                 % (id, nombre))
 
 
@@ -2643,11 +2661,10 @@ class ContactoUpdateModal(UpdateView):
 
     def form_valid(self, form):
         super(ContactoUpdateModal, self).form_valid(form)
-
         nombre = escape(self.object)
         id = escape(self.object.id)
         return HttpResponse(
-            '<script type="text/javascript">opener.dismissAddAnotherPopup( window, \'%s\', \'%s\' );</script>'
+            '<script type="text/javascript">opener.dismissAddRelatedObjectPopup( window, \'%s\', \'%s\' );</script>'
             % (id, nombre))
 
 #===========================================

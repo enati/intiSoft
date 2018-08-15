@@ -7,9 +7,7 @@ class RelatedFieldWidgetCanAdd(widgets.Select):
 
     class Media:
         js = (
-            'admin/js/vendor/jquery/jquery.min.js',
-            'admin/js/jquery.init.js',
-            'admin/js/admin/RelatedObjectLookups.js',
+            'intiSoft/js/MyRelatedObjectLookups.js',
         )
 
     def __init__(self, related_model, add_related_url=None, view_related_url=None, *args, **kw):
@@ -52,9 +50,7 @@ class NestedRelatedFieldWidgetCanAdd(widgets.Select):
 
     class Media:
         js = (
-            'admin/js/vendor/jquery/jquery.min.js',
-            'admin/js/jquery.init.js',
-            'admin/js/admin/RelatedObjectLookups.js',
+            'intiSoft/js/MyRelatedObjectLookups.js',
         )
 
     def __init__(self, parent_model, related_model, add_related_url=None, view_related_url=None, *args, **kw):
@@ -77,7 +73,7 @@ class NestedRelatedFieldWidgetCanAdd(widgets.Select):
         if 'add' in self.actions:
             self.add_related_url = reverse(self.add_related_url)
             output = [super(NestedRelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs)]
-            output.append(u'<a data-href-template="%s?parent_id=__fk__&_popup=1" class="add-another input-group-addon" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> '
+            output.append(u'<a data-href-template="%s?parent_id=__fk__&_popup=1" class="add-another input-group-addon" id="add_id_%s" onclick="return showRelatedObjectPopup(this);"> '
                           % (self.add_related_url, name))
             output.append(u'<img src="%sadmin/img/icon-addlink.svg" width="15" height="15" alt="%s"/></a>'
                           % (settings.STATIC_URL, ('Crear')))
@@ -85,7 +81,7 @@ class NestedRelatedFieldWidgetCanAdd(widgets.Select):
         if 'view' in self.actions:
             self.view_related_url = reverse(self.view_related_url, args={'1'}).replace('1', '__fk__')
             output.append(
-                u'<a data-href-template=%s?_popup=1 class="change-related input-group-addon" id="change_id_%s" onclick="return showAddAnotherPopup(this);"> '
+                u'<a data-href-template=%s?_popup=1 class="change-related input-group-addon" id="change_id_%s" onclick="return showRelatedObjectPopup(this);"> '
                 % (self.view_related_url, name))
             output.append(u'<img src="%sadmin/img/search.svg" width="15" height="15" alt="%s"/></a>'
                           % (settings.STATIC_URL, ('Ver')))

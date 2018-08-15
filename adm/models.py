@@ -74,6 +74,7 @@ class Usuario(TimeStampedModel, AuthStampedModel):
         ordering = ['nombre']
 
 
+@reversion.register()
 class Contacto(TimeStampedModel, AuthStampedModel):
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -82,8 +83,7 @@ class Contacto(TimeStampedModel, AuthStampedModel):
     mail = models.CharField("Mail", max_length=50, blank=True)
 
     def __unicode__(self):
-        return self.nombre + " - " + unicode(self.usuario)
-
+        return self.nombre
 
 @reversion.register()
 class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
@@ -222,7 +222,7 @@ class PDT(TimeStampedModel, AuthStampedModel):
         permissions = (("read_pdt", "Can read pdt"),)
 
 
-@reversion.register(follow=["usuario", "turno_set", "instrumento_set", "pdt"])
+@reversion.register(follow=["usuario", "contacto", "turno_set", "instrumento_set", "pdt"])
 class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     ESTADOS = (
