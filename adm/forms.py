@@ -5,7 +5,7 @@ from django import forms
 from adm.widgets import RelatedFieldWidgetCanAdd, NestedRelatedFieldWidgetCanAdd
 from lab.models import Turno
 from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, \
-    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT, Contacto
+    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT, Contacto, DireccionUsuario, Localidad
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -1051,16 +1051,18 @@ class PresupuestoForm(forms.ModelForm):
                    (self.instance.estado != 'aceptado'):
                     self.fields[f].widget.attrs['disabled'] = True
                     self.fields[f].required = False
-        # Queryset contacto
+        # Queryset contacto y direccion
         self.fields['contacto'].queryset = Contacto.objects.none()
         if 'usuario' in self.data:
             try:
                 usuario_id = int(self.data.get('usuario'))
                 self.fields['contacto'].queryset = Contacto.objects.filter(usuario=usuario_id).order_by('nombre')
+                self.fields['direccion'].queryset = DireccionUsuario.objects.filter(usuario=usuario_id).order_by('calle')
             except (ValueError, TypeError):
                 pass    # Invalid input from the client, ignore and fallback to empty Contacto queryset
         elif self.instance.pk:
             self.fields['contacto'].queryset = self.instance.usuario.contacto_set.order_by('nombre')
+            self.fields['direccion'].queryset = self.instance.usuario.direccionusuario_set.order_by('calle')
 
 
 
@@ -1121,6 +1123,7 @@ class PresupuestoForm(forms.ModelForm):
         fields = ['codigo',
                   'fecha_solicitado',
                   'usuario',
+                  'direccion',
                   'contacto',
                   'fecha_realizado',
                   'fecha_aceptado',
@@ -1161,7 +1164,9 @@ class PresupuestoForm(forms.ModelForm):
                 'usuario': RelatedFieldWidgetCanAdd(Usuario,
                                                     add_related_url="adm:usuarios-create-modal",
                                                     view_related_url="adm:usuarios-update-modal"),
-
+                'direccion': NestedRelatedFieldWidgetCanAdd(Usuario,
+                                                           DireccionUsuario,
+                                                           add_related_url="adm:direcciones-create-modal"),
                 'contacto': NestedRelatedFieldWidgetCanAdd(Usuario,
                                                            Contacto,
                                                            add_related_url="adm:contactos-create-modal",
@@ -1326,25 +1331,14 @@ class PDTForm(forms.ModelForm):
             },
         }
 
-"""
-class ContactoInlineFormset(BaseInlineFormSet):
-    def is_valid(self):
 
-        is_valid = super(ContactoInlineFormset, self).is_valid()
-
-        if self.is_bound and is_valid:
-            # look at any nested formsets, as well
-            for form in self.forms:
-                if self._should_delete_form(form):
-                    import pdb; pdb.set_trace()
-        return is_valid
-"""
 class Contacto_LineaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(Contacto_LineaForm, self).__init__(*args, **kwargs)
         for f in self.fields:
             self.fields[f].required = False
+
 
     class Meta:
         model = Contacto
@@ -1361,3 +1355,56 @@ Contacto_LineaFormSet = inlineformset_factory(Usuario,
                                               form=Contacto_LineaForm,
                                               formset=BaseInlineFormSet)
 
+
+class DireccionForm(forms.ModelForm):
+    formfield_callback = bootstrap_format
+
+    def __init__(self, *args, **kwargs):
+        super(DireccionForm, self).__init__(*args, **kwargs)
+        #for f in self.fields:
+        #    self.fields[f].required = False
+
+        # Queryset localidad
+        self.fields['localidad'].queryset = Localidad.objects.none()
+        provincia_key = self.prefix + '-provincia' if self.prefix else 'provincia'
+        if provincia_key in self.data:
+            try:
+                provincia_id = int(self.data.get(provincia_key))
+                self.fields['localidad'].queryset = Localidad.objects.filter(provincia=provincia_id).order_by(
+                    'nombre')
+            except (ValueError, TypeError):
+                pass  # Invalid input from the client, ignore and fallback to empty Localidad queryset
+        elif self.instance.pk:
+            self.fields['localidad'].queryset = self.instance.provincia.localidad_set.order_by('nombre')
+
+
+    class Meta:
+        model = DireccionUsuario
+        fields = ['usuario',
+                  'calle',
+                  'numero',
+                  'piso',
+                  'provincia',
+                  'localidad']
+        error_messages = {
+            'calle': {
+                'required': 'Campo obligatorio.',
+            },
+            'numero': {
+                'required': 'Campo obligatorio.',
+            },
+            'provincia': {
+                'required': 'Campo obligatorio.',
+            },
+            'localidad': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+Direccion_LineaFormSet = inlineformset_factory(Usuario,
+                                               DireccionUsuario,
+                                               min_num=1,
+                                               extra=0,
+                                               formfield_callback=base_bootstrap_format,
+                                               form=DireccionForm,
+                                               formset=BaseInlineFormSet)

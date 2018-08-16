@@ -8,6 +8,31 @@
             $(".inline.{{ contacto_linea_form.prefix }}").formset({
                 prefix: "{{ contacto_linea_form.prefix }}",
             });
+
+            $(".inline.{{ direccion_linea_form.prefix }}").formset({
+                prefix: "{{ direccion_linea_form.prefix }}",
+            });
+
+            $("[id^=id_][id$=provincia]").on('change', function (e) {
+                var splitted_id = this.id.split("-");
+                splitted_id[splitted_id.length-1] = 'localidad';
+                var localidad_id = '#'.concat(splitted_id.join("-"));
+
+                // Actualizo las localidades de la provincia seleccionada
+                var url = $("#usuarioForm").attr("data-localidades-url");
+                var provinciaId = $(this).val();
+
+                $.ajax({
+                    url: url,
+                    data: { 'provincia': provinciaId },
+                    success: function(data) {
+                                $(localidad_id).html(data);
+                    }
+                });
+
+                $("#id_localidad").trigger('change');
+
+            });
         });
     </script>
 {% endblock %}
@@ -20,11 +45,13 @@
             <h3>Error!</h3>
             <strong> Hay problemas con los siguientes campos: </strong><br/>
             <ul>
-            {% for error in form.non_field_errors%}
+            {% for error in form.non_field_errors %}
                 <li>{{ error }}</li>
             {% endfor %}
-            {% for error in form.field_errors %}
+            {% for error in form.errors %}
+                {% if error != '__all__' %}
                 <li>{% get_verbose_name form.instance error %}</li>
+                {% endif %}
             {% endfor %}
             </ul>
         </div>
@@ -92,7 +119,8 @@
         </div>
         <!-- Separador -->
         <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-        <form id="usuarioForm" class="form-horizontal" style="padding-top:5%" action="" method="{% if edit %}POST{% else %}GET{% endif %}">
+        <form id="usuarioForm" class="form-horizontal" style="padding-top:5%" action=""
+              method="{% if edit %}POST{% else %}GET{% endif %}" data-localidades-url="{% url 'adm:ajax_load_localidades' %}">
             <div class="col-md-12">
                 {% if edit %}
                     {% csrf_token %}
@@ -199,12 +227,82 @@
                     </div>
                 </div>
             </div>
-            <!-- Titulo -->
+            <!-- Direcciones -->
+            <div class="col-md-12">
+                <label class="control-label col-md-2" style="text-align:left">Direcciones</label>
+                <div class="col-md-10">
+                    {% if edit %}
+                        {{ direccion_linea_form.management_form }}
+                        {{ direccion_linea_form.non_form_errors }}
+                    {% endif %}
+                    <table id="direccion_formtable" class="table">
+                        <thead>
+                            <td width="30%">Calle</td>
+                            <td width="10%">Número</td>
+                            <td width="10%">Piso</td>
+                            <td>Provincia</td>
+                            <td>Localidad</td>
+                        </thead>
+                        <tbody>
+                            {% for formDireccion in direccion_linea_form %}
+                                {% if edit %}
+                                    {{ formDireccion.id }}
+                                {% endif %}
+                                <tr class="inline {{ direccion_linea_form.prefix }}">
+                                    <td>
+                                        {% if edit %}
+                                            {{ formDireccion.calle }} {{ formDireccion.calle.errors }}
+                                        {% else %}
+                                            {{ formDireccion.instance.calle | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formDireccion.numero }} {{ formDireccion.numero.errors }}
+                                        {% else %}
+                                            {{ formDireccion.instance.numero | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formDireccion.piso }} {{ formDireccion.piso.errors }}
+                                        {% else %}
+                                            {{ formDireccion.instance.piso | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formDireccion.provincia }} {{ formDireccion.provincia.errors }}
+                                        {% else %}
+                                            {{ formDireccion.instance.provincia | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formDireccion.localidad }} {{ formDireccion.localidad.errors }}
+                                        {% else %}
+                                            {{ formDireccion.instance.localidad | default_if_none:"" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit  %}
+                                            {% if formDireccion.instance.pk %}
+                                                {{ formDireccion.DELETE }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Contactos -->
             <div class="col-md-12">
                 <h2 class="text-danger">Contactos</h2>
                 <!-- Separador -->
                 <div class="col-md-12" style="border-top: 1.5px solid #eee"/>
-                <div class="col-md-10"/>
+                <div class="col-md-10">
                     {% if edit %}
                         {{ contacto_linea_form.management_form }}
                         {{ contacto_linea_form.non_form_errors }}

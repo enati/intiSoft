@@ -74,7 +74,11 @@ urlpatterns = [
     url(r'^pdt/viewXLS/(?P<pk>\d+)/$', never_cache(views.pdtToXls), name='pdt-viewXLS'),
     url(r'^contactos/create-modal/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.ContactoCreateModal.as_view())),
                                              name='contactos-create-modal'),
+    url(r'^direcciones/create-modal/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.DireccionUsuarioCreateModal.as_view())),
+                                             name='direcciones-create-modal'),
     url(r'^contactos/update-modal/(?P<pk>\d+)/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.ContactoUpdateModal.as_view())),
                                              name='contactos-update-modal'),
     url(r'^ajax/contactos/$', views.load_contactos, name='ajax_load_contactos'),
+    url(r'^ajax/localides/$', views.load_localidades, name='ajax_load_localidades'),
+    url(r'^ajax/direcciones/$', views.load_direcciones, name='ajax_load_direcciones'),
 ]

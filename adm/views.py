@@ -5,11 +5,13 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, T
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 import lab
-from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT, Contacto
+from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT, Contacto, \
+    Localidad, DireccionUsuario
 from lab.models import OfertaTec_Linea
 from .forms import PresupuestoForm, OfertaTecForm, UsuarioForm, OTForm, OTMLForm, SIForm, \
     Factura_LineaFormSet, OT_LineaFormSet, Remito_LineaFormSet, SOTForm, RUTForm, \
-    Tarea_LineaFormSet, Instrumento_LineaFormSet, PDTForm, Contacto_LineaFormSet, ContactoForm
+    Tarea_LineaFormSet, Instrumento_LineaFormSet, PDTForm, Contacto_LineaFormSet, ContactoForm, Direccion_LineaFormSet, \
+    DireccionForm
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -77,6 +79,18 @@ def load_contactos(request):
     usuario_id = int(request.GET.get('usuario'))
     contactos = Contacto.objects.filter(usuario=usuario_id)
     return render(request, 'adm/contacto_select.html', {'contactos': contactos})
+
+
+def load_localidades(request):
+    provincia_id = int(request.GET.get('provincia'))
+    localidades = Localidad.objects.filter(provincia=provincia_id)
+    return render(request, 'adm/localidad_select.html', {'localidades': localidades})
+
+@never_cache
+def load_direcciones(request):
+    usuario_id = int(request.GET.get('usuario'))
+    direcciones = DireccionUsuario.objects.filter(usuario=usuario_id)
+    return render(request, 'adm/direccion_select.html', {'direcciones': direcciones})
 
 
 def pdtToXls(request, *args, **kwargs):
@@ -2145,6 +2159,7 @@ class PresupuestoUpdate(UpdateView):
         presupVers = Version.objects.get_for_object(self.object).exclude(revision__comment__contains='T_')
         turnoVersByRevision = []
         usuarioVersByRevision = []
+        direccionVersByRevision = []
         contactoVersByRevision = []
         otLineaVersByRevision = []
         instrLineaVersByRevision = []
@@ -2160,6 +2175,9 @@ class PresupuestoUpdate(UpdateView):
                 # Todos los usuarios versionados en la revision revId
                 uv = objectsVersiones.filter(content_type__model='usuario')
                 usuarioVersByRevision.append(uv)
+                # Todas las direcciones versionadas en la revision revId
+                dv = objectsVersiones.filter(content_type__model='direccionusuario')
+                direccionVersByRevision.append(dv)
                 # Todos los contactos versionados en la revision revId
                 cv = objectsVersiones.filter(content_type__model='contacto')
                 contactoVersByRevision.append(cv)
@@ -2172,8 +2190,9 @@ class PresupuestoUpdate(UpdateView):
                 # Todos los pdt versionados en la revision revId
                 pdt = objectsVersiones.filter(content_type__model='pdt')
                 pdtVersByRevision.append(pdt)
-        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, contactoVersByRevision,
-                                        otLineaVersByRevision, instrLineaVersByRevision, pdtVersByRevision)
+        context['presupVersions'] = zip(presupVers, turnoVersByRevision, usuarioVersByRevision, direccionVersByRevision,
+                                        contactoVersByRevision, otLineaVersByRevision, instrLineaVersByRevision,
+                                        pdtVersByRevision)
         context['back_url'] = back_url_presupuesto
         return context
 
@@ -2442,9 +2461,11 @@ class UsuarioCreate(CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         contacto_linea_form = Contacto_LineaFormSet()
+        direccion_linea_form = Direccion_LineaFormSet()
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  contacto_linea_form=contacto_linea_form))
+                                  contacto_linea_form=contacto_linea_form,
+                                  direccion_linea_form=direccion_linea_form))
 
     def post(self, request, *args, **kwargs):
         """
@@ -2456,12 +2477,15 @@ class UsuarioCreate(CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         contacto_linea_form = Contacto_LineaFormSet(self.request.POST)
-        if (form.is_valid() and contacto_linea_form.is_valid()):
-            return self.form_valid(form, contacto_linea_form)
+        direccion_linea_form = Direccion_LineaFormSet(self.request.POST)
+        if (form.is_valid()
+            and contacto_linea_form.is_valid()
+            and direccion_linea_form.is_valid()):
+            return self.form_valid(form, contacto_linea_form, direccion_linea_form)
         else:
-            return self.form_invalid(form, contacto_linea_form)
+            return self.form_invalid(form, contacto_linea_form, direccion_linea_form)
 
-    def form_valid(self, form, contacto_linea_form):
+    def form_valid(self, form, contacto_linea_form, direccion_linea_form):
         """
         Called if all forms are valid. Creates a Turno instance along with
         associated OfertaTec_Lineas and then redirects to a
@@ -2470,6 +2494,8 @@ class UsuarioCreate(CreateView):
         self.object = form.save()
         contacto_linea_form.instance = self.object
         contacto_linea_form.save()
+        direccion_linea_form.instance = self.object
+        direccion_linea_form.save()
 
         if self.request.POST.get('_popup', 0):
             nombre = self.object.nombre.upper()
@@ -2480,14 +2506,15 @@ class UsuarioCreate(CreateView):
         else:
             return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, contacto_linea_form):
+    def form_invalid(self, form, contacto_linea_form, direccion_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  contacto_linea_form=contacto_linea_form))
+                                  contacto_linea_form=contacto_linea_form,
+                                  direccion_linea_form=direccion_linea_form))
 
 
 class UsuarioDelete(DeleteView):
@@ -2541,9 +2568,11 @@ class UsuarioUpdate(UpdateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         contacto_linea_form = Contacto_LineaFormSet(instance=self.object)
+        direccion_linea_form = Direccion_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  contacto_linea_form=contacto_linea_form))
+                                  contacto_linea_form=contacto_linea_form,
+                                  direccion_linea_form=direccion_linea_form))
 
     def post(self, request, *args, **kwargs):
         """
@@ -2555,12 +2584,15 @@ class UsuarioUpdate(UpdateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         contacto_linea_form = Contacto_LineaFormSet(self.request.POST, instance=self.object)
-        if (form.is_valid() and contacto_linea_form.is_valid()):
-            return self.form_valid(form, contacto_linea_form)
+        direccion_linea_form = Direccion_LineaFormSet(self.request.POST, instance=self.object)
+        if (form.is_valid()
+            and contacto_linea_form.is_valid()
+            and direccion_linea_form.is_valid()):
+            return self.form_valid(form, contacto_linea_form, direccion_linea_form)
         else:
-            return self.form_invalid(form, contacto_linea_form)
+            return self.form_invalid(form, contacto_linea_form, direccion_linea_form)
 
-    def form_valid(self, form, contacto_linea_form):
+    def form_valid(self, form, contacto_linea_form, direccion_linea_form):
         """
         Called if all forms are valid. Creates a Turno instance along with
         associated OfertaTec_Lineas and then redirects to a
@@ -2568,6 +2600,17 @@ class UsuarioUpdate(UpdateView):
         """
         form.save()
         # Para manejar los errores del delete
+        for direccionForm in direccion_linea_form:
+            if direccionForm not in direccion_linea_form.deleted_forms:
+                direccionForm.save()
+        for direccionForm in direccion_linea_form.deleted_forms:
+            instance = direccionForm.instance
+            if instance.pk:
+                try:
+                    instance.delete()
+                except ProtectedError:
+                    form._errors.setdefault(NON_FIELD_ERRORS, []).append(
+                        'No se puede eliminar la dirección ya que tiene presupuestos asociados.')
         for contactoForm in contacto_linea_form:
             if contactoForm not in contacto_linea_form.deleted_forms:
                 contactoForm.save()
@@ -2578,18 +2621,21 @@ class UsuarioUpdate(UpdateView):
                     instance.delete()
                 except ProtectedError:
                     form._errors.setdefault(NON_FIELD_ERRORS, []).append(
-                        'No se puede eliminar el contacto ya que  tiene presupuestos asociados.')
-                    return self.form_invalid(form, contacto_linea_form)
-        return HttpResponseRedirect(self.get_success_url())
+                        'No se puede eliminar el contacto ya que tiene presupuestos asociados.')
+        if form._errors:
+            return self.form_invalid(form, contacto_linea_form, direccion_linea_form)
+        else:
+            return HttpResponseRedirect(self.get_success_url())
 
-    def form_invalid(self, form, contacto_linea_form):
+    def form_invalid(self, form, contacto_linea_form, direccion_linea_form):
         """
         Called if a form is invalid. Re-renders the context data with the
         data-filled forms and errors.
         """
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  contacto_linea_form=contacto_linea_form))
+                                  contacto_linea_form=contacto_linea_form,
+                                  direccion_linea_form=direccion_linea_form))
 
 
 class UsuarioCreateModal(UsuarioCreate):
@@ -2601,8 +2647,8 @@ class UsuarioCreateModal(UsuarioCreate):
         context['create'] = 1
         return context
 
-    def form_valid(self, form, contacto_linea_form):
-        super(UsuarioCreateModal, self).form_valid(form, contacto_linea_form)
+    def form_valid(self, form, contacto_linea_form, direccion_linea_form):
+        super(UsuarioCreateModal, self).form_valid(form, contacto_linea_form, direccion_linea_form)
 
         nombre = escape(self.object)
         id = escape(self.object.id)
@@ -2620,6 +2666,31 @@ class UsuarioUpdateModal(UsuarioUpdate):
         return context
 
 
+class DireccionUsuarioCreateModal(CreateView):
+    model = DireccionUsuario
+    template_name = "adm/direccion_modal.html"
+    form_class = DireccionForm
+    success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super(DireccionUsuarioCreateModal, self).get_context_data(**kwargs)
+        context['popup'] = self.request.GET.get('_popup', 0)
+        context['parent_id'] = self.request.GET.get('parent_id', 0)
+        context['create'] = 1
+        context['edit'] = 1
+        return context
+
+    def form_valid(self, form):
+        super(DireccionUsuarioCreateModal, self).form_valid(form)
+
+        nombre = escape(self.object)
+        id = escape(self.object.id)
+
+        return HttpResponse(
+                '<script type="text/javascript">opener.dismissAddRelatedObjectPopup( window, \'%s\', \'%s\' );</script>'
+                % (id, nombre))
+
+
 class ContactoCreateModal(CreateView):
     model = Contacto
     template_name = "adm/contacto_modal.html"
@@ -2633,7 +2704,6 @@ class ContactoCreateModal(CreateView):
         context['create'] = 1
         context['edit'] = 1
         return context
-
 
     def form_valid(self, form):
         super(ContactoCreateModal, self).form_valid(form)

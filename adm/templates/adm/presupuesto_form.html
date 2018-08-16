@@ -39,19 +39,28 @@
                 updateRelatedObjectLinks(this);
                 updateNestedRelatedObjectLinks(this, $("#id_contacto")[0]);
 
-                // Actualizo los contactos del usuario seleccionado
-                var url = $("#presupForm").attr("data-contactos-url");
                 var usuarioId = $(this).val();
-
+                // Actualizo los contactos del usuario seleccionado
+                var contactos_url = $("#presupForm").attr("data-contactos-url");
                 $.ajax({
-                    url: url,
+                    url: contactos_url,
                     data: { 'usuario': usuarioId },
                     success: function(data) {
                                 $("#id_contacto").html(data);
                     }
                 });
-
                 $("#id_contacto").trigger('change');
+
+                // Actualizo las direcciones del usuario seleccionado
+                var direcciones_url = $("#presupForm").attr("data-direcciones-url");
+                $.ajax({
+                    url: direcciones_url,
+                    data: { 'usuario': usuarioId },
+                    success: function(data) {
+                                $("#id_direccion").html(data);
+                    }
+                });
+                $("#id_direccion").trigger('change');
 
             });
 
@@ -68,6 +77,7 @@
                 $("#change_id_usuario").removeClass("disabled-link");
                 updateRelatedObjectLinks($("#id_usuario")[0]);
                 updateNestedRelatedObjectLinks($("#id_usuario")[0], $("#id_contacto")[0]);
+                updateNestedRelatedObjectLinks($("#id_usuario")[0], $("#id_direccion")[0]);
             } else {
                 $("#change_id_usuario").addClass("disabled-link");
             }
@@ -77,6 +87,7 @@
             } else {
                 $("#change_id_contacto").addClass("disabled-link");
             }
+
         });
 
     </script>
@@ -269,7 +280,8 @@
             <div role="tabpanel" class="tab-pane active" id="{{ object.nro_revision }}">
                 <div class="col-md-12">
                     <form id="presupForm" class="form-horizontal" action="" method="{% if edit %}POST{% else %}GET{% endif %}"
-                          data-contactos-url="{% url 'adm:ajax_load_contactos' %}">
+                          data-contactos-url="{% url 'adm:ajax_load_contactos' %}"
+                          data-direcciones-url="{% url 'adm:ajax_load_direcciones' %}">
                         {% if edit %}
                             {% csrf_token %}
                         {% else %}
@@ -411,6 +423,27 @@
                                         {% endfor %}
                                     {% else %}
                                         {{ form.instance.usuario.nombre }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Direccion -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_direccion">
+                                      Direccion
+                                </label>
+                                <div class="col-md-6">
+                                    {% if edit %}
+                                        <div class="input-group">
+                                            {{ form.direccion }}
+                                        </div>
+                                        {% for error in form.direccion.errors %}
+                                            <div class="alert alert-error">
+                                                <strong>{{ error|escape }}</strong>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ form.instance.direccion | default_if_none:""}}
                                     {% endif %}
                                 </div>
                             </div>
@@ -564,7 +597,7 @@
                     </form>
                 </div>
             </div>
-            {% for pv, tActv, uv, cv, otList, instrList, pdt in presupVersions %}
+            {% for pv, tActv, uv, dv, cv, otList, instrList, pdt in presupVersions %}
                 <div role="tabpanel" class="tab-pane" id="{{ pv.revision.comment }}">
                     <div class="col-md-12">
                         <form class="form-horizontal" action="" method="">
@@ -640,6 +673,16 @@
                                     </label>
                                     <div class="col-md-7">
                                         {{ uv.0.field_dict.nombre }}
+                                    </div>
+                                </div>
+                                <!-- Direccion -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                      for="id_direccion">
+                                          Direccion
+                                    </label>
+                                    <div class="col-md-7">
+                                        {{ dv.0 }}
                                     </div>
                                 </div>
                                 <!-- Contacto -->
