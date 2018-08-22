@@ -1361,8 +1361,8 @@ class DireccionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DireccionForm, self).__init__(*args, **kwargs)
-        #for f in self.fields:
-        #    self.fields[f].required = False
+        for f in self.fields:
+            self.fields[f].required = False
 
         # Queryset localidad
         self.fields['localidad'].queryset = Localidad.objects.none()
