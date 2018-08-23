@@ -478,17 +478,17 @@
                             </div>
                         </div>
                         <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
-                        <h3 class="text-danger">Oferta Tecnológica</h3>
-                        <a class="btn btn-default
-                            {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
-                                disabled
-                            {% endif %}"
-                            id="actBtn" data-action="Actualizar"
-                            data-model="presupuesto" data-id={{object.id}}
-                            data-toggle="modal" data-target="#myModal"
-                            >Actualizar Precios
-                        </a>
                         <div class="col-md-12">
+                            <h3 class="text-danger">Oferta Tecnológica</h3>
+                            <a class="btn btn-default
+                                {% if not edit or form.instance.estado not in "['borrador', 'aceptado']" %}
+                                    disabled
+                                {% endif %}"
+                                id="actBtn" data-action="Actualizar"
+                                data-model="presupuesto" data-id={{object.id}}
+                                data-toggle="modal" data-target="#myModal"
+                                >Actualizar Precios
+                            </a>
                             <table id="ofertatec_table" class="table">
                                 <thead>
                                     <td>Código</td>
@@ -683,8 +683,9 @@
                                 </div>
                             </div>
                         <div class="col-md-12" style="border-top: 1.5px solid #eee; margin:15px"></div>
-                        <h3 class="text-danger">Oferta Tecnológica</h3>
+
                         <div class="col-md-12">
+                            <h3 class="text-danger">Oferta Tecnológica</h3>
                             <table id="ofertatec_table" class="table">
                                 <thead>
                                     <td>Código</td>
