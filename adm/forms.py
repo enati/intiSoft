@@ -883,15 +883,21 @@ class Remito_LineaForm(forms.ModelForm):
                                                       'readonly': True},),
             }
 
-Remito_LineaFormSet = inlineformset_factory(OT,
-                                            Remito,
-                                            min_num=1,
-                                            extra=0,
-                                            formfield_callback=bootstrap_format,
-                                            form=Remito_LineaForm,
-                                            formset=BaseInlineFormSet,
-                                           )
-
+#Remito_LineaFormSet = inlineformset_factory(OT,
+#                                            Remito,
+#                                            min_num=1,
+#                                            extra=0,
+#                                            formfield_callback=bootstrap_format,
+#                                            form=Remito_LineaForm,
+#                                            formset=BaseInlineFormSet,
+#                                           )
+Remito_LineaFormSet = generic_inlineformset_factory(Remito,
+                                                    formset=BaseGenericInlineFormSet,
+                                                    form=Remito_LineaForm,
+                                                    min_num=1,
+                                                    extra=0,
+                                                    formfield_callback=bootstrap_format
+                                                    )
 
 class CustomInlineFormset(BaseGenericInlineFormSet):
     """

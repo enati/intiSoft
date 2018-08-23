@@ -449,6 +449,7 @@ class OT(Contrato):
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura", verbose_name="Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
+    remito_set = GenericRelation("Remito", verbose_name="Remito")
 
 
     def _toState_no_pago(self):
@@ -656,6 +657,13 @@ def nextSOTCode():
         return '03927'
 
 
+MODO_ENVIO = (
+    ('correo_postal', 'Correo Postal'),  # El primer valor es el que se guarda en la DB
+    ('email', 'Email'),
+    ('GDE', 'GDE'),
+    ('recibo', 'Recibo')
+)
+
 class SOT(Contrato):
 
     ESTADOS = (
@@ -684,6 +692,7 @@ class SOT(Contrato):
     descuento_fijo = models.BooleanField("Descuento Fijo")
     # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
+    modo_envio = models
 
     def get_area(self):
         return self.solicitante
@@ -1136,7 +1145,12 @@ class Remito(TimeStampedModel, AuthStampedModel):
 
     numero = models.CharField("Número", max_length=15)
     fecha = models.DateField("Fecha", blank=False, null=True)
-    ot = models.ForeignKey(OT, verbose_name="OT", on_delete=models.CASCADE)
+    informe = models.BooleanField(default=False)         # Indica que el remito se realizo por un informe
+    instrumento = models.BooleanField(default=False)     # Indica que el remito se realizo por un instrumento
+    # Campos para relacion generica
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
         ordering = ['id']
