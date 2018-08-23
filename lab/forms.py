@@ -164,7 +164,10 @@ class CustomInlineFormset(BaseInlineFormSet):
 
     def add_fields(self, form, index):
         super(CustomInlineFormset, self).add_fields(form, index)
-        form.fields['ofertatec'].queryset = OfertaTec.objects.filter(area__in=[initArea, 'TODAS'])
+        if initArea == 'TICS':
+            form.fields['ofertatec'].queryset = OfertaTec.objects.filter(area__in=['DES', 'TODAS'])
+        else:
+            form.fields['ofertatec'].queryset = OfertaTec.objects.filter(area__in=[initArea, 'TODAS'])
 
 
 class OfertaTec_LineaForm(forms.ModelForm):

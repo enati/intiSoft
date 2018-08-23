@@ -508,7 +508,7 @@ class TICSCreate(TurnoCreate):
         return reverse_lazy('lab:TICS-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
-        return {'area': 'DES'}  #Dejo DES ya que TICS va a usar los codigos de DES.
+        return {'area': 'TICS'}
 
 
 class DESCreate(TurnoCreate):
