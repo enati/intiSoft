@@ -1289,6 +1289,14 @@ class ContactoForm(forms.ModelForm):
                   'nombre',
                   'telefono',
                   'mail']
+        error_messages = {
+            'nombre': {
+                'required': 'Campo obligatorio.',
+            },
+            'mail': {
+                'required': 'Campo obligatorio.',
+            },
+        }
 
 
 class PDTForm(forms.ModelForm):
@@ -1332,13 +1340,14 @@ class PDTForm(forms.ModelForm):
         }
 
 
-class Contacto_LineaForm(forms.ModelForm):
-
+class ContactoInlineFormset(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
-        super(Contacto_LineaForm, self).__init__(*args, **kwargs)
-        for f in self.fields:
-            self.fields[f].required = False
+        super(ContactoInlineFormset, self).__init__(*args, **kwargs)
+        if self.total_form_count() > 1:
+            self.extra = 0
 
+
+class Contacto_LineaForm(forms.ModelForm):
 
     class Meta:
         model = Contacto
@@ -1347,13 +1356,23 @@ class Contacto_LineaForm(forms.ModelForm):
                   'telefono',
                   'mail']
 
+        error_messages = {
+            'nombre': {
+                'required': 'Campo obligatorio.',
+            },
+            'mail': {
+                'required': 'Campo obligatorio.',
+            },
+        }
+
+
 Contacto_LineaFormSet = inlineformset_factory(Usuario,
                                               Contacto,
-                                              min_num=1,
-                                              extra=0,
+                                              min_num=0,
+                                              extra=1,
                                               formfield_callback=base_bootstrap_format,
                                               form=Contacto_LineaForm,
-                                              formset=BaseInlineFormSet)
+                                              formset=ContactoInlineFormset)
 
 
 class DireccionForm(forms.ModelForm):
@@ -1361,9 +1380,6 @@ class DireccionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DireccionForm, self).__init__(*args, **kwargs)
-        for f in self.fields:
-            self.fields[f].required = False
-
         # Queryset localidad
         self.fields['localidad'].queryset = Localidad.objects.none()
         provincia_key = self.prefix + '-provincia' if self.prefix else 'provincia'
@@ -1386,6 +1402,7 @@ class DireccionForm(forms.ModelForm):
                   'piso',
                   'provincia',
                   'localidad']
+
         error_messages = {
             'calle': {
                 'required': 'Campo obligatorio.',
@@ -1401,10 +1418,19 @@ class DireccionForm(forms.ModelForm):
             },
         }
 
+
+class DireccionUsuarioInlineFormset(BaseInlineFormSet):
+
+    def __init__(self, *args, **kwargs):
+        super(DireccionUsuarioInlineFormset, self).__init__(*args, **kwargs)
+        if self.total_form_count() > 1:
+            self.extra = 0
+
+
 Direccion_LineaFormSet = inlineformset_factory(Usuario,
                                                DireccionUsuario,
-                                               min_num=1,
-                                               extra=0,
+                                               min_num=0,
+                                               extra=1,
                                                formfield_callback=base_bootstrap_format,
                                                form=DireccionForm,
-                                               formset=BaseInlineFormSet)
+                                               formset=DireccionUsuarioInlineFormset)

@@ -5,15 +5,22 @@
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
         $(function() {
+
+            function renewSelects(e) {
+                $("[id^=id_][id$=provincia]").on('change', onChangeProvincia);
+            }
+
             $(".inline.{{ contacto_linea_form.prefix }}").formset({
                 prefix: "{{ contacto_linea_form.prefix }}",
             });
 
             $(".inline.{{ direccion_linea_form.prefix }}").formset({
                 prefix: "{{ direccion_linea_form.prefix }}",
+                added: renewSelects,
+                keepFieldValues: "[id^=id_][id$=provincia], [id^=id_][id$=localidad]",
             });
 
-            $("[id^=id_][id$=provincia]").on('change', function (e) {
+            function onChangeProvincia() {
                 var splitted_id = this.id.split("-");
                 splitted_id[splitted_id.length-1] = 'localidad';
                 var localidad_id = '#'.concat(splitted_id.join("-"));
@@ -31,8 +38,9 @@
                 });
 
                 $("#id_localidad").trigger('change');
+            }
 
-            });
+            $("[id^=id_][id$=provincia]").on('change', onChangeProvincia);
         });
     </script>
 {% endblock %}
@@ -45,13 +53,18 @@
             <h3>Error!</h3>
             <strong> Hay problemas con los siguientes campos: </strong><br/>
             <ul>
-            {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
             {% for error in form.errors %}
-                {% if error != '__all__' %}
                 <li>{% get_verbose_name form.instance error %}</li>
-                {% endif %}
+            {% endfor %}
+            {% for form in contacto_linea_form.forms %}
+                {% for error in form.errors %}
+                    <li>{% get_verbose_name form.instance error %}({{forloop.parentloop.counter}})</li>
+                {% endfor %}
+            {% endfor %}
+            {% for form in direccion_linea_form.forms %}
+                {% for error in form.errors %}
+                    <li>{% get_verbose_name form.instance error %}({{forloop.parentloop.counter}})</li>
+                {% endfor %}
             {% endfor %}
             </ul>
         </div>
@@ -132,7 +145,7 @@
                     <div class="form-group">
                         <label class="control-label col-md-4" style="text-align:left"
                          for="id_nombre">
-                            Nombre
+                            Razón Social
                         </label>
                         <div class="col-md-6">
                             {% if edit %}

@@ -6,14 +6,14 @@ from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
 from adm.signals import *
 from django.db.models.signals import post_init, pre_save, post_save, post_delete, pre_delete
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, EmailValidator
 from datetime import datetime, timedelta
 from django.db import connection
 from intiSoft.exception import StateError
 import reversion
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-
+from adm.validators import alphabetic
 
 # Dias laborales
 (LUN, MAR, MIE, JUE, VIE, SAB, DOM) = range(7)
@@ -53,11 +53,12 @@ class Usuario(TimeStampedModel, AuthStampedModel):
     nro_usuario = models.CharField("Nro. Usuario", validators=[RegexValidator(r'^\d{5}$')],
                                    max_length=5, blank=True,
                                    null=True)
-    nombre = models.CharField("Nombre", max_length=150, blank=False, unique=True,
+    nombre = models.CharField("Razón Social", max_length=150, blank=False, unique=True,
                             error_messages={'unique': "Ya existe un usuario con ese nombre."})
     cuit = models.CharField("Cuit", validators=[RegexValidator(r'^\d{11}$')],
                                         max_length=11, blank=True, null=True)
-    mail = models.CharField("Mail", max_length=50, blank=True, null=True)
+    mail = models.CharField("Mail", max_length=50, null=True,
+                            validators=[EmailValidator(message="Ingrese un email válido.")])
     rubro = models.CharField("Rubro", max_length=50, blank=True, null=True)
 
     def __str__(self):
@@ -109,22 +110,28 @@ class DireccionUsuario(TimeStampedModel, AuthStampedModel):
     provincia = models.ForeignKey(Provincia, verbose_name="Provincia")
     usuario = models.ForeignKey("Usuario", on_delete=models.CASCADE)
 
-
     def __unicode__(self):
         return unicode(self.calle) + " " + unicode(self.numero) + " " + unicode(self.piso) +\
                " (" + unicode(self.provincia) + ", " + unicode(self.localidad) + ")"
+
+    class Meta:
+        ordering = ['id']
 
 
 @reversion.register()
 class Contacto(TimeStampedModel, AuthStampedModel):
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    nombre = models.CharField("Nombre", max_length=100)
+    nombre = models.CharField("Nombre", max_length=100, validators=[alphabetic])
     telefono = models.CharField("Telefono", max_length=20, blank=True)
-    mail = models.CharField("Mail", max_length=50, blank=True)
+    mail = models.CharField("Mail", max_length=250, validators=[EmailValidator(message="Ingrese un email válido.")])
 
     def __unicode__(self):
         return self.nombre
+
+    class Meta:
+        ordering = ['id']
+
 
 @reversion.register()
 class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
