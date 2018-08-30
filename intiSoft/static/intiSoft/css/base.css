@@ -360,3 +360,13 @@ a.ref:hover {
 .disabled-link {
     pointer-events: none;
 }
+
+.input-group.add-disabled,
+.input-group.view-disabled {
+    cursor: not-allowed;
+}
+
+.input-group.add-disabled > a.add-another,
+.input-group.view-disabled > a.view {
+    pointer-events: none;
+}

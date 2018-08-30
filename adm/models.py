@@ -115,6 +115,7 @@ class DireccionUsuario(TimeStampedModel, AuthStampedModel):
                " (" + unicode(self.provincia) + ", " + unicode(self.localidad) + ")"
 
     class Meta:
+        verbose_name = 'Direccion'
         ordering = ['id']
 
 

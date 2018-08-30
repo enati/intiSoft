@@ -53,8 +53,14 @@
             <h3>Error!</h3>
             <strong> Hay problemas con los siguientes campos: </strong><br/>
             <ul>
-            {% for error in form.errors %}
-                <li>{% get_verbose_name form.instance error %}</li>
+            {% for key, errors in form.errors.items %}
+                {% if key == '__all__' %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>{% get_verbose_name form.instance key %}
+                {% endif %}
             {% endfor %}
             {% for form in contacto_linea_form.forms %}
                 {% for error in form.errors %}

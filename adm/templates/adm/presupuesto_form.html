@@ -413,7 +413,10 @@
                                 </label>
                                 <div class="col-md-6">
                                     {% if edit %}
-                                        <div class="input-group">
+                                        <div class="input-group
+                                        {% if 'adm.add_usuario' not in user.get_all_permissions %}
+                                        add-disabled view-disabled
+                                        {% endif %}">
                                             {{ form.usuario }}
                                         </div>
                                         {% for error in form.usuario.errors %}
@@ -434,7 +437,10 @@
                                 </label>
                                 <div class="col-md-6">
                                     {% if edit %}
-                                        <div class="input-group">
+                                        <div class="input-group
+                                        {% if 'adm.add_usuario' not in user.get_all_permissions %}
+                                        add-disabled
+                                        {% endif %}">
                                             {{ form.direccion }}
                                         </div>
                                         {% for error in form.direccion.errors %}
@@ -455,7 +461,10 @@
                                 </label>
                                 <div class="col-md-6">
                                     {% if edit %}
-                                        <div class="input-group">
+                                        <div class="input-group
+                                        {% if 'adm.add_usuario' not in user.get_all_permissions %}
+                                        add-disabled view-disabled
+                                        {% endif %}">
                                             {{ form.contacto }}
                                         </div>
                                         {% for error in form.contacto.errors %}

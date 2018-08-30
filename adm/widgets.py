@@ -38,7 +38,7 @@ class RelatedFieldWidgetCanAdd(widgets.Select):
         if 'view' in self.actions:
             self.view_related_url = reverse(self.view_related_url, args={'1'}).replace('1', '__fk__')
             output.append(
-                u'<a data-href-template=%s?_popup=1 class="change-related input-group-addon" id="change_id_%s" onclick="return showAddAnotherPopup(this);"> '
+                u'<a data-href-template=%s?_popup=1 class="view change-related input-group-addon" id="change_id_%s" onclick="return showAddAnotherPopup(this);"> '
                 % (self.view_related_url, name))
             output.append(u'<img src="%sadmin/img/search.svg" width="15" height="15" alt="%s"/></a>'
                           % (settings.STATIC_URL, ('Ver')))
@@ -81,7 +81,7 @@ class NestedRelatedFieldWidgetCanAdd(widgets.Select):
         if 'view' in self.actions:
             self.view_related_url = reverse(self.view_related_url, args={'1'}).replace('1', '__fk__')
             output.append(
-                u'<a data-href-template=%s?_popup=1 class="change-related input-group-addon" id="change_id_%s" onclick="return showRelatedObjectPopup(this);"> '
+                u'<a data-href-template=%s?_popup=1 class="view change-related input-group-addon" id="change_id_%s" onclick="return showRelatedObjectPopup(this);"> '
                 % (self.view_related_url, name))
             output.append(u'<img src="%sadmin/img/search.svg" width="15" height="15" alt="%s"/></a>'
                           % (settings.STATIC_URL, ('Ver')))
