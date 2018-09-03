@@ -36,8 +36,12 @@
 
             $("#id_usuario").on('change', function (e) {
                 $("#change_id_usuario").removeClass("disabled-link");
+                $("#add_id_direccion").removeClass("disabled-link");
+                $("#add_id_contacto").removeClass("disabled-link");
+
                 updateRelatedObjectLinks(this);
                 updateNestedRelatedObjectLinks(this, $("#id_contacto")[0]);
+                updateNestedRelatedObjectLinks($("#id_usuario")[0], $("#id_direccion")[0]);
 
                 var usuarioId = $(this).val();
                 // Actualizo los contactos del usuario seleccionado
@@ -80,6 +84,8 @@
                 updateNestedRelatedObjectLinks($("#id_usuario")[0], $("#id_direccion")[0]);
             } else {
                 $("#change_id_usuario").addClass("disabled-link");
+                $("#add_id_direccion").addClass("disabled-link");
+                $("#add_id_contacto").addClass("disabled-link");
             }
 
             if ($("#id_contacto").val()) {

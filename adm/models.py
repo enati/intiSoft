@@ -59,7 +59,7 @@ class Usuario(TimeStampedModel, AuthStampedModel):
                                         max_length=11, blank=True, null=True)
     mail = models.CharField("Mail", max_length=50, null=True,
                             validators=[EmailValidator(message="Ingrese un email válido.")])
-    rubro = models.CharField("Rubro", max_length=50, blank=True, null=True)
+    rubro = models.CharField("Rubro", max_length=50, blank=True, null=True, validators=[alphabetic])
 
     def __str__(self):
         return self.nombre.encode('utf-8')
@@ -114,9 +114,16 @@ class DireccionUsuario(TimeStampedModel, AuthStampedModel):
         return unicode(self.calle) + " " + unicode(self.numero) + " " + unicode(self.piso) +\
                " (" + unicode(self.provincia) + ", " + unicode(self.localidad) + ")"
 
+    def unique_error_message(self, model_class, unique_check):
+        if model_class == type(self) and unique_check == ('calle', 'numero', 'piso', 'localidad', 'provincia', 'usuario'):
+            return 'Ya existe la dirección.'
+        else:
+            return super(DireccionUsuario, self).unique_error_message(model_class, unique_check)
+
     class Meta:
         verbose_name = 'Direccion'
         ordering = ['id']
+        unique_together = ('calle', 'numero', 'piso', 'localidad', 'provincia', 'usuario')
 
 
 @reversion.register()
@@ -130,8 +137,15 @@ class Contacto(TimeStampedModel, AuthStampedModel):
     def __unicode__(self):
         return self.nombre
 
+    def unique_error_message(self, model_class, unique_check):
+        if model_class == type(self) and unique_check == ('usuario', 'nombre', 'telefono', 'mail'):
+            return 'Ya existe el contacto.'
+        else:
+            return super(Contacto, self).unique_error_message(model_class, unique_check)
+
     class Meta:
         ordering = ['id']
+        unique_together = ('usuario', 'nombre', 'telefono', 'mail')
 
 
 @reversion.register()
