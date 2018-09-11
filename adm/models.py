@@ -27,7 +27,7 @@ AREAS = (
         ('LIM5', 'LIM5'),
         ('LIM6', 'LIM6'),
         ('EXT', 'EXT'),
-        ('SIS', 'SIS'),
+        ('TICS', 'TICS'),
         ('DES', 'DES'),
         ('CAL', 'CAL'),
         ('MEC', 'MEC'),

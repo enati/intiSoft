@@ -23,9 +23,9 @@ import re
 from django.db.models import Q
 import operator
 
-#===========================================
-#========== VARIABLES GLOBALES =============
-#===========================================
+# ===========================================
+# ========== VARIABLES GLOBALES =============
+# ===========================================
 
 thismonth = str(datetime.now().month)
 thisyear = str(datetime.now().year)
@@ -38,7 +38,7 @@ back_url_lim4 = reverse_lazy('lab:LIM4-list')
 back_url_lim5 = reverse_lazy('lab:LIM5-list')
 back_url_lim6 = reverse_lazy('lab:LIM6-list')
 back_url_ext = reverse_lazy('lab:EXT-list')
-back_url_sis = reverse_lazy('lab:SIS-list')
+back_url_tics = reverse_lazy('lab:TICS-list')
 back_url_des = reverse_lazy('lab:DES-list')
 back_url_cal = reverse_lazy('lab:CAL-list')
 back_url_mec = reverse_lazy('lab:MEC-list')
@@ -67,7 +67,9 @@ class TurnoList(ListView):
             if key != 'page':
                 if key == 'order_by':
                     if vals[0] in ['usuario', '-usuario']:
-                        queryset = queryset.extra(select={"usuario": "COALESCE('presupuesto__usuario__nombre', 'si__solicitante') as usuario"}, order_by=[vals[0]])
+                        queryset = queryset.extra(select={
+                            "usuario": "COALESCE('presupuesto__usuario__nombre', 'si__solicitante') as usuario"},
+                                                  order_by=[vals[0]])
                     else:
                         queryset = queryset.order_by(vals[0])
                 if key == 'search':
@@ -76,21 +78,22 @@ class TurnoList(ListView):
                     for arg in searchArgs:
                         # Busco solo por fecha de inicio del turno
                         if re.match(r'^\d{2}\/\d{2}\/\d{4}-\d{2}\/\d{2}\/\d{4}$', arg):
-                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'), arg.split("-"))
+                            start_date, end_date = map(lambda x: datetime.strptime(x, '%d/%m/%Y').strftime('%Y-%m-%d'),
+                                                       arg.split("-"))
                             QList.append(Q(fecha_inicio__range=['%s' % start_date, '%s' % end_date]))
                             continue
                         QList.append(Q(estado__icontains="%s" % arg) |
-                                    Q(presupuesto__usuario__nombre__icontains="%s" % arg) |
-                                    Q(presupuesto__codigo__contains="%s" % arg) |
-                                    Q(presupuesto__ot__codigo__contains="%s" % arg) |
-                                    Q(si__solicitante__icontains="%s" % arg) |
-                                    Q(si__codigo__contains="%s" % arg) |
-                                    Q(presupuesto__sot__codigo__contains="%s" % arg) |
-                                    Q(presupuesto__rut__codigo__contains="%s" % arg))
+                                     Q(presupuesto__usuario__nombre__icontains="%s" % arg) |
+                                     Q(presupuesto__codigo__contains="%s" % arg) |
+                                     Q(presupuesto__ot__codigo__contains="%s" % arg) |
+                                     Q(si__solicitante__icontains="%s" % arg) |
+                                     Q(si__codigo__contains="%s" % arg) |
+                                     Q(presupuesto__sot__codigo__contains="%s" % arg) |
+                                     Q(presupuesto__rut__codigo__contains="%s" % arg))
                     QList = reduce(operator.and_, QList)
                     queryset = queryset.filter(QList).distinct()
         self._checkstate(queryset)
-        #self._checkrev(queryset)
+        # self._checkrev(queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -189,9 +192,9 @@ class EXTList(TurnoList):
     lab = 'EXT'
 
 
-class SISList(TurnoList):
-    template_name = 'lab/SIS_list.html'
-    lab = 'SIS'
+class TICSList(TurnoList):
+    template_name = 'lab/TICS_list.html'
+    lab = 'TICS'
 
 
 class DESList(TurnoList):
@@ -278,7 +281,7 @@ class LIACreate(TurnoCreate):
     lab = 'LIA'
 
     @method_decorator(permission_required('lab.add_turno_LIA',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -304,7 +307,7 @@ class LIM1Create(TurnoCreate):
     template_name = 'lab/LIM1_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM1',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -330,7 +333,7 @@ class LIM2Create(TurnoCreate):
     template_name = 'lab/LIM2_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM2',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -356,7 +359,7 @@ class LIM3Create(TurnoCreate):
     template_name = 'lab/LIM3_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM3',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -382,7 +385,7 @@ class LIM4Create(TurnoCreate):
     template_name = 'lab/LIM4_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM4',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -408,7 +411,7 @@ class LIM5Create(TurnoCreate):
     template_name = 'lab/LIM5_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM5',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -434,7 +437,7 @@ class LIM6Create(TurnoCreate):
     template_name = 'lab/LIM6_form.html'
 
     @method_decorator(permission_required('lab.add_turno_LIM6',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -460,7 +463,7 @@ class EXTCreate(TurnoCreate):
     template_name = 'lab/EXT_form.html'
 
     @method_decorator(permission_required('lab.add_turno_EXT',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -482,37 +485,37 @@ class EXTCreate(TurnoCreate):
         return {'area': 'EXT'}
 
 
-class SISCreate(TurnoCreate):
-    template_name = 'lab/SIS_form.html'
+class TICSCreate(TurnoCreate):
+    template_name = 'lab/TICS_form.html'
 
-    @method_decorator(permission_required('lab.add_turno_SIS',
-                      raise_exception=True))
+    @method_decorator(permission_required('lab.add_turno_TICS',
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-            pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            pattern = re.compile("^" + reverse_lazy('lab:TICS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
             if pattern.match(http_referer):
-                global back_url_sis
-                back_url_sis = http_referer
-        return super(SISCreate, self).dispatch(request, *args, **kwargs)
+                global back_url_tics
+                back_url_tics = http_referer
+        return super(TICSCreate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SISCreate, self).get_context_data(**kwargs)
-        context['back_url'] = back_url_sis
+        context = super(TICSCreate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_tics
         return context
 
     def get_success_url(self):
-        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
+        return reverse_lazy('lab:TICS-update', kwargs={'pk': self.object.id})
 
     def get_initial(self):
-        return {'area': 'SIS'}
+        return {'area': 'TICS'}
 
 
 class DESCreate(TurnoCreate):
     template_name = 'lab/DES_form.html'
 
     @method_decorator(permission_required('lab.add_turno_DES',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -538,7 +541,7 @@ class CALCreate(TurnoCreate):
     template_name = 'lab/CAL_form.html'
 
     @method_decorator(permission_required('lab.add_turno_CAL',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -564,7 +567,7 @@ class MECCreate(TurnoCreate):
     template_name = 'lab/MEC_form.html'
 
     @method_decorator(permission_required('lab.add_turno_MEC',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -590,7 +593,7 @@ class MLCreate(TurnoCreate):
     template_name = 'lab/ML_form.html'
 
     @method_decorator(permission_required('lab.add_turno_ML',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -760,7 +763,7 @@ class LIAUpdate(TurnoUpdate):
     template_name = 'lab/LIA_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIA',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -783,7 +786,7 @@ class LIM1Update(TurnoUpdate):
     template_name = 'lab/LIM1_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM1',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -806,7 +809,7 @@ class LIM2Update(TurnoUpdate):
     template_name = 'lab/LIM2_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM2',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -829,7 +832,7 @@ class LIM3Update(TurnoUpdate):
     template_name = 'lab/LIM3_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM3',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -852,7 +855,7 @@ class LIM4Update(TurnoUpdate):
     template_name = 'lab/LIM4_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM4',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -875,7 +878,7 @@ class LIM5Update(TurnoUpdate):
     template_name = 'lab/LIM5_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM5',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -898,7 +901,7 @@ class LIM6Update(TurnoUpdate):
     template_name = 'lab/LIM6_form.html'
 
     @method_decorator(permission_required('lab.change_turno_LIM6',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -921,7 +924,7 @@ class EXTUpdate(TurnoUpdate):
     template_name = 'lab/EXT_form.html'
 
     @method_decorator(permission_required('lab.change_turno_EXT',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -940,34 +943,34 @@ class EXTUpdate(TurnoUpdate):
         return reverse_lazy('lab:EXT-update', kwargs={'pk': self.object.id})
 
 
-class SISUpdate(TurnoUpdate):
-    template_name = 'lab/SIS_form.html'
+class TICSUpdate(TurnoUpdate):
+    template_name = 'lab/TICS_form.html'
 
-    @method_decorator(permission_required('lab.change_turno_SIS',
-                      raise_exception=True))
+    @method_decorator(permission_required('lab.change_turno_TICS',
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
-            pattern = re.compile("^" + reverse_lazy('lab:SIS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
+            pattern = re.compile("^" + reverse_lazy('lab:TICS-list').decode() + "(\?([a-zA-Z_]+=[^&]*&{0,1})+)*$")
             if pattern.match(http_referer):
-                global back_url_sis
-                back_url_sis = http_referer
-        return super(SISUpdate, self).dispatch(request, *args, **kwargs)
+                global back_url_tics
+                back_url_tics = http_referer
+        return super(TICSUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SISUpdate, self).get_context_data(**kwargs)
-        context['back_url'] = back_url_sis
+        context = super(TICSUpdate, self).get_context_data(**kwargs)
+        context['back_url'] = back_url_tics
         return context
 
     def get_success_url(self):
-        return reverse_lazy('lab:SIS-update', kwargs={'pk': self.object.id})
+        return reverse_lazy('lab:TICS-update', kwargs={'pk': self.object.id})
 
 
 class DESUpdate(TurnoUpdate):
     template_name = 'lab/DES_form.html'
 
     @method_decorator(permission_required('lab.change_turno_DES',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -990,7 +993,7 @@ class CALUpdate(TurnoUpdate):
     template_name = 'lab/CAL_form.html'
 
     @method_decorator(permission_required('lab.change_turno_CAL',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -1013,7 +1016,7 @@ class MECUpdate(TurnoUpdate):
     template_name = 'lab/MEC_form.html'
 
     @method_decorator(permission_required('lab.change_turno_MEC',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -1036,7 +1039,7 @@ class MLUpdate(TurnoUpdate):
     template_name = 'lab/ML_form.html'
 
     @method_decorator(permission_required('lab.change_turno_ML',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         if self.request.META.get('HTTP_REFERER', False):
             http_referer = self.request.META['HTTP_REFERER'].split(self.request.get_host())[1]
@@ -1060,7 +1063,7 @@ class TurnoDelete(DeleteView):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(TurnoDelete, self).dispatch(request, *args, **kwargs)
 
@@ -1142,7 +1145,7 @@ class LIADelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIA',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIADelete, self).dispatch(request, *args, **kwargs)
 
@@ -1151,7 +1154,7 @@ class LIM1Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM1',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM1Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1160,7 +1163,7 @@ class LIM2Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM2',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM2Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1169,7 +1172,7 @@ class LIM3Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM3',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM3Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1178,7 +1181,7 @@ class LIM4Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM4',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM4Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1187,7 +1190,7 @@ class LIM5Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM5',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM5Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1196,7 +1199,7 @@ class LIM6Delete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_LIM6',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(LIM6Delete, self).dispatch(request, *args, **kwargs)
 
@@ -1205,25 +1208,25 @@ class EXTDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_EXT',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(EXTDelete, self).dispatch(request, *args, **kwargs)
 
 
-class SISDelete(TurnoDelete):
+class TICSDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
-    @method_decorator(permission_required('lab.delete_turno_SIS',
-                      raise_exception=True))
+    @method_decorator(permission_required('lab.delete_turno_TICS',
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
-        return super(SISDelete, self).dispatch(request, *args, **kwargs)
+        return super(TICSDelete, self).dispatch(request, *args, **kwargs)
 
 
 class DESDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_DES',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(DESDelete, self).dispatch(request, *args, **kwargs)
 
@@ -1232,7 +1235,7 @@ class CALDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_CAL',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(CALDelete, self).dispatch(request, *args, **kwargs)
 
@@ -1241,7 +1244,7 @@ class MECDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_MEC',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(MECDelete, self).dispatch(request, *args, **kwargs)
 
@@ -1250,7 +1253,7 @@ class MLDelete(TurnoDelete):
     success_url = reverse_lazy('lab:turnos-list')
 
     @method_decorator(permission_required('lab.delete_turno_ML',
-                      raise_exception=True))
+                                          raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(MLDelete, self).dispatch(request, *args, **kwargs)
 
@@ -1311,9 +1314,9 @@ class EXTCalendarView(CalendarView):
     lab = 'EXT'
 
 
-class SISCalendarView(CalendarView):
-    template_name = 'lab/SIS_calendar.html'
-    lab = 'SIS'
+class TICSCalendarView(CalendarView):
+    template_name = 'lab/TICS_calendar.html'
+    lab = 'TICS'
 
 
 class DESCalendarView(CalendarView):
@@ -1334,4 +1337,3 @@ class MECCalendarView(CalendarView):
 class MLCalendarView(CalendarView):
     template_name = 'lab/ML_calendar.html'
     lab = 'ML'
-

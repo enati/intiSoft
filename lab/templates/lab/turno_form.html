@@ -216,7 +216,7 @@
                            data-toggle="modal" data-target="#textBoxModal">Cancelar Turno</a>
                     </li>
                     {% endif %}
-                    {% if form.instance.si == None %}
+                    {% if form.instance.presupuesto and form.instance.presupuesto.fecha_realizado %}
                         <li>
                             <a href="#" data-action="Revisionar" data-model="turno" data-id={{object.id}}
                                data-toggle="modal" data-target="#revWarning">Revisionar</a>

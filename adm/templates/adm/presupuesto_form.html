@@ -224,7 +224,7 @@
                         <a id="viewWord" href="" data-id="{{object.id}}">Generar Presupuesto</a>
                     </li>
                     {% endif %}
-                    {% if object.estado in "['borrador', 'aceptado']" %}
+                    {% if object.estado in "['borrador', 'aceptado']" and object.fecha_realizado %}
                     <li>
                         <a href="#" data-action="Revisionar" data-model="presupuesto" data-id={{object.id}}
                            data-toggle="modal" data-target="#revWarning">Revisionar</a>
@@ -567,7 +567,6 @@
                             </div>
                         </div>
                         <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
-
                         <div class="col-md-12">
                             <h3 class="text-danger">Oferta Tecnológica</h3>
                             <a class="btn btn-default
@@ -579,7 +578,6 @@
                                 data-toggle="modal" data-target="#myModal"
                                 >Actualizar Precios
                             </a>
-
                             <table id="ofertatec_table" class="table">
                                 <thead>
                                     <td>Código</td>
@@ -689,25 +687,25 @@
                                     <div class="col-md-7">
                                         {{ uv.0.field_dict.nombre }}
                                     </div>
-                                </div>
-                                <!-- Direccion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_direccion">
-                                          Direccion
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ dv.0 }}
+                                    <!-- Direccion -->
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5" style="text-align:left"
+                                          for="id_direccion">
+                                              Direccion
+                                        </label>
+                                        <div class="col-md-7">
+                                            {{ dv.0 }}
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- Contacto -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_contacto">
-                                          Contacto
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ cv.0.field_dict.nombre }}
+                                    <!-- Contacto -->
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5" style="text-align:left"
+                                          for="id_contacto">
+                                              Contacto
+                                        </label>
+                                        <div class="col-md-7">
+                                            {{ cv.0.field_dict.nombre }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -762,7 +760,6 @@
                                 </div>
                             </div>
                             <div class="col-md-12" style="border-top: 1.5px solid #eee"></div>
-
                             <div class="col-md-12">
                                 <h3 class="text-danger">Oferta Tecnológica</h3>
                                 <div class="col-md-12">
@@ -795,6 +792,7 @@
                         </form>
                     </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
     </div>
