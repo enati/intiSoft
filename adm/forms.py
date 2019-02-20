@@ -13,6 +13,7 @@ from django.forms.forms import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group, User
 from searchableselect.widgets import SearchableSelect
+from datetime import datetime
 
 editable_fields = ['fecha_realizado', 'fecha_aceptado', 'tipo']
 
@@ -45,6 +46,9 @@ class OTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['form'] = 'OTForm'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
         self.fields['importe_neto'].widget.attrs['readonly'] = True
+        if not self.instance or self.instance.estado == 'sin_facturar':
+            year = datetime.now().year
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if self.instance:
             if self.instance.estado in ['sin_facturar']:
                 # Solo se deben poder crear OTS a presupuestos aceptados
@@ -147,6 +151,9 @@ class OTMLForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['form'] = 'OTMLForm'
         self.fields['importe_neto'].widget.attrs['readonly'] = True
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
+        if not self.instance or self.instance.estado == 'sin_facturar':
+            year = datetime.now().year
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if self.instance:
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
@@ -277,7 +284,10 @@ class SOTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
-        self.fields['importe_neto'].widget.attrs['readonly'] = True
+        if not self.instance or self.instance.estado == 'borrador':
+            self.fields['importe_neto'].widget.attrs['readonly'] = True
+            year = datetime.now().year
+        self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if self.instance:
             # Solo se deben poder crear SOTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
@@ -453,6 +463,9 @@ class RUTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
         self.fields['importe_neto'].widget.attrs['readonly'] = True
+        if not self.instance or self.instance.estado == 'borrador':
+            year = datetime.now().year
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if self.instance:
             # Solo se deben poder crear RUTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
@@ -615,6 +628,9 @@ class SIForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(SIForm, self).__init__(*args, **kwargs)
+        if not self.instance or self.instance.estado == 'borrador':
+            year = datetime.now().year
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         # Restrinjo el area ejecutora al area del usuario logueado
         groups = Group.objects.filter(user=user).values_list('name', 'name')
         choices = self.fields['ejecutor'].choices
@@ -1053,6 +1069,9 @@ class PresupuestoForm(forms.ModelForm):
                     self.fields[f].required = False
         # Queryset contacto y direccion
         self.fields['contacto'].queryset = Contacto.objects.none()
+        if not self.instance or self.instance.estado == 'borrador':
+            year = datetime.now().year
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if 'usuario' in self.data:
             try:
                 usuario_id = int(self.data.get('usuario'))
