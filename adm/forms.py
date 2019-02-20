@@ -284,10 +284,10 @@ class SOTForm(forms.ModelForm):
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
+        self.fields['importe_neto'].widget.attrs['readonly'] = True
         if not self.instance or self.instance.estado == 'borrador':
-            self.fields['importe_neto'].widget.attrs['readonly'] = True
             year = datetime.now().year
-        self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
+            self.fields['pdt'].queryset = PDT.objects.filter(anio=year) | PDT.objects.filter(anio__isnull=True)
         if self.instance:
             # Solo se deben poder crear SOTs a presupuestos aceptados y del area del usuario logueado
             userAreas = user.groups.values_list('name', flat=True)
