@@ -49,7 +49,7 @@ def sumarDiasHabiles(fecha_origen, dias, feriados=(), diasHabiles=(LUN, MAR, MIE
 
 
 @reversion.register()
-class Usuario(TimeStampedModel, AuthStampedModel):
+class Usuario(TimeStampedModel, AuthStampedModel, PermanentModel):
     nro_usuario = models.CharField("Nro. Usuario", validators=[RegexValidator(r'^\d{5}$')],
                                    max_length=5, blank=True,
                                    null=True)
