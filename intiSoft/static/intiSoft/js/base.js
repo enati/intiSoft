@@ -581,7 +581,7 @@ $(document).ready(function() {
         var art = ' el ';
         var artP = 'Los ';
         //if ((model=='OT') || (model=='factura'))
-        if (model=='OT' || model=='OT-ML' || model=='SOT' || model=='RUT')
+        if (model=='OT' || model=='OT-ML' || model=='SOT' || model=='RUT' || model=='ofertatec')
             art = ' la ';
             artP = 'Las ';
         if (action.localeCompare('Finalizar')==0) {
@@ -608,7 +608,10 @@ $(document).ready(function() {
             modal.find('.modal-body p').text("Tenga en cuenta que, en caso de que el presupuesto ya haya sido enviado,\
                                                esto dará lugar a una nueva revisión.")
         }
-
+        if (action.localeCompare('Restaurar')==0) {
+            modal.find('.modal-body h4').text("¿Está seguro que quiere restaurar"+art+model+"?")
+            modal.find('.modal-body p').text("")
+        }
         //En OTs agrego opcion para finalizar solo OT u OT y presupuesto
         if (model=='OT' && action=='Finalizar') {
             $(submitButton).text('Finalizar OT');

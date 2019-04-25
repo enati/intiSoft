@@ -633,7 +633,7 @@ class OTUpdate(UpdateView):
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(instance=self.object)
         remito_form = Remito_LineaFormSet(instance=self.object)
-        ot_linea_form = OT_LineaFormSet(instance=self.object)
+        ot_linea_form = OT_LineaFormSet(instance=self.object, user=self.request.user)
         return self.render_to_response(
             self.get_context_data(form=form,
                                   factura_form=factura_form,
@@ -651,7 +651,7 @@ class OTUpdate(UpdateView):
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(self.request.POST, instance=self.object)
         remito_form = Remito_LineaFormSet(self.request.POST, instance=self.object)
-        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object, user=self.request.user)
         if (form.is_valid() and factura_form.is_valid()
            and ot_linea_form.is_valid() and remito_form.is_valid()):
             return self.form_valid(form, factura_form, remito_form, ot_linea_form)
@@ -2263,7 +2263,7 @@ class OfertaTecList(ListView):
     paginate_by = 50
 
     def get_queryset(self):
-        queryset = OfertaTec.objects.all()
+        queryset = OfertaTec.all_objects.all()
         for key, vals in self.request.GET.lists():
             if key != 'page':
                 if key == 'order_by':
@@ -2271,6 +2271,12 @@ class OfertaTecList(ListView):
                 if key == 'search':
                     searchArgs = vals[0].split(",")
                     QList = []
+                    if 'activo' in searchArgs:
+                        QList.append(Q(removed__isnull=True))
+                        searchArgs.remove('activo')
+                    if 'inactivo' in searchArgs:
+                        QList.append(Q(removed__isnull=False))
+                        searchArgs.remove('inactivo')
                     for arg in searchArgs:
                         QList.append(Q(proveedor__contains="%s" % arg) |
                                     Q(codigo__contains="%s" % arg) |
@@ -2302,14 +2308,29 @@ class OfertaTecList(ListView):
             if request.user.has_perm('adm.delete_ofertatec'):
                 ofertatec_id = request.POST.get('Eliminar')
                 ofertatec_obj = OfertaTec.objects.get(pk=ofertatec_id)
-                if not ofertatec_obj._delete():
-                    response_dict['ok'] = False
-                    response_dict['msg'] = 'No se puede borrar la oferta ya que tiene\
-                                            turnos asociados'
-                else:
-                    response_dict['redirect'] = reverse_lazy('adm:ofertatec-list').strip()
+
+                # Borro temporalmente (si hago .delete() borra los related)
+                ofertatec_obj.removed = datetime.now()
+                ofertatec_obj.save()
+                response_dict['redirect'] = reverse_lazy('adm:ofertatec-list').strip()
+                # Temporalmente permito borrar codigos de oferta en uso
+                #if not ofertatec_obj._delete():
+                #    response_dict['ok'] = False
+                #    response_dict['msg'] = 'No se puede borrar la oferta ya que tiene\
+                #                            turnos asociados'
+                #else:
+                #    response_dict['redirect'] = reverse_lazy('adm:ofertatec-list').strip()
             else:
                 raise PermissionDenied
+        if 'Restaurar' in request.POST:
+            if request.user.has_perm('adm.restore_ofertatec'):
+                ofertatec_id = request.POST.get('Restaurar')
+                ofertatec_obj = OfertaTec.deleted_objects.get(pk=ofertatec_id)
+                ofertatec_obj.restore()
+                response_dict['redirect'] = reverse_lazy('adm:ofertatec-list').strip()
+            else:
+                raise PermissionDenied
+
         return JsonResponse(response_dict)
 
 

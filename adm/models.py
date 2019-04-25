@@ -175,6 +175,7 @@ class OfertaTec(TimeStampedModel, AuthStampedModel, PermanentModel):
 
     class Meta:
         ordering = ['codigo']
+        permissions = (("restore_ofertatec", "Can restore ofertatec"),)
 
 
 def nextCode():

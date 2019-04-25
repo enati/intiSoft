@@ -1,5 +1,4 @@
 {% extends "intiSoft/base.html" %}
-
 {% block content %}
 <div class="row">
     <div class="col-md-offset-6 col-md-6">
@@ -45,6 +44,7 @@
                         </div>
                     </td>
                 {% endfor %}
+                <td>Estado</td>
                 <td></td>
             </thead>
             <tbody>
@@ -53,6 +53,7 @@
                         {% if 'adm.change_ofertatec' in user.get_all_permissions %}
                             onclick="if (trlink) {location.href='{% url 'adm:ofertatec-update' ofertatec.id %}'}"
                         {% endif %}
+                        class = {% if ofertatec.removed %} "muted" {% endif %}
                     >
                         <td>{{ ofertatec.proveedor }}</td>
                         <td>{{ ofertatec.codigo }}</td>
@@ -63,16 +64,30 @@
                         <td>{{ ofertatec.detalle }}</td>
                         <td>{{ ofertatec.precio }}</td>
                         <td>{{ ofertatec.iem }}</td>
-                        <td>
-                            <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
-                                data-model="ofertatec" type="button" class="btn btn-default"
-                                data-id={{ofertatec.id}} data-toggle="modal" data-target="#myModal">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"
-                                {% if 'adm.delete_ofertatec' not in user.get_all_permissions %}
-                                disabled
-                                {% endif %}></span>
-                            </button>
-                        </td>
+                        <td>{% if ofertatec.removed %}inactivo{% else %}activo{% endif %}</td>
+                        {% if ofertatec.removed %}
+                            <td>
+                                <button onclick="trlink=false;" title="Restaurar" data-action="Restaurar"
+                                    data-model="ofertatec" type="button" class="btn btn-default"
+                                    data-id={{ofertatec.id}} data-toggle="modal" data-target="#myModal"
+                                    {% if 'adm.delete_ofertatec' not in user.get_all_permissions %}
+                                    disabled
+                                    {% endif %}>
+                                    <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        {% else %}
+                            <td>
+                                <button onclick="trlink=false;" title="Eliminar" data-action="Eliminar"
+                                    data-model="ofertatec" type="button" class="btn btn-default"
+                                    data-id={{ofertatec.id}} data-toggle="modal" data-target="#myModal"
+                                    {% if 'adm.restore_ofertatec' not in user.get_all_permissions %}
+                                    disabled
+                                    {% endif %}>
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
