@@ -633,7 +633,7 @@ class OTUpdate(UpdateView):
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(instance=self.object)
         remito_form = Remito_LineaFormSet(instance=self.object)
-        ot_linea_form = OT_LineaFormSet(instance=self.object, user=self.request.user)
+        ot_linea_form = OT_LineaFormSet(instance=self.object)
         return self.render_to_response(
             self.get_context_data(form=form,
                                   factura_form=factura_form,
@@ -651,7 +651,7 @@ class OTUpdate(UpdateView):
         form = self.get_form(form_class)
         factura_form = Factura_LineaFormSet(self.request.POST, instance=self.object)
         remito_form = Remito_LineaFormSet(self.request.POST, instance=self.object)
-        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object, user=self.request.user)
+        ot_linea_form = OT_LineaFormSet(self.request.POST, instance=self.object)
         if (form.is_valid() and factura_form.is_valid()
            and ot_linea_form.is_valid() and remito_form.is_valid()):
             return self.form_valid(form, factura_form, remito_form, ot_linea_form)
