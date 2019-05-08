@@ -3,6 +3,7 @@
 {% block head %}
     {% load staticfiles %}
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript" src="{% static 'intiSoft/js/jquery.mask.min.js' %}"></script>
     <script>
 
         function renewDatePickers() {
@@ -13,6 +14,17 @@
         $(renewDatePickers);
 
         $(function() {
+        
+            var options =  {
+              onKeyPress: function(cep, e, field, options) {
+                var masks = ['00000-00000000', '00000-00000000/00'];
+                var mask = (cep.length>13) ? masks[1] : masks[0];
+                $('#id_codigo').mask(mask, options);
+            }};
+
+            $("#id_codigo").mask("00000-00000000", options);
+
+
             {% for form in factura_form %}
                 $(".inline.{{ form.nested.0.prefix }}").formset({
                     prefix: "{{form.nested.0.prefix}}",

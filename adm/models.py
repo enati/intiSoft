@@ -521,9 +521,9 @@ class OT(Contrato):
     )
 
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default="sin_facturar")
-    codigo = models.CharField("Nro. OT", max_length=15, unique=True, default='00000',
-                              validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
-                                                         message="El código debe ser de la forma 00000 ó 00000/00")],
+    codigo = models.CharField("Nro. OT", max_length=17, unique=True, default='00216-00000000',
+                              validators=[RegexValidator(r'^\d{5}-\d{8}$|^\d{5}-\d{8}\/\d{2}$',
+                                                         message="El código debe ser de la forma 00000-00000000 ó 00000-00000000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura", verbose_name="Factura")
@@ -573,26 +573,13 @@ class OT(Contrato):
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
         # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
         deleted_ot = OT.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+
+        # Si ya elimine una ot con el mismo codigo, la piso.
         if deleted_ot:
-            # Ya elimine un presupuesto con el mismo codigo.
-            if int(deleted_ot.last().codigo[0]) < 9:
-                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
-                new_code = int(deleted_ot.last().codigo) + 100000
-                self.codigo = str(new_code)
-                self.save()
-            else:
-                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
-                # la numeracion.
-                deleted_ot[0].delete(force=True)
-                for rut in deleted_ot[1:]:
-                    rut.codigo = str(int(rut.codigo) - 100000)
-                    rut.save()
-                self.codigo = str(int(self.codigo) + 900000)
-                self.save()
-        else:
-            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
-            self.codigo = str(int(self.codigo) + 100000)
-            self.save()
+            deleted_ot[0].delete(force=True)
+
+        self.codigo = '1' + self.codigo
+        self.save()
         self.delete()
         return True
 
@@ -624,9 +611,9 @@ class OTML(Contrato):
     )
 
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='sin_facturar')
-    codigo = models.CharField("Nro. OT", max_length=15, unique=True, default='00000',
-                              validators=[RegexValidator(r'^\d{5}\/\d{2}$|^\d{5}$',
-                                                         message="El código debe ser de la forma 00000 ó 00000/00")],
+    codigo = models.CharField("Nro. OT", max_length=17, unique=True, default='00307-00000000',
+                              validators=[RegexValidator(r'^\d{5}-\d{8}$|^\d{5}-\d{8}\/\d{2}$',
+                                                         message="El código debe ser de la forma 00000-00000000 ó 00000-00000000/00")],
                               error_messages={'unique': "Ya existe una OT con ese número."})
     vpe = models.CharField("VPE", max_length=5, blank=True, null=True)
     vpr = models.CharField("VPR", max_length=8, blank=True, null=True)
@@ -675,26 +662,14 @@ class OTML(Contrato):
         # Luego, al eliminar una instancia le agrego un número de 0 a 9 delante del codigo (se permite
         # tener hasta nueva instancias eliminadas del mismo codigo, despues se empiezan a pisar.
         deleted_otml = OTML.deleted_objects.filter(codigo__endswith=self.codigo).order_by('codigo')
+
         if deleted_otml:
-            # Ya elimine un presupuesto con el mismo codigo.
-            if int(deleted_otml.last().codigo[0]) < 9:
-                # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
-                new_code = int(deleted_otml.last().codigo) + 100000
-                self.codigo = str(new_code)
-                self.save()
-            else:
-                # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
-                # la numeracion.
-                deleted_otml[0].delete(force=True)
-                for rut in deleted_otml[1:]:
-                    rut.codigo = str(int(rut.codigo) - 100000)
-                    rut.save()
-                self.codigo = str(int(self.codigo) + 900000)
-                self.save()
-        else:
-            # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
-            self.codigo = str(int(self.codigo) + 100000)
-            self.save()
+            # Si ya elimine una ot con el mismo codigo, la piso.
+            deleted_otml[0].delete(force=True)
+
+        # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
+        self.codigo = '1' + self.codigo
+        self.save()
         self.delete()
         return True
 
