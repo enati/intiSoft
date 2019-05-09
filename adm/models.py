@@ -203,6 +203,17 @@ def nextCode():
                      #HAVING gap_ends_at IS NOT NULL""")
 
 
+# Codigos de oferta viejos, del centro INTI Rosario.
+@reversion.register()
+class OfertaTec_Descripcion(TimeStampedModel, AuthStampedModel, PermanentModel):
+    codigo = models.CharField("Código", validators=[RegexValidator(r'^\d{14}$')],
+                              max_length=14)
+    detalle = models.CharField("Detalle", max_length=350)
+
+    def __unicode__(self):
+        return self.detalle
+
+
 def yearNow():
     return datetime.now().year
 
@@ -1087,6 +1098,9 @@ class OT_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name="Oferta Tecnológica")
+    # Oferta tecnologica vieja del centro, para llevar un control ya que la oferta nueva
+    # es demasiado generica.
+    ofertatec_old = models.ForeignKey(OfertaTec_Descripcion, verbose_name='OfertaTec Centro', blank=True, null=True)
     codigo = models.CharField("Código", validators=[RegexValidator(r'^\d{14}$')], max_length=14)
     precio = models.FloatField("Precio Unitario")
     precio_total = models.FloatField("Precio Total")

@@ -2,6 +2,11 @@
 
 {% block head %}
     {% load staticfiles %}
+    <script>
+        var django = {
+         "jQuery": $
+        };
+    </script>
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
         $(function() {
@@ -12,8 +17,25 @@
         });
 
         $(function() {
+
+            $("input[id$='ofertatec_old_helper']").addClass('form-control');
+
+            // Para que ande el autocomplete en las nuevas lineas
+            function new_line_added(target) {
+                // Busco el id correspondiente
+                var id = $(target[0]).find("input[id$='ofertatec_old']")[0].id;
+                // Elimino el script y lo reemplazo por el id correcto
+                $(target[0]).find("script").remove();
+                var replaced_script = `<script type='text/javascript'>(function($){$(document).ready(function(){$('#${id}_helper').autocomplete({source:function(request,response){$.ajax({url:domain+'/ofertatec_autocomplete',data:{q:request.term},success:function(data){if(data!='CACHE_MISS'){response($.map(data,function(item){return{label:item[1],value:item[1],real_value:item[0]}}))}},dataType:'json'})},select:function(event,ui){$('#${id}').val(ui.item.real_value)},minLength:3})})})(django.jQuery)<\/script>`;
+                // Reemplazo el id tambien en el <a>
+                $($(target[0]).find("input[id$='ofertatec_old']")[0]).after(replaced_script);
+                var onclick_replaced = $(target[0]).find("a").attr('onclick').replace(/#[\w-]+ofertatec_old/g, `#${id}`)
+                $(target[0]).find("a").attr('onclick', onclick_replaced);
+            };
+
             $(".inline.{{ ot_linea_form.prefix }}").formset({
                 prefix: "{{ ot_linea_form.prefix }}",
+                added: new_line_added,
             });
 
             {% if object %}
@@ -407,17 +429,17 @@
                         {{ ot_linea_form.non_form_errors }}
                     {% endif %}
                     <table id="ofertatec_formtable" class="table">
-                    <col style="width:20%">
-<!--
-                        <col style="width:30%">
                         <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:5%">
                         <col style="width:5%">
                         <col style="width:10%">
                         <col style="width:10%">
                         <col style="width:10%">
--->
                         <thead>
                             <td>Código</td>
+                            <td>Detalle</td>
                             <td style="display:none">Detalle</td>
                             <td>Tipo De Servicio</td>
                             <td>Cantidad</td>
@@ -439,6 +461,13 @@
                                             {{ formOt.ofertatec }} {{ formOt.ofertatec.errors }}
                                         {% else %}
                                             {{ formOt.instance.ofertatec.codigo }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if edit %}
+                                            {{ formOt.ofertatec_old }} {{ formOt.ofertatec_old.errors }}
+                                        {% else %}
+                                            {{ formOt.instance.ofertatec_old | default_if_none:"" }}
                                         {% endif %}
                                     </td>
                                     <td style="display:none">

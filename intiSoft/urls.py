@@ -34,4 +34,6 @@ urlpatterns = [
     url('^$', myViews.index, name='index'),
     url(r'^profile/(?P<pk>\d+)/$', myViews.ProfileView.as_view(),
         name='user-profile'),
+    url(r'^ofertatec_autocomplete/', myViews.ofertatec_autocomplete, name='ofertatec_autocomplete'),
+    #url(r'^simple-autocomplete/', include('simple_autocomplete.urls', namespace='simple_autocomplete'))
 ]

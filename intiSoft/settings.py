@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'reversion',
     'django_permanent',
     'searchableselect',
+    'simple_autocomplete'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -125,6 +126,8 @@ DATE_INPUT_FORMATS = ['%d/%m/%Y', '%m/%d/%Y']
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SIMPLE_AUTOCOMPLETE = {'adm.ofertatec_descripcion': {'search_field': 'detalle'}}
 
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL.replace('/', ''))
 

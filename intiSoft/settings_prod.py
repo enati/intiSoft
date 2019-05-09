@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'reversion',
     'django_permanent',
     'searchableselect',
+    'simple_autocomplete'
 )
 
 MIDDLEWARE_CLASSES = (

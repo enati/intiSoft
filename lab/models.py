@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.core.urlresolvers import reverse
-from adm.models import Presupuesto, Usuario, OfertaTec, SI
+from adm.models import Presupuesto, Usuario, OfertaTec, SI, OfertaTec_Descripcion
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
@@ -259,11 +259,14 @@ post_save.connect(log_create, sender=Turno, dispatch_uid="turno.log_create")
 post_delete.connect(log_delete, sender=Turno, dispatch_uid="turno.log_delete")
 
 
-@reversion.register(follow=["ofertatec"])
+@reversion.register(follow=["ofertatec", "ofertatec_old"])
 class OfertaTec_Linea(TimeStampedModel, AuthStampedModel):
     """ Lineas de Oferta Tecnologica del Presupuesto """
 
     ofertatec = models.ForeignKey(OfertaTec, verbose_name='OfertaTec')
+    # Oferta tecnologica vieja del centro, para llevar un control ya que la oferta nueva
+    # es demasiado generica.
+    ofertatec_old = models.ForeignKey(OfertaTec_Descripcion, verbose_name='OfertaTec Centro', blank=True, null=True)
     codigo = models.CharField(validators=[RegexValidator(r'^\d{14}$')],
                               max_length=14, verbose_name='Codigo')
     precio = models.FloatField(verbose_name='Precio')

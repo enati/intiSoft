@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
 import datetime
-from adm.models import OfertaTec
+from adm.models import OfertaTec, OfertaTec_Descripcion
 
 register = template.Library()
 
@@ -55,6 +55,12 @@ def getOTCode(ot_id):
     except:
         return []
 
+@register.filter(name='getOTCentroDetalle')
+def getOTCentroDetalle(ot_id):
+    try:
+        return OfertaTec_Descripcion.objects.get(pk=ot_id).detalle
+    except:
+        return ''
 
 @register.filter(name='revName')
 def revName(name):

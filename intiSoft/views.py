@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.generic import UpdateView
+
+from adm.models import OfertaTec_Descripcion
 from .forms import ProfileForm
 from django.core.urlresolvers import reverse_lazy
 
@@ -44,3 +47,14 @@ class ProfileView(UpdateView):
     #slug_url_kwarg = 'username'
     #slug_field = 'username'
 
+
+def ofertatec_autocomplete(request):
+    if request.GET.get('q'):
+        q = request.GET['q']
+        data = OfertaTec_Descripcion.objects.filter(detalle__icontains=q)\
+                                            .values_list('id', 'detalle')
+        json = list(data)
+        print json
+        return JsonResponse(json, safe=False)
+    else:
+        HttpResponse("No cookies")

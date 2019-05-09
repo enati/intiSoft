@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from adm.models import OfertaTec, Presupuesto, SI
+from simple_autocomplete.widgets import AutoCompleteWidget
+
+from adm.models import OfertaTec, Presupuesto, SI, OfertaTec_Descripcion
 from .models import Turno, OfertaTec_Linea
 from django.forms.models import inlineformset_factory
 from django.forms import formsets
@@ -148,6 +150,7 @@ class CustomInlineFormset(BaseInlineFormSet):
         else:
             isRev = False
         super(CustomInlineFormset, self).__init__(*args, **kwargs)
+
         ## Label del select de oferta tecnologica
         for form in self.forms:
             form.fields['ofertatec'].label_from_instance = lambda obj: "%s %s" \
@@ -172,11 +175,26 @@ class CustomInlineFormset(BaseInlineFormSet):
 
 class OfertaTec_LineaForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        res = super(OfertaTec_LineaForm, self).__init__(*args, **kwargs)
+        initial_val = ''
+        if self.instance.pk and self.instance.ofertatec_old:
+            initial_val = self.instance.ofertatec_old.detalle
+        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url='/intiSoft/ofertatec_autocomplete',
+                                                                 initial_display=initial_val)
+        return res
+
     def clean_ofertatec(self):
         if self.fields['ofertatec'].widget.attrs.get('disabled', False):
             return self.instance.ofertatec
         else:
             return self.cleaned_data['ofertatec']
+
+    def clean_ofertatec_old(self):
+        if self.fields['ofertatec_old'].widget.attrs.get('disabled', False):
+            return self.instance.ofertatec_old
+        else:
+            return self.cleaned_data['ofertatec_old']
 
     def clean_codigo(self):
         if self.fields['codigo'].widget.attrs.get('disabled', False):
@@ -218,6 +236,7 @@ class OfertaTec_LineaForm(forms.ModelForm):
 
         model = OfertaTec_Linea
         fields = ['ofertatec',
+                  'ofertatec_old',
                   'codigo',
                   'precio',
                   'precio_total',
@@ -238,6 +257,8 @@ class OfertaTec_LineaForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
         }
+
+
 
 
 OfertaTec_LineaFormSet = inlineformset_factory(Turno,

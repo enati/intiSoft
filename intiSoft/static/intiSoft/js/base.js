@@ -344,13 +344,15 @@ $(document).ready(function() {
                         for (i=0; i<data['ofertatec'].length; i++) {
                             $('#ofertatec_formtable .add-row').click();
                             $('#ofertatec_formtable tr:last>td>select').val(data['ofertatec'][i].ofertatec);
-                            $('#ofertatec_formtable tr:last>td>input')[0].value = data['ofertatec'][i].codigo;
-                            $('#ofertatec_formtable tr:last>td>input')[1].value = data['ofertatec'][i].detalle;
-                            $('#ofertatec_formtable tr:last>td>input')[2].value = data['ofertatec'][i].tipo_servicio;
-                            $('#ofertatec_formtable tr:last>td>input')[3].value = data['ofertatec'][i].cantidad;
-                            $('#ofertatec_formtable tr:last>td>input')[4].value = data['ofertatec'][i].cant_horas;
-                            $('#ofertatec_formtable tr:last>td>input')[5].value = data['ofertatec'][i].precio;
-                            $('#ofertatec_formtable tr:last>td>input')[6].value = data['ofertatec'][i].precio_total;
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'ofertatec_old\']').val(data['ofertatec'][i].ofertatec_old);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'ofertatec_old_helper\']').val(data['ofertatec'][i].ofertatec_old_helper);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'codigo\']').val(data['ofertatec'][i].codigo);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'detalle\']').val(data['ofertatec'][i].detalle);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'tipo_servicio\']').val(data['ofertatec'][i].tipo_servicio);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'cantidad\']').val(data['ofertatec'][i].cantidad);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'cant_horas\']').val(data['ofertatec'][i].cant_horas);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'precio\']').val(data['ofertatec'][i].precio);
+                            $('#ofertatec_formtable tr:last>td>input[id$=\'precio_total\']').val(data['ofertatec'][i].precio_total);
                             $('#ofertatec_formtable tr:last>td>textarea').val(data['ofertatec'][i].observaciones);
                             $('#ofertatec_formtable').trigger('row-added');
                         }

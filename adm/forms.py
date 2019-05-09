@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from time import time
 from django import forms
+from simple_autocomplete.widgets import AutoCompleteWidget
 
 from adm.widgets import RelatedFieldWidgetCanAdd, NestedRelatedFieldWidgetCanAdd
 from lab.models import Turno
@@ -943,9 +944,16 @@ class CustomInlineFormset(BaseGenericInlineFormSet):
 
 class OT_LineaForm(forms.ModelForm):
 
+
     def __init__(self, *args, **kwargs):
-        super(OT_LineaForm, self).__init__(*args, **kwargs)
+        res = super(OT_LineaForm, self).__init__(*args, **kwargs)
         self.fields['precio_total'].widget.attrs['readonly'] = True
+        initial_val = ''
+        if self.instance.pk and self.instance.ofertatec_old:
+            initial_val = self.instance.ofertatec_old.detalle
+        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url='/intiSoft/ofertatec_autocomplete',
+                                                                 initial_display=initial_val)
+        return res
 
 
     def clean_precio_total(self):
@@ -959,6 +967,7 @@ class OT_LineaForm(forms.ModelForm):
 
         model = OT_Linea
         fields = ['ofertatec',
+                  'ofertatec_old',
                   'codigo',
                   'precio',
                   'precio_total',

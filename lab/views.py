@@ -1113,11 +1113,18 @@ def get_presup(request, *args, **kwargs):
                 for ot in turno.ofertatec_linea_set.all():
                     # Puede ser que la referencia al obj no exista mas
                     ot_object_id = None
+                    ot_object_id_old_id = None
+                    ot_object_id_old_detalle = None
+                    if ot.ofertatec_old:
+                        ot_object_id_old_id = ot.ofertatec_old.id
+                        ot_object_id_old_detalle = ot.ofertatec_old.detalle
                     try:
                         ot_object_id = ot.ofertatec.id
                     except:
                         pass
                     data['ofertatec'].append({'ofertatec': ot_object_id,
+                                              'ofertatec_old': ot_object_id_old_id,
+                                              'ofertatec_old_helper': ot_object_id_old_detalle,
                                               'codigo': ot.codigo, 'tipo_servicio': ot.tipo_servicio,
                                               'cantidad': ot.cantidad, 'cant_horas': ot.cant_horas,
                                               'precio': ot.precio, 'precio_total': ot.precio_total,
