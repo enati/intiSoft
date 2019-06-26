@@ -335,6 +335,9 @@ $(document).ready(function() {
                     $("#id_fecha_prevista").val(data['fecha_turno']);
                     $("#id_presupuesto__usuario__nombre").text(data['usuario']);
                     $('#id_deudor option:contains(' + data['usuario'] + ')').prop('selected', true);
+                    $('select#id_centro_costos').val(data['centro_costos']);
+                    $('select#id_area_tematica').val(data['area_tematica']);
+                    $('select#id_horizonte').val(data['horizonte']);
 
                     // Borro todas las lineas de oferta tecnologica actuales
                     $('#ofertatec_formtable a.delete-row').click()

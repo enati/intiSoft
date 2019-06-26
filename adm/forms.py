@@ -2,11 +2,12 @@
 from time import time
 from django import forms
 from simple_autocomplete.widgets import AutoCompleteWidget
-
+from django.conf import settings
 from adm.widgets import RelatedFieldWidgetCanAdd, NestedRelatedFieldWidgetCanAdd
 from lab.models import Turno
 from .models import Presupuesto, OfertaTec, Usuario, Contrato, OT, OTML, SI, Factura, \
-    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT, Contacto, DireccionUsuario, Localidad
+    Recibo, Remito, OT_Linea, SOT, RUT, Tarea_Linea, Instrumento, PDT, Contacto, DireccionUsuario, Localidad, \
+    CentroDeCostos
 from django.contrib.contenttypes.forms import generic_inlineformset_factory, BaseGenericInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.forms.models import BaseInlineFormSet
@@ -16,7 +17,7 @@ from django.contrib.auth.models import Group, User
 from searchableselect.widgets import SearchableSelect
 from datetime import datetime
 
-editable_fields = ['fecha_realizado', 'fecha_aceptado', 'tipo']
+editable_fields = ['fecha_realizado', 'fecha_aceptado', 'tipo', 'centro_costos', 'area_tematica', 'horizonte']
 
 
 def bootstrap_format(f, **kwargs):
@@ -42,6 +43,8 @@ class OTForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OTForm, self).__init__(*args, **kwargs)
+        # Filtro los centros de costos segun la region
+        self.fields['centro_costos'].queryset = CentroDeCostos.objects.filter(region='CENTRO')
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'OTForm'
@@ -57,7 +60,7 @@ class OTForm(forms.ModelForm):
                     Presupuesto.objects.filter(estado__in=['aceptado', 'en_proceso_de_facturacion']).order_by('-id')
             if self.instance.estado != 'sin_facturar':
                 for f in self.fields:
-                    if f != 'fecha_aviso':
+                    if f not in ['fecha_aviso', 'centro_costos', 'area_tematica', 'horizonte']:
                         self.fields[f].widget.attrs['disabled'] = True
                         self.fields[f].required = False
 
@@ -91,6 +94,24 @@ class OTForm(forms.ModelForm):
         else:
             return self.cleaned_data['descuento']
 
+    def clean_centro_costos(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.centro_costos
+        else:
+            return self.cleaned_data['centro_costos']
+
+    def clean_area_tematica(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.area_tematica
+        else:
+            return self.cleaned_data['area_tematica']
+
+    def clean_horizonte(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.horizonte
+        else:
+            return self.cleaned_data['horizonte']
+
     def clean_codigo(self):
         codigoList = OTML.objects.values_list('codigo', flat=True)
         if self.instance and self.instance.estado != 'sin_facturar':
@@ -110,6 +131,8 @@ class OTForm(forms.ModelForm):
         else:
             return self.cleaned_data['presupuesto']
 
+
+
     class Meta:
         model = OT
         fields = ['estado',
@@ -119,7 +142,10 @@ class OTForm(forms.ModelForm):
                   'importe_bruto',
                   'importe_neto',
                   'descuento',
-                  'pdt']
+                  'pdt',
+                  'centro_costos',
+                  'area_tematica',
+                  'horizonte']
 
         error_messages = {
             'presupuesto': {
@@ -132,6 +158,15 @@ class OTForm(forms.ModelForm):
                 'required': 'Campo obligatorio.',
             },
             'pdt': {
+                'required': 'Campo obligatorio.',
+            },
+            'centro_costos': {
+                'required': 'Campo obligatorio.',
+            },
+            'area_tematica': {
+                'required': 'Campo obligatorio.',
+            },
+            'horizonte': {
                 'required': 'Campo obligatorio.',
             }
         }
@@ -148,6 +183,8 @@ class OTMLForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OTMLForm, self).__init__(*args, **kwargs)
+        # Filtro los centros de costos segun la region
+        self.fields['centro_costos'].queryset = CentroDeCostos.objects.filter(region='CENTRO')
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'OTMLForm'
         self.fields['importe_neto'].widget.attrs['readonly'] = True
@@ -229,6 +266,24 @@ class OTMLForm(forms.ModelForm):
         else:
             return self.cleaned_data['checkbox_sot']
 
+    def clean_centro_costos(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.centro_costos
+        else:
+            return self.cleaned_data['centro_costos']
+
+    def clean_area_tematica(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.area_tematica
+        else:
+            return self.cleaned_data['area_tematica']
+
+    def clean_horizonte(self):
+        if self.instance and self.instance.estado not in ['sin_facturar', 'no_pago']:
+            return self.instance.horizonte
+        else:
+            return self.cleaned_data['horizonte']
+
     class Meta:
         model = OTML
         fields = ['estado',
@@ -243,7 +298,10 @@ class OTMLForm(forms.ModelForm):
                   'usuario',
                   'usuarioRep',
                   'checkbox_sot',
-                  'pdt']
+                  'pdt',
+                  'centro_costos',
+                  'area_tematica',
+                  'horizonte']
 
         error_messages = {
             'fecha_realizado': {
@@ -284,6 +342,7 @@ class SOTForm(forms.ModelForm):
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'SOTForm'
+        self.fields['codigo'].widget.attrs['maxlength'] = '10'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
         self.fields['importe_neto'].widget.attrs['readonly'] = True
         if not self.instance or self.instance.estado == 'borrador':
@@ -462,6 +521,7 @@ class RUTForm(forms.ModelForm):
 
         self.fields['codigo'].widget.attrs['class'] = 'OT_code'
         self.fields['codigo'].widget.attrs['form'] = 'RUTForm'
+        self.fields['codigo'].widget.attrs['maxlength'] = '10'
         self.fields['importe_bruto'].widget.attrs['readonly'] = True
         self.fields['importe_neto'].widget.attrs['readonly'] = True
         if not self.instance or self.instance.estado == 'borrador':
@@ -951,7 +1011,7 @@ class OT_LineaForm(forms.ModelForm):
         initial_val = ''
         if self.instance.pk and self.instance.ofertatec_old:
             initial_val = self.instance.ofertatec_old.detalle
-        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url='/intiSoft/ofertatec_autocomplete',
+        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url=settings.DOMAIN+'ofertatec_autocomplete',
                                                                  initial_display=initial_val)
         return res
 
@@ -1067,6 +1127,8 @@ class PresupuestoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PresupuestoForm, self).__init__(*args, **kwargs)
+        # Filtro los centros de costos segun la region
+        self.fields['centro_costos'].queryset = CentroDeCostos.objects.filter(region='CENTRO')
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'presup_code'
         self.fields['codigo'].widget.attrs['form'] = 'presupForm'
@@ -1091,8 +1153,6 @@ class PresupuestoForm(forms.ModelForm):
         elif self.instance.pk:
             self.fields['contacto'].queryset = self.instance.usuario.contacto_set.order_by('nombre')
             self.fields['direccion'].queryset = self.instance.usuario.direccionusuario_set.order_by('calle')
-
-
 
     def clean_codigo(self):
         if self.instance and self.instance.estado != 'borrador':
@@ -1135,6 +1195,23 @@ class PresupuestoForm(forms.ModelForm):
         else:
             return self.cleaned_data['estado']
 
+    def clean_centro_costos(self):
+        if self.instance and self.instance.estado not in ['borrador', 'aceptado']:
+            return self.instance.centro_costos
+        else:
+            return self.cleaned_data['centro_costos']
+
+    def clean_area_tematica(self):
+        if self.instance and self.instance.estado not in ['borrador', 'aceptado']:
+            return self.instance.area_tematica
+        else:
+            return self.cleaned_data['area_tematica']
+
+    def clean_horizonte(self):
+        if self.instance and self.instance.estado not in ['borrador', 'aceptado']:
+            return self.instance.horizonte
+        else:
+            return self.cleaned_data['horizonte']
 
     def clean(self):
         cleaned_data = super(PresupuestoForm, self).clean()
@@ -1157,7 +1234,10 @@ class PresupuestoForm(forms.ModelForm):
                   'fecha_aceptado',
                   'estado',
                   'tipo',
-                  'pdt']
+                  'pdt',
+                  'centro_costos',
+                  'area_tematica',
+                  'horizonte']
 
         error_messages = {
             'fecha_solicitado': {
@@ -1176,6 +1256,15 @@ class PresupuestoForm(forms.ModelForm):
                 'invalid': 'Fecha invalida.',
             },
             'pdt': {
+                'required': 'Campo obligatorio.',
+            },
+            'centro_costos': {
+                'required': 'Campo obligatorio.',
+            },
+            'area_tematica': {
+                'required': 'Campo obligatorio.',
+            },
+            'horizonte': {
                 'required': 'Campo obligatorio.',
             }
         }
@@ -1332,7 +1421,12 @@ class PDTForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PDTForm, self).__init__(*args, **kwargs)
-        self.fields['agentes'].queryset = User.objects.exclude(username='admin').order_by('first_name')
+        self.fields['agentes'].queryset = User.objects.exclude(username='admin').exclude(is_active=False).order_by('first_name')
+        year = datetime.now().year
+        if self.instance and int(self.instance.anio) < int(year):
+            for f in self.fields:
+                self.fields[f].widget.attrs['disabled'] = True
+                self.fields[f].required = False
 
     class Meta:
         model = PDT

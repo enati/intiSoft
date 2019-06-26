@@ -30,6 +30,7 @@
                     </a>
                 </div>
             {% else %}
+            {% if active %}
                 <div class="col-md-2">
                     <input type="submit" value="Editar"
                                {% if 'adm.change_pdt' not in user.get_all_permissions %}
@@ -37,12 +38,14 @@
                                {% endif %}
                                class="btn btn-danger" form="pdtForm">
                 </div>
+            {% endif %}
                 <div class="col-md-2" style="padding-left: 0px">
                     <a class="btn btn-default" href="{{ back_url }}">
                         Volver
                     </a>
                 </div>
             {% endif %}
+            {% if active %}
             <div class="btn-group">
                 <button type="button" class="btn btn-default dropdown-toggle
                                         {% if not edit %} disabled {% endif %}" data-toggle="dropdown"
@@ -59,7 +62,8 @@
                     {% endif %}
                 </ul>
             </div>
-        {% else %}
+            {% endif %}
+            {% else %}
             <div class="col-md-2">
                 <input type="submit" value="Guardar" class="btn btn-danger" form="pdtForm">
             </div>

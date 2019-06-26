@@ -59,6 +59,20 @@ def check_state(sender, instance, **kwargs):
             for turno in turnoList:
                 turno._toState_en_espera()
 
+# post_save
+def check_changes(sender, instance, created, **kwargs):
+    if instance.pk:
+        turnoList = instance.get_turnos_activos()
+        if len(turnoList) > 0:
+            turno = turnoList[0]
+            if instance.centro_costos != turno.centro_costos:
+                turno.centro_costos = instance.centro_costos
+            if instance.area_tematica != turno.area_tematica:
+                turno.area_tematica = instance.area_tematica
+            if instance.horizonte != turno.horizonte:
+                turno.horizonte = instance.horizonte
+            turno.save()
+
 
 # post_delete
 def on_delete_presupuesto(sender, instance, **kwargs):
@@ -68,6 +82,17 @@ def on_delete_presupuesto(sender, instance, **kwargs):
 # ================ OT SIGNALS ================
 # ============================================
 
+# post_save
+def check_ot_changes(sender, instance, created, **kwargs):
+    presupuesto = instance.presupuesto
+    if instance.pk and presupuesto:
+        if instance.centro_costos != presupuesto.centro_costos:
+            presupuesto.centro_costos = instance.centro_costos
+        if instance.area_tematica != presupuesto.area_tematica:
+            presupuesto.area_tematica = instance.area_tematica
+        if instance.horizonte != presupuesto.horizonte:
+            presupuesto.horizonte = instance.horizonte
+        presupuesto.save()
 
 # post_delete
 def on_delete_ot(sender, instance, **kwargs):
@@ -76,7 +101,6 @@ def on_delete_ot(sender, instance, **kwargs):
 # ==============================================
 # ================ OTML SIGNALS ================
 # ==============================================
-
 
 # post_delete
 def on_delete_otml(sender, instance, **kwargs):

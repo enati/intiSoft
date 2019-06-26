@@ -126,8 +126,8 @@ urlpatterns = [
     url(r'^turnos/CAL/update/(?P<pk>\d+)/rollback/', views.rollBackRevision, name='CAL-rollback'),
     url(r'^turnos/MEC/update/(?P<pk>\d+)/rollback/', views.rollBackRevision, name='MEC-rollback'),
     url(r'^turnos/ML/update/(?P<pk>\d+)/rollback/', views.rollBackRevision, name='ML-rollback'),
-    url(r'^turnos/get_price/$', views.get_price, name='ot-getprice'),
-    url(r'^turnos/get_presup/$', views.get_presup, name='presup-getdata'),
-    url(r'^turnos/get_si/$', views.get_si, name='si-getdata'),
+    url(r'^turnos/get_price/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.get_price)), name='ot-getprice'),
+    url(r'^turnos/get_presup/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.get_presup)), name='presup-getdata'),
+    url(r'^turnos/get_si/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.get_si)), name='si-getdata'),
 
 ]

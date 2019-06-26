@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from simple_autocomplete.widgets import AutoCompleteWidget
-
-from adm.models import OfertaTec, Presupuesto, SI, OfertaTec_Descripcion
+from django.conf import settings
+from adm.models import OfertaTec, Presupuesto, SI, OfertaTec_Descripcion, CentroDeCostos
 from .models import Turno, OfertaTec_Linea
 from django.forms.models import inlineformset_factory
 from django.forms import formsets
 from django.forms.models import BaseInlineFormSet
 
 initArea = ''
-
 
 def bootstrap_format(f, **kwargs):
     formfield = f.formfield(**kwargs)
@@ -36,6 +35,8 @@ class TurnoForm(forms.ModelForm):
             self.isRev = False
         super(TurnoForm, self).__init__(*args, **kwargs)
         global initArea
+        # Filtro los centros de costos segun la region
+        self.fields['centro_costos'].queryset = CentroDeCostos.objects.filter(region='CENTRO')
         if 'area' in kwargs['initial']:
             initArea = kwargs['initial']['area']
         elif self.instance:
@@ -112,6 +113,24 @@ class TurnoForm(forms.ModelForm):
         else:
             return self.cleaned_data['area']
 
+    def clean_centro_costos(self):
+        if self.fields['centro_costos'].widget.attrs.get('disabled', False):
+            return self.instance.centro_costos
+        else:
+            return self.cleaned_data['centro_costos']
+
+    def clean_area_tematica(self):
+        if self.fields['area_tematica'].widget.attrs.get('disabled', False):
+            return self.instance.area_tematica
+        else:
+            return self.cleaned_data['area_tematica']
+
+    def clean_horizonte(self):
+        if self.fields['horizonte'].widget.attrs.get('disabled', False):
+            return self.instance.horizonte
+        else:
+            return self.cleaned_data['horizonte']
+
     class Meta:
 
         model = Turno
@@ -120,7 +139,10 @@ class TurnoForm(forms.ModelForm):
                   'fecha_inicio',
                   'fecha_fin',
                   'estado',
-                  'area']
+                  'area',
+                  'centro_costos',
+                  'area_tematica',
+                  'horizonte']
         error_messages = {
             'fecha_inicio': {
                 'required': 'Campo obligatorio.',
@@ -129,6 +151,15 @@ class TurnoForm(forms.ModelForm):
             'fecha_fin': {
                 'required': 'Campo obligatorio.',
                 'invalid': 'Fecha invalida.',
+            },
+            'centro_costos': {
+                'required': 'Campo obligatorio.',
+            },
+            'area_tematica': {
+                'required': 'Campo obligatorio.',
+            },
+            'horizonte': {
+                'required': 'Campo obligatorio.',
             },
         }
         widgets = {
@@ -180,7 +211,7 @@ class OfertaTec_LineaForm(forms.ModelForm):
         initial_val = ''
         if self.instance.pk and self.instance.ofertatec_old:
             initial_val = self.instance.ofertatec_old.detalle
-        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url='/intiSoft/ofertatec_autocomplete',
+        self.fields['ofertatec_old'].widget = AutoCompleteWidget(url=settings.DOMAIN+'ofertatec_autocomplete',
                                                                  initial_display=initial_val)
         return res
 

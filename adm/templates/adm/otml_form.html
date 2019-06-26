@@ -217,7 +217,7 @@
                         {% else %}
                             {{ form.estado.value.as_hidden }}
                         {% endif %}
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <!-- Checkbox SOT -->
                             <div class="form-group">
                                 <div class="col-md-1" style="padding-right: 0px">
@@ -237,6 +237,65 @@
                                     SOT de otro centro
                                 </label>
                             </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <!-- Centro de Costos -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_centro_costos">Centro de Costos</label>
+                                     <div class="col-md-6">
+                                         {% if edit %}
+                                             {{ form.centro_costos }}
+                                             {% for error in form.centro_costos.errors %}
+                                                 <div class="alert alert-error">
+                                                     <strong>{{ error|escape }}</strong>
+                                                 </div>
+                                             {% endfor %}
+                                         {% else %}
+                                             {{ form.instance.centro_costos | default_if_none:"" }}
+                                         {% endif %}
+                                     </div>
+                                </div>
+                                <!-- Area Tematica -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_area_tematica">Area Temática</label>
+                                     <div class="col-md-6">
+                                         {% if edit %}
+                                             {{ form.area_tematica }}
+                                             {% for error in form.area_tematica.errors %}
+                                                 <div class="alert alert-error">
+                                                     <strong>{{ error|escape }}</strong>
+                                                 </div>
+                                             {% endfor %}
+                                         {% else %}
+                                             {{ form.instance.area_tematica | default_if_none:"" }}
+                                         {% endif %}
+                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Horizonte -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_horizonte">Horizonte</label>
+                                     <div class="col-md-6">
+                                         {% if edit %}
+                                             {{ form.horizonte }}
+                                             {% for error in form.horizonte.errors %}
+                                                 <div class="alert alert-error">
+                                                     <strong>{{ error|escape }}</strong>
+                                                 </div>
+                                             {% endfor %}
+                                         {% else %}
+                                             {{ form.horizonte.value | default_if_none:"" }}
+                                         {% endif %}
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <h3 class="text-danger">OT</h3>
                             <!-- PDT -->
                             <div class="form-group">

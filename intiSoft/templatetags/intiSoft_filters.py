@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
 import datetime
-from adm.models import OfertaTec, OfertaTec_Descripcion
+from adm.models import OfertaTec, OfertaTec_Descripcion, CentroDeCostos, AreaTematica
 
 register = template.Library()
 
@@ -83,3 +83,19 @@ def get_verbose_name(model, field_name):
     Returns verbose_name for a field.
     """
     return model._meta.get_field(field_name).verbose_name
+
+
+@register.filter(name='getCentroDeCostos')
+def getCentroDeCostos(cc_id):
+    try:
+        return CentroDeCostos.objects.get(pk=cc_id).nombre
+    except:
+        return ''
+
+
+@register.filter(name='getAreaTematica')
+def getAreaTematica(area_id):
+    try:
+        return AreaTematica.objects.get(pk=area_id).nombre
+    except:
+        return ''

@@ -15,6 +15,19 @@
     </script>
     <script type="text/javascript" src="{% static 'intiSoft/js/jquery.formset.js' %}"></script>
     <script>
+        // Para que ande el autocomplete en las nuevas lineas
+        function new_line_added(target) {
+            // Busco el id correspondiente
+            var id = $(target[0]).find("input[id$='ofertatec_old']")[0].id;
+            // Elimino el script y lo reemplazo por el id correcto
+            $(target[0]).find("script").remove();
+            var replaced_script = `<script type='text/javascript'>(function($){$(document).ready(function(){$('#${id}_helper').autocomplete({source:function(request,response){$.ajax({url:domain+'/ofertatec_autocomplete',data:{q:request.term},success:function(data){if(data!='CACHE_MISS'){response($.map(data,function(item){return{label:item[1],value:item[1],real_value:item[0]}}))}},dataType:'json'})},select:function(event,ui){$('#${id}').val(ui.item.real_value)},minLength:3})})})(django.jQuery)<\/script>`;
+            // Reemplazo el id tambien en el <a>
+            $($(target[0]).find("input[id$='ofertatec_old']")[0]).after(replaced_script);
+            var onclick_replaced = $(target[0]).find("a").attr('onclick').replace(/#[\w-]+ofertatec_old/g, `#${id}`)
+            $(target[0]).find("a").attr('onclick', onclick_replaced);
+        };
+
         $(function() {
 
             $("input[id$='ofertatec_old_helper']").addClass('form-control');
@@ -32,6 +45,7 @@
         $(function() {
             $(".inline.{{ ofertatec_linea_form.prefix }}").formset({
                 prefix: "{{ ofertatec_linea_form.prefix }}",
+                added: new_line_added
             });
 
             $("#datos_si input.checkbox").on('change', function() {
@@ -304,9 +318,43 @@
                                      {% endif %}
                                  </div>
                             </div>
+                            <!-- Centro de Costos -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_centro_costos">Centro de Costos</label>
+                                 <div class="col-md-7">
+                                     {% if edit %}
+                                         {{ form.centro_costos }}
+                                         {% for error in form.centro_costos.errors %}
+                                             <div class="alert alert-error">
+                                                 <strong>{{ error|escape }}</strong>
+                                             </div>
+                                         {% endfor %}
+                                     {% else %}
+                                         {{ form.instance.centro_costos | default_if_none:"" }}
+                                     {% endif %}
+                                 </div>
+                            </div>
+                            <!-- Area Tematica -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_area_tematica">Area Temática</label>
+                                 <div class="col-md-7">
+                                     {% if edit %}
+                                         {{ form.area_tematica }}
+                                         {% for error in form.area_tematica.errors %}
+                                             <div class="alert alert-error">
+                                                 <strong>{{ error|escape }}</strong>
+                                             </div>
+                                         {% endfor %}
+                                     {% else %}
+                                         {{ form.instance.area_tematica | default_if_none:"" }}
+                                     {% endif %}
+                                 </div>
+                            </div>
                             <!-- Fecha de Finalizacion Real -->
                             {% if object.estado == 'finalizado' %}
-                                <h4><b>Finalizado el {{ object.fecha_fin_real | default_if_none:"" }}</b><h4>
+                                <h4><b>Finalizado el {{ object.fecha_fin_real | default_if_none:"" }}</b></h4>
                             {% endif %}
                         </div>
                         <div class="col-md-6">
@@ -327,7 +375,25 @@
                                      {% endif %}
                                  </div>
                             </div>
+                            <!-- Horizonte -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_horizonte">Horizonte</label>
+                                 <div class="col-md-7">
+                                     {% if edit %}
+                                         {{ form.horizonte }}
+                                         {% for error in form.horizonte.errors %}
+                                             <div class="alert alert-error">
+                                                 <strong>{{ error|escape }}</strong>
+                                             </div>
+                                         {% endfor %}
+                                     {% else %}
+                                         {{ form.horizonte.value | default_if_none:"" }}
+                                     {% endif %}
+                                 </div>
+                            </div>
                         </div>
+
                         <div class="col-md-6">
                             <!-- Area -->
                             {% if edit %}
@@ -629,6 +695,22 @@
                                          {{ tv.field_dict.fecha_inicio | default_if_none:"" }}
                                      </div>
                                 </div>
+                                <!-- Centro de Costos -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_centro_costos">Centro de Costos</label>
+                                     <div class="col-md-7">
+                                         {{ tv.field_dict.centro_costos_id | getCentroDeCostos }}
+                                     </div>
+                                </div>
+                                 <!-- Area Tematica -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_area_tematica">Area Temática</label>
+                                     <div class="col-md-7">
+                                         {{ tv.field_dict.area_tematica_id | getAreaTematica }}
+                                     </div>
+                                </div>
                                 <!-- Fecha de Finalizacion Real -->
                                 {% if object.estado == 'finalizado' %}
                                     <h4><b>Finalizado el {{ tv.field_dict.fecha_fin_real | default_if_none:"" }}</b><h4>
@@ -641,6 +723,14 @@
                                      for="id_fecha_fin"> Fecha de Finalización </label>
                                      <div class="col-md-7">
                                          {{ tv.field_dict.fecha_fin | default_if_none:"" }}
+                                     </div>
+                                </div>
+                                <!-- Horizonte -->
+                                <div class="form-group">
+                                    <label class="control-label col-md-5" style="text-align:left"
+                                     for="id_horizonte">Horizonte</label>
+                                     <div class="col-md-7">
+                                         {{ tv.field_dict.horizonte | default_if_none:"" }}
                                      </div>
                                 </div>
                             </div>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, TemplateView
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse_lazy, reverse, resolve
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 import lab
 from .models import Presupuesto, OfertaTec, Usuario, OT, OTML, SOT, RUT, SI, Factura, Recibo, Remito, PDT, Contacto, \
@@ -2873,6 +2873,7 @@ class PDTUpdate(UpdateView):
         context = super(PDTUpdate, self).get_context_data(**kwargs)
         context['edit'] = self.request.GET.get('edit', False)
         context['back_url'] = back_url_pdt
+        context['active'] = int(self.object.anio) >= int(datetime.now().year)
         return context
 
     def get_success_url(self):

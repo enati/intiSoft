@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.core.urlresolvers import reverse
-from adm.models import Presupuesto, Usuario, OfertaTec, SI, OfertaTec_Descripcion
+from adm.models import Presupuesto, Usuario, OfertaTec, SI, OfertaTec_Descripcion, CentroDeCostos, AreaTematica
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
@@ -60,6 +60,16 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
         ('ML', 'ML'),
     )
 
+    HORIZONTES = (
+        ('Industria - H1', 'Industria - H1'),
+        ('Industria - H2', 'Industria - H2'),
+        ('Industria - H3', 'Industria - H3'),
+        ('Ecosistema - H1', 'Ecosistema - H1'),
+        ('Ecosistema - H2', 'Ecosistema - H2'),
+        ('Ecosistema - H3', 'Ecosistema - H3'),
+        ('Resto - H1', 'Resto - H1'),
+    )
+
     estado = models.CharField(max_length=10, choices=ESTADOS,
                               default='en_espera')
     presupuesto = models.ForeignKey(Presupuesto,
@@ -74,6 +84,10 @@ class Turno(TimeStampedModel, AuthStampedModel, PermanentModel):
     nro_revision = models.IntegerField(default=0)
     revisionar = models.BooleanField(default=False)
     area = models.CharField(max_length=10, choices=AREAS)
+    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=False)
+    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=False)
+    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=False)
+
 
     def write_activity_log(self, activity, comments="Registro automático"):
         content_type_obj = ContentType.objects.get(model="turno")

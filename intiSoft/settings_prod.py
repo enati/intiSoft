@@ -28,6 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+DOMAIN = '/' if DEBUG else '/intiSoft/'
 
 # Application definition
 

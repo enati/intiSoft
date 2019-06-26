@@ -345,6 +345,7 @@ ul#id_agentes {
 input[type=checkbox]
 {
   -webkit-appearance:checkbox;
+  width: 18px;
 }
 
 .modal-body {

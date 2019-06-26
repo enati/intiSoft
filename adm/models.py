@@ -293,8 +293,70 @@ class PDT(TimeStampedModel, AuthStampedModel):
         return count
 
     class Meta:
-        ordering = ['anio', 'codigo']
+        ordering = ['-anio', 'codigo']
         permissions = (("read_pdt", "Can read pdt"),)
+
+
+class CentroDeCostos(models.Model):
+
+    TIPOCC = (
+        ('Presidencia', 'Presidencia'),
+        ('Vicepresidencia', 'Vicepresidencia'),
+        ('CD', 'Consejo Directivo'),
+        ('Unidad', 'Unidad'),
+        ('Dirección', 'Dirección'),
+        ('GO', 'Gerencia Operativa'),
+        ('SO', 'Subgerencia Operativa'),
+        ('DT', 'Dirección Técnica'),  # El primer valor es el que se guarda en la DB
+        ('DEPTO', 'Departamento'),
+        ('Otros', 'Otros')
+    )
+
+    REGIONCC = (
+        ('PTM', 'PTM'),
+        ('CENTRO', 'CENTRO'),
+        ('CUYO', 'CUYO'),
+        ('NEA', 'NEA'),
+        ('NOA', 'NOA'),
+        ('PAMPEANA', 'PAMPEANA'),
+        ('PATAGONIA', 'PATAGONIA'),
+        ('BUENOS AIRES', 'BUENOS AIRES')
+    )
+
+    codigo = models.CharField('Código', max_length=5)
+    nombre = models.CharField('Centro de Costo', max_length=100)
+    tipo = models.CharField("Tipo de CC", max_length=21, choices=TIPOCC)
+    region = models.CharField("Región", max_length=12, choices=REGIONCC)
+
+    def __unicode__(self):
+        return self.nombre + ' (' + self.region + ')'
+
+
+    class Meta:
+        ordering = ['-codigo']
+
+
+class AreaTematica(models.Model):
+
+    nombre = models.CharField('Area Temática', max_length=150)
+
+    def __unicode__(self):
+        return self.nombre
+
+
+    class Meta:
+        ordering = ['nombre']
+
+
+HORIZONTES = (
+    ('Industria - H1', 'Industria - H1'),
+    ('Industria - H2', 'Industria - H2'),
+    ('Industria - H3', 'Industria - H3'),
+    ('Ecosistema - H1', 'Ecosistema - H1'),
+    ('Ecosistema - H2', 'Ecosistema - H2'),
+    ('Ecosistema - H3', 'Ecosistema - H3'),
+    ('Resto - H1', 'Resto - H1'),
+)
 
 
 @reversion.register(follow=["usuario", "direccion", "contacto", "turno_set", "instrumento_set", "pdt"])
@@ -335,10 +397,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     nro_revision = models.IntegerField('Nro. Revisión', default=0)
     tipo = models.CharField('Tipo', max_length=11, choices=TIPOS, default='calibracion')
     pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
+    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=False)
+    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=False)
+    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=False)
 
     def __str__(self):
         return self.codigo
-
 
     def write_activity_log(self, activity, comments="Registro automático"):
         content_type_obj = ContentType.objects.get(model="presupuesto")
@@ -354,15 +418,13 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
             areas.append(turno.area)
         return areas
 
-
     def get_turnos_activos(self):
         if self.estado == 'cancelado':
             return self.turno_set.order_by('-created')
         else:
             return self.turno_set.select_related().filter(estado__in=['en_espera',
-                                                                        'activo',
+                                                                      'activo',
                                                                         'finalizado'])
-
     def _toState_aceptado(self):
         """Faltarian las validaciones"""
         self.estado = 'aceptado'
@@ -457,6 +519,7 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
 # Signals
 pre_save.connect(check_state, sender=Presupuesto, dispatch_uid="presupuesto.check_state")
 pre_save.connect(log_state_change, sender=Presupuesto, dispatch_uid="presupuesto.log_state_change")
+post_save.connect(check_changes, sender=Presupuesto, dispatch_uid="presupuesto.check_changes")
 post_save.connect(log_create, sender=Presupuesto, dispatch_uid="presupuesto.log_create")
 post_delete.connect(on_delete_presupuesto, sender=Presupuesto, dispatch_uid="presupuesto.on_delete_presupuesto")
 
@@ -540,7 +603,9 @@ class OT(Contrato):
     factura_set = GenericRelation("Factura", verbose_name="Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
     remito_set = GenericRelation("Remito", verbose_name="Remito")
-
+    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=False)
+    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=False)
+    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=False)
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -608,6 +673,7 @@ class OT(Contrato):
 
 # Signals
 pre_save.connect(log_state_change, sender=OT, dispatch_uid="ot.log_state_change")
+post_save.connect(check_ot_changes, sender=OT, dispatch_uid="ot.check_ot_changes")
 post_save.connect(log_create, sender=OT, dispatch_uid="ot.log_create")
 post_delete.connect(on_delete_ot, sender=OT, dispatch_uid="ot.on_delete_ot")
 
@@ -636,6 +702,9 @@ class OTML(Contrato):
     # Campos para la relacion inversa
     factura_set = GenericRelation("Factura")
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
+    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=False)
+    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=False)
+    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=False)
 
     def _toState_no_pago(self):
         self.estado = 'no_pago'
@@ -729,6 +798,7 @@ MODO_ENVIO = (
     ('recibo', 'Recibo')
 )
 
+
 class SOT(Contrato):
 
     ESTADOS = (
@@ -739,7 +809,7 @@ class SOT(Contrato):
     )
 
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
-    codigo = models.CharField("Nro. SOT", max_length=15, unique=True, default=nextSOTCode,
+    codigo = models.CharField("Nro. SOT", max_length=11, unique=True, default='7100000000',
                               error_messages={'unique': "Ya existe una SOT con ese número."})
     deudor = models.ForeignKey(Usuario, verbose_name="UT Deudora",
                                on_delete=models.PROTECT, related_name='sot_deudor')
@@ -757,7 +827,7 @@ class SOT(Contrato):
     descuento_fijo = models.BooleanField("Descuento Fijo")
     # Campos para la relacion inversa
     ot_linea_set = GenericRelation("OT_Linea", verbose_name="Líneas de OT")
-    modo_envio = models
+
 
     def get_area(self):
         return self.solicitante
@@ -797,21 +867,21 @@ class SOT(Contrato):
             # Ya elimine un presupuesto con el mismo codigo.
             if int(deleted_sot.last().codigo[0]) < 9:
                 # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
-                new_code = int(deleted_sot.last().codigo) + 100000
+                new_code = int(deleted_sot.last().codigo) + 10000000000
                 self.codigo = str(new_code)
                 self.save()
             else:
                 # Hay 9 instancias eliminadas con el mismo codigo luego borro la primera y corro toda
                 # la numeracion.
                 deleted_sot[0].delete(force=True)
-                for rut in deleted_sot[1:]:
-                    rut.codigo = str(int(rut.codigo) - 100000)
-                    rut.save()
-                self.codigo = str(int(self.codigo) + 900000)
+                for sot in deleted_sot[1:]:
+                    sot.codigo = str(int(sot.codigo) - 10000000000)
+                    sot.save()
+                self.codigo = str(int(self.codigo) + 90000000000)
                 self.save()
         else:
             # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
-            self.codigo = str(int(self.codigo) + 100000)
+            self.codigo = str(int(self.codigo) + 10000000000)
             self.save()
         self.delete()
         return True
@@ -853,7 +923,6 @@ def nextRUTCode():
     else:
         return '00454'
 
-
 class RUT(Contrato):
 
     ESTADOS = (
@@ -864,7 +933,7 @@ class RUT(Contrato):
     )
 
     estado = models.CharField("Estado", max_length=12, choices=ESTADOS, default='borrador')
-    codigo = models.CharField("Nro. RUT", max_length=15, unique=True, default=nextRUTCode,
+    codigo = models.CharField("Nro. RUT", max_length=11, unique=True, default='7100000000',
                               error_messages={'unique': "Ya existe una RUT con ese número."})
     deudor = models.ForeignKey(Usuario, verbose_name="UT Deudora", on_delete=models.PROTECT, related_name='rut_deudor')
     ejecutor = models.ForeignKey(Usuario, verbose_name="UT Ejecutora", default=1,
@@ -916,7 +985,7 @@ class RUT(Contrato):
             # Ya elimine un presupuesto con el mismo codigo.
             if int(deleted_ruts.last().codigo[0]) < 9:
                 # Hay menos de 9 instancias eliminadas con el mismo codigo luego sigo la numeracion.
-                new_code = int(deleted_ruts.last().codigo) + 100000
+                new_code = int(deleted_ruts.last().codigo) + 10000000000
                 self.codigo = str(new_code)
                 self.save()
             else:
@@ -924,13 +993,13 @@ class RUT(Contrato):
                 # la numeracion.
                 deleted_ruts[0].delete(force=True)
                 for rut in deleted_ruts[1:]:
-                    rut.codigo = str(int(rut.codigo) - 100000)
+                    rut.codigo = str(int(rut.codigo) - 10000000000)
                     rut.save()
-                self.codigo = str(int(self.codigo) + 900000)
+                self.codigo = str(int(self.codigo) + 90000000000)
                 self.save()
         else:
             # Es la primer instancia eliminada con dicho codigo luego le concateno un 1 delante.
-            self.codigo = str(int(self.codigo) + 100000)
+            self.codigo = str(int(self.codigo) + 10000000000)
             self.save()
         self.delete()
         return True
@@ -1231,3 +1300,5 @@ class Remito(TimeStampedModel, AuthStampedModel):
 #    cantidad = models.PositiveIntegerField("Cantidad")
 #    descripcion = models.CharField("Descripción", max_length=250)
 #    fecha = models.DateField("Fecha de Ingreso")
+
+

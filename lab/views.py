@@ -1102,6 +1102,9 @@ def get_presup(request, *args, **kwargs):
         data['usuario'] = presup_obj.usuario.nombre
         data['mail'] = presup_obj.usuario.mail
         data['rubro'] = presup_obj.usuario.rubro
+        data['centro_costos'] = presup_obj.centro_costos.id if presup_obj.centro_costos else ''
+        data['area_tematica'] = presup_obj.area_tematica.id if presup_obj.area_tematica else ''
+        data['horizonte'] = presup_obj.horizonte if presup_obj.horizonte else ''
         data['ofertatec'] = []
         turnos_activos = turnos_activos.order_by('-fecha_fin')
         if turnos_activos:
