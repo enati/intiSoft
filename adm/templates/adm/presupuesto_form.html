@@ -324,7 +324,7 @@
                                              </div>
                                          {% endfor %}
                                      {% else %}
-                                         {{ form.instance.centro_costos | default_if_none:"" }}
+                                         {{ form.centro_costos|disable }}
                                      {% endif %}
                                  </div>
                             </div>
@@ -360,7 +360,7 @@
                                              </div>
                                          {% endfor %}
                                      {% else %}
-                                         {{ form.instance.area_tematica | default_if_none:"" }}
+                                         {{ form.area_tematica|disable }}
                                      {% endif %}
                                  </div>
                             </div>

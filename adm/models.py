@@ -397,9 +397,9 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     nro_revision = models.IntegerField('Nro. Revisión', default=0)
     tipo = models.CharField('Tipo', max_length=11, choices=TIPOS, default='calibracion')
     pdt = models.ForeignKey(PDT, verbose_name="PDT", null=True, blank=False)
-    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=False)
-    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=False)
-    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=False)
+    centro_costos = models.ForeignKey(CentroDeCostos, verbose_name='Centro de Costos', null=True, blank=True)
+    area_tematica = models.ForeignKey(AreaTematica, verbose_name='Area Temática', null=True, blank=True)
+    horizonte = models.CharField(max_length=15, choices=HORIZONTES, null=True, blank=True)
 
     def __str__(self):
         return self.codigo

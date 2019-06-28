@@ -1129,6 +1129,12 @@ class PresupuestoForm(forms.ModelForm):
         super(PresupuestoForm, self).__init__(*args, **kwargs)
         # Filtro los centros de costos segun la region
         self.fields['centro_costos'].queryset = CentroDeCostos.objects.filter(region='CENTRO')
+        # Traigo los datos del turno asociado si es que hay
+        if self.instance and len(self.instance.turno_set.all()) > 0:
+            turno = self.instance.turno_set.all()[0]                # Deberia haber solo un turno asociado asi que agarro el primero
+            self.initial['centro_costos'] = turno.centro_costos.id if turno.centro_costos else ''
+            self.initial['area_tematica'] = turno.area_tematica.id if turno.area_tematica else ''
+            self.initial['horizonte'] = turno.horizonte
         # El nro de presup no tiene que tener form-control
         self.fields['codigo'].widget.attrs['class'] = 'presup_code'
         self.fields['codigo'].widget.attrs['form'] = 'presupForm'
@@ -1258,15 +1264,6 @@ class PresupuestoForm(forms.ModelForm):
             'pdt': {
                 'required': 'Campo obligatorio.',
             },
-            'centro_costos': {
-                'required': 'Campo obligatorio.',
-            },
-            'area_tematica': {
-                'required': 'Campo obligatorio.',
-            },
-            'horizonte': {
-                'required': 'Campo obligatorio.',
-            }
         }
         widgets = {
                 'fecha_solicitado': forms.DateInput(attrs={'class':
