@@ -382,6 +382,12 @@ class Presupuesto(TimeStampedModel, AuthStampedModel, PermanentModel):
     codigo = models.CharField('Nro. Presupuesto', max_length=15,
                               unique=True, default=nextCode,
                               error_messages={'unique': "Ya existe un presupuesto con ese número."})
+    nro_presea = models.CharField('Nro. Presea', max_length=13,
+                                  default='0000-00000000',
+                                  error_messages={'unique': "Ya existe un presupuesto con ese número."},
+                                  validators=[RegexValidator(r'^\d{4}-\d{8}$',
+                                            message="El código debe ser de la forma 0000-00000000")],
+                                  )
     fecha_solicitado = models.DateField('Fecha de Solicitud')
     fecha_realizado = models.DateField('Fecha de Realización',
                                        blank=True, null=True)

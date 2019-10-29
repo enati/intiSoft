@@ -37,7 +37,7 @@ urlpatterns = [
                                                name='si-update'),
     url(r'^contratos/SI/(create|update/\d+)/OT_(?P<area>(LIA|LIM1|LIM2|LIM3|LIM4|LIM5|LIM6|EXT|DES|SIS|MEC|ML|CAL))/$', views.filterOT, name='filter-ot'),
     url(r'^presup/$', login_required(views.PresupuestoList.as_view()), name='presup-list'),
-    url(r'^presup/viewWord/(?P<pk>\d+)/(?P<template>\w+)/$', views.viewWord, name='presup-viewWord'),
+    url(r'^presup/viewWord/(?P<pk>\d+)/(?P<template>\w+)/$', never_cache(login_required(views.viewWord)), name='presup-viewWord'),
     #url(r'^presup/actBtn/(?P<pk>\d+)/$', 'adm.views.actualizar_precios', name='presup-actBtn'),
     url(r'^presup/update/(?P<pk>\d+)/$', cache_control(max_age=0, no_cache=True, no_store=True)(login_required(views.PresupuestoUpdate.as_view())),
                                          name='presup-update'),

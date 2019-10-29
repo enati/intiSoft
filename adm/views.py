@@ -321,12 +321,10 @@ def viewWord(request, *args, **kwargs):
     turnos_activos = presup_obj.get_turnos_activos()
     vals['area'] = '-'.join([t.area for t in turnos_activos])
     vals['codigo'] = presup_obj.codigo + '-R' + str(presup_obj.nro_revision)
-    vals['fecha'] = presup_obj.fecha_realizado.strftime('%d/%m/%Y') \
-                    if presup_obj.fecha_realizado else ''
     vals['email'] = presup_obj.usuario.mail
     vals['solicitante'] = presup_obj.usuario.nombre
     vals['contacto'] = presup_obj.usuario.nombre
-    vals['ofertatec'] = []
+    vals['presupuesto'] = presup_obj.nro_presea
     vals['fecha_inicio'] = ''
     vals['fecha_fin'] = ''
     # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision del primer turno
@@ -348,20 +346,16 @@ def viewWord(request, *args, **kwargs):
     vals['plantilla'] = ''
 
     if presup_template == 'asistencia':
-        vals['plantilla'] = 'Presupuesto Asistencia.docx'
+        vals['plantilla'] = 'FO08-R02.docx'
     elif presup_template == 'calibracion':
-        vals['plantilla'] = 'Presupuesto Calibracion.docx'
+        vals['plantilla'] = 'FO01-R06.docx'
     elif presup_template == 'in_situ':
-        vals['plantilla'] = 'Presupuesto In Situ.docx'
+        vals['plantilla'] = 'FO07-R02.docx'
     elif presup_template == 'lia':
-        vals['plantilla'] = 'Presupuesto LIA.docx'
+        vals['plantilla'] = 'FO06-R02.docx'
     elif presup_template == 'mat_ref':
-        vals['plantilla'] = 'Materiales de Referencia.docx'
+        vals['plantilla'] = 'FO09-R01.docx'
 
-    for turno in turnos_activos:
-        for o in turno.ofertatec_linea_set.get_queryset():
-            vals['ofertatec'].append((o.ofertatec.codigo, o.ofertatec.detalle,
-                                      o.cant_horas, o.precio, o.precio_total))
     return genWord(vals)
 
 

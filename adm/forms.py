@@ -1218,6 +1218,11 @@ class PresupuestoForm(forms.ModelForm):
             return self.instance.horizonte
         else:
             return self.cleaned_data['horizonte']
+    def clean_nro_presea(self):
+        if self.instance and self.instance.estado != 'borrador':
+            return self.instance.nro_presea
+        else:
+            return self.cleaned_data['nro_presea']
 
     def clean(self):
         cleaned_data = super(PresupuestoForm, self).clean()
@@ -1232,6 +1237,7 @@ class PresupuestoForm(forms.ModelForm):
     class Meta:
         model = Presupuesto
         fields = ['codigo',
+                  'nro_presea',
                   'fecha_solicitado',
                   'usuario',
                   'direccion',

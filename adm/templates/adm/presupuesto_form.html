@@ -221,7 +221,7 @@
                     <li role="separator" class="divider" />
                     {% if 'adm.add_presupuesto' in user.get_all_permissions %}
                     <li>
-                        <a id="viewWord" href="" data-id="{{object.id}}">Generar Presupuesto</a>
+                        <a id="viewWord" href="" data-id="{{object.id}}">Descargar Anexo</a>
                     </li>
                     {% endif %}
                     {% if object.estado in "['borrador', 'aceptado']" and object.fecha_realizado %}
@@ -251,7 +251,7 @@
         <div class="col-md-12" style="border-top: 3px solid #eee"></div>
         <!-- Titulo -->
         <div class="col-md-12">
-            <label id="title" for="id_codigo" class="col-md-3 text-danger" style="text-align:left">Presupuesto</label>
+            <label for="id_codigo" class="col-md-2 text-danger title" style="text-align:left">Anexo</label>
             <div class="col-md-6" style="padding-left: 0px;">
                 {% if edit %}
                     {{ form.codigo }}
@@ -294,7 +294,23 @@
                             <input name="edit" type="hidden" value="1">
                         {% endif %}
                         </br>
-                        <div id="plantilla" class="col-md-6">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-md-5" style="text-align:left"
+                                 for="id_tipo">Presea N°</label>
+                                <div class="col-md-7">
+                                    {% if edit %}
+                                        {{ form.nro_presea}}
+                                        {% for error in form.nro_presea.errors %}
+                                           <div class="alert alert-error">
+                                               <strong>{{ error|escape }}</strong>
+                                           </div>
+                                       {% endfor %}
+                                   {% else %}
+                                       {{ form.nro_presea.value }}
+                                   {% endif %}
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-md-5" style="text-align:left"
                                  for="id_tipo">Tipo de Presupuesto</label>

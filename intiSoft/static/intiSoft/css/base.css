@@ -178,7 +178,7 @@ p.truncated {
 //    position: relative; z-index: 100000;
 //}
 
-#title {
+.title {
     padding-right: 0px;
     font: normal 36px "Helvetica Neue",Helvetica,Arial,sans-serif !important;
 }
