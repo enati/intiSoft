@@ -36,6 +36,7 @@
         <table id="presupuestoTable" class="table table-hover table-pointer">
             <col style="width:5%">
             <col style="width:5%">
+            <col style="width:5%">
             <col style="width:25%">
             <col style="width:10%">
             <col style="width:10%">
@@ -83,6 +84,7 @@
                                     {% endif %}
                         >
                         <td style="text-align: center">{% if turnos_activos and presup.estado == 'borrador' and not presup.fecha_realizado %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+                        <td>{{presup.nro_presea}}</td>
                         <td>{{presup.codigo}}</td>
                         <td>{{presup.usuario}}</td>
                         <td>{{presup.usuario.nro_usuario}}</td>

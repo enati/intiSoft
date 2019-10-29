@@ -723,13 +723,13 @@ class OTList(ListView):
     def get_context_data(self, **kwargs):
         t_inicial = time()
         context = super(OTList, self).get_context_data(**kwargs)
-        field_names = ['estado', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
+        field_names = ['estado', 'presupuesto__nro_presea', 'presupuesto__codigo', 'presupuesto__usuario__nombre',
                        'codigo', 'fecha_realizado', 'importe_bruto', 'presupuesto__turno__area',
                        'factura_set__numero', 'factura_set__fecha',
                        'factura_set__importe', 'factura_set__fecha_aviso',
                        'factura_set__recibo__numero', 'factura_set__recibo__comprobante_cobro', 'factura_set__recibo__fecha',
                        'factura_set__recibo__importe', 'remito_set__numero']
-        field_labels = ['Estado', 'Nro. Presup.', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
+        field_labels = ['Estado', 'Nro. Presea', 'Nro. Anexo', 'Usuario', 'Nro. OT', 'Fecha', 'Imp. Bruto',
                         'Area', 'Nro. Factura', 'Fecha', 'Imp.', 'Fecha Aviso',
                         'Recibo', 'Tipo', 'Fecha', 'Imp.', 'Remito']
 
@@ -2031,13 +2031,13 @@ class PresupuestoList(ListView):
 
         context['tuple_paginated_list'] = list(zip(presupuestos_by_page, turnos_by_page))
 
-        field_names = ['estado', 'codigo', 'usuario__nombre', 'usuario__nro_usuario',
+        field_names = ['estado', 'nro_presea', 'codigo', 'usuario__nombre', 'usuario__nro_usuario',
                        'turno__area',
                        'fecha_realizado',
                        'fecha_aceptado',
                        'instrumento__fecha_llegada',
                        'instrumento__nro_recepcion']
-        field_labels = ['Estado', 'Nro.', 'Usuario', 'Nro Usuario',
+        field_labels = ['Estado', 'Nro. Presea', 'Nro. Anexo', 'Usuario', 'Nro Usuario',
                         'Area',
                         'Fecha de Realizacion',
                         'Fecha de Aceptacion',

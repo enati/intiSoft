@@ -330,6 +330,7 @@ $(document).ready(function() {
                     $("#id_usuario").text(data['usuario']);
                     $("#id_mail").text(data['mail']);
                     $("#id_rubro").text(data['rubro']);
+                    $("#id_presupuesto__nro_presea").text(data['nro_presea']);
                     $("#id_presupuesto__area").text(data['area']);
                     $("select#id_solicitante").val(data['solicitante']);
                     $("#id_fecha_prevista").val(data['fecha_turno']);

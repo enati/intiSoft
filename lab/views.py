@@ -1095,6 +1095,7 @@ def get_presup(request, *args, **kwargs):
         presup_id = request.GET['presup_id']
         presup_obj = Presupuesto.objects.get(pk=presup_id)
         turnos_activos = presup_obj.get_turnos_activos()
+        data['nro_presea'] = presup_obj.nro_presea
         data['pdt'] = presup_obj.pdt.nombre if presup_obj.pdt else '---'
         data['fecha_solicitado'] = presup_obj.fecha_solicitado.strftime("%d/%m/%Y")
         data['fecha_realizado'] = presup_obj.fecha_realizado.strftime("%d/%m/%Y") if presup_obj.fecha_realizado else ''

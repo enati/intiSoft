@@ -291,11 +291,21 @@
                         </div>
                         <div class="col-md-6">
                             <h3 class="text-danger">Presupuesto</h3>
+                            <!-- Presea -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_presupuesto__nro_presea">
+                                      Nro. Presea
+                                </label>
+                                <div class="col-md-6">
+                                   <p id="id_presupuesto__nro_presea">{{ form.instance.presupuesto.nro_presea }}</p>
+                                </div>
+                            </div>
                             <!-- Codigo -->
                             <div class="form-group">
                                 <label class="control-label col-md-5" style="text-align:left"
-                                  for="id_presupuesto">
-                                      Numero
+                                  for="id_presupuesto__codigo">
+                                      Nro. Anexo
                                 </label>
                                 <div class="col-md-6">
                                     {% if edit %}
