@@ -11,7 +11,7 @@ import os
 def genWord(vals):
     #Windows
     path = '/home/rocco/www/intiSoft/Plantillas/'
-    #path = '/home/nati/Desktop/INTI/intiSoft/Plantillas/'
+    #path = '/home/nati/Desktop/intiSoft/Plantillas/'
     document = Document(path + vals['plantilla'])
 
     table = document.tables[0]
@@ -29,7 +29,7 @@ def genWord(vals):
     # Email
     table.column_cells(1)[3].paragraphs[0].runs[0].add_text(vals['email'] or '')
 
-    if vals['plantilla'] != 'FO08-R02.docx':
+    if vals['plantilla'] != 'FO08–R02.docx':
         # Anexo
         table.column_cells(2)[0].paragraphs[0].runs[0].add_text(vals['codigo'] or '')
         # Presupuesto
@@ -38,22 +38,22 @@ def genWord(vals):
         text = ','.join(text)
         table.column_cells(0)[5].paragraphs[0].runs[0].text = text
 
-    if vals['plantilla'] in ['FO01-R06.docx', 'FO06-R02.docx']:
+    if vals['plantilla'] in ['FO01–R06.docx', 'FO06–R02.docx']:
         # Fecha estimada de inicio
         table.column_cells(0)[6].paragraphs[1].runs[1].add_text(vals['fecha_inicio'])
         # Fecha estimada de fin
         table.column_cells(0)[6].paragraphs[12].runs[1].add_text(vals['fecha_fin'])
-    elif vals['plantilla'] == 'FO07-R02.docx':
+    elif vals['plantilla'] == 'FO07–R02.docx':
         # Fecha estimada de inicio
         table.column_cells(0)[6].paragraphs[8].runs[1].add_text(vals['fecha_inicio'])
         # Fecha estimada de fin
         table.column_cells(0)[6].paragraphs[16].runs[1].add_text(vals['fecha_fin'])
-    elif vals['plantilla'] == 'FO08-R02.docx':
+    elif vals['plantilla'] == 'FO08–R02.docx':
         # Anexo
         table.column_cells(0)[5].paragraphs[0].runs[0].add_text('\t' + vals['codigo'])
         # Presupuesto
         table.column_cells(0)[5].paragraphs[2].runs[0].add_text('\t' + vals['presupuesto'])
-    elif vals['plantilla'] == 'FO09-R01.docx':
+    elif vals['plantilla'] == 'FO09–R01.docx':
         # Fecha estimada de fin
         table.column_cells(0)[6].paragraphs[2].runs[1].add_text(vals['fecha_fin'])
 

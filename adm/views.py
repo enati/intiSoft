@@ -327,7 +327,7 @@ def viewWord(request, *args, **kwargs):
     vals['presupuesto'] = presup_obj.nro_presea
     vals['fecha_inicio'] = ''
     vals['fecha_fin'] = ''
-    # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision del primer turno
+
     if turnos_activos:
         # Si todavia no esta completa la fecha_realizado del presupuesto pongo la fecha de hoy
         fecha_realizado = presup_obj.fecha_realizado or datetime.now().date()
@@ -335,26 +335,31 @@ def viewWord(request, *args, **kwargs):
         turnoFechaInicioAnterior = turnos_activos[0]
         turnos_activos = turnos_activos.order_by('-fecha_fin')
         turnoFechaFinPosterior = turnos_activos[0]
-        if turnoFechaInicioAnterior.fecha_inicio:
+        # Corro 5 dias la fecha de inicio y fin del turno, a menos que se trate de una asistencia o in_situ.
+        if presup_template in ['asistencia', 'in_situ']:
+            vals['fecha_inicio'] = turnoFechaInicioAnterior.fecha_inicio.strftime('%d/%m/%Y')
+            vals['fecha_fin'] = turnoFechaFinPosterior.fecha_fin.strftime('%d/%m/%Y')
+        elif turnoFechaInicioAnterior.fecha_inicio:
             date_less_five = turnoFechaInicioAnterior.fecha_inicio - timedelta(days=7)
+            # Chequeo que al restarle 5 dias la fecha no quede anterior a la fecha de emision del primer turno
             if date_less_five <= fecha_realizado:
                 vals['fecha_inicio'] = turnoFechaInicioAnterior.fecha_inicio.strftime('%d/%m/%Y')
             else:
                 vals['fecha_inicio'] = less_five(turnoFechaInicioAnterior.fecha_inicio)
-        vals['fecha_fin'] = plus_five(turnoFechaFinPosterior.fecha_fin)
+            vals['fecha_fin'] = plus_five(turnoFechaFinPosterior.fecha_fin)
 
     vals['plantilla'] = ''
 
     if presup_template == 'asistencia':
-        vals['plantilla'] = 'FO08-R02.docx'
+        vals['plantilla'] = 'FO08–R02.docx'
     elif presup_template == 'calibracion':
-        vals['plantilla'] = 'FO01-R06.docx'
+        vals['plantilla'] = 'FO01–R06.docx'
     elif presup_template == 'in_situ':
-        vals['plantilla'] = 'FO07-R02.docx'
+        vals['plantilla'] = 'FO07–R02.docx'
     elif presup_template == 'lia':
-        vals['plantilla'] = 'FO06-R02.docx'
+        vals['plantilla'] = 'FO06–R02.docx'
     elif presup_template == 'mat_ref':
-        vals['plantilla'] = 'FO09-R01.docx'
+        vals['plantilla'] = 'FO09–R01.docx'
 
     return genWord(vals)
 
