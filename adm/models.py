@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django_extensions.db.models import TimeStampedModel
 from audit_log.models import AuthStampedModel
 from django_permanent.models import PermanentModel
@@ -1206,9 +1207,14 @@ class Factura(TimeStampedModel, AuthStampedModel):
     importe = models.FloatField("Importe", blank=True, null=True, default=0)
     fecha_aviso = models.DateField("Aviso de Trabajo Realizado", blank=True, null=True)
     # Campos para relacion generica
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                     limit_choices_to=Q(model__in=['ot', 'otml']),
+                                     verbose_name='Origen')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
+
+    def __unicode__(self):
+        return unicode(self.numero)
 
     def _toState_cancelado(self):
         if self.estado == 'activa':
