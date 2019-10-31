@@ -8,6 +8,7 @@ from lab.models import Turno
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from reversion.admin import VersionAdmin
 
 
 class TurnoInline(admin.TabularInline):
@@ -59,7 +60,7 @@ def area(obj):
 
 
 @admin.register(Presupuesto)
-class PresupuestoAdmin(admin.ModelAdmin):
+class PresupuestoAdmin(VersionAdmin):
     search_fields = ['codigo', 'nro_presea', 'usuario__nombre', 'centro_costos__nombre', 'estado', 'turno__area']
     list_display = ('codigo', 'nro_presea', 'usuario', area, 'centro_costos', 'fecha_solicitado', 'fecha_realizado', 'estado')
     inlines = [
@@ -81,13 +82,13 @@ class CentroDeCostoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Contacto)
-class ContactoAdmin(admin.ModelAdmin):
+class ContactoAdmin(VersionAdmin):
     search_fields = ['nombre', 'usuario__nombre']
     list_display = ('nombre', 'telefono', 'mail', 'usuario')
 
 
 @admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
+class UsuarioAdmin(VersionAdmin):
     search_fields = ['nro_usuario', 'nombre', 'cuit']
     list_display = ('nro_usuario', 'nombre', 'cuit', 'mail')
     inlines = [
@@ -118,13 +119,13 @@ class FacturaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Instrumento)
-class InstrumentoAdmin(admin.ModelAdmin):
+class InstrumentoAdmin(VersionAdmin):
     search_fields = ['nro_recepcion', 'presupuesto__codigo']
     list_display = ('nro_recepcion', 'fecha_llegada', 'presupuesto', 'detalle')
 
 
 @admin.register(OfertaTec)
-class OfertaTecAdmin(admin.ModelAdmin):
+class OfertaTecAdmin(VersionAdmin):
     search_fields = ['codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle']
     list_display = ('codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle', 'precio')
 
