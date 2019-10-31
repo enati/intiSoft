@@ -699,6 +699,13 @@
                         </br>
                         <div id="plantilla" class="col-md-6">
                             <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                 for="id_nro_presea">Nro. Presea</label>
+                                 <div class="col-md-7">
+                                     {{ pv.field_dict.nro_presea }}
+                                 </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-md-5" style="text-align:left"
                                  for="id_tipo">Tipo de Presupuesto</label>
                                 <div class="col-md-7">
@@ -797,25 +804,25 @@
                                 <div class="col-md-7">
                                     {{ uv.0.field_dict.nombre }}
                                 </div>
-                                <!-- Direccion -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_direccion">
-                                          Direccion
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ dv.0 }}
-                                    </div>
+                            </div>
+                            <!-- Direccion -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_direccion">
+                                      Direccion
+                                </label>
+                                <div class="col-md-7">
+                                    {{ dv.0 }}
                                 </div>
-                                <!-- Contacto -->
-                                <div class="form-group">
-                                    <label class="control-label col-md-5" style="text-align:left"
-                                      for="id_contacto">
-                                          Contacto
-                                    </label>
-                                    <div class="col-md-7">
-                                        {{ cv.0.field_dict.nombre }}
-                                    </div>
+                            </div>
+                            <!-- Contacto -->
+                            <div class="form-group">
+                                <label class="control-label col-md-5" style="text-align:left"
+                                  for="id_contacto">
+                                      Contacto
+                                </label>
+                                <div class="col-md-7">
+                                    {{ cv.0.field_dict.nombre }}
                                 </div>
                             </div>
                         </div>
