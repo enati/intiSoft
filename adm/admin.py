@@ -8,12 +8,12 @@ from lab.models import Turno
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from reversion.admin import VersionAdmin
+from reversion.models import Version, Revision
 
 
 class TurnoInline(admin.TabularInline):
     model = Turno
-    fields = ('estado', 'fecha_inicio', 'fecha_fin', 'area', 'centro_costos', 'area_tematica', 'horizonte')
+    fields = ('estado', 'fecha_inicio', 'fecha_fin', 'area', 'centro_costos', 'area_tematica', 'horizonte', 'nro_revision', 'revisionar')
     extra = 0
 
     def has_add_permission(self, request, obj=None):
@@ -59,8 +59,46 @@ def area(obj):
     return ", ".join(set(obj.get_area()))
 
 
+class VersionInline(admin.TabularInline):
+    model = Version
+    fields = ('object_id', 'content_type', 'serialized_data', 'object_repr')
+    extra = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Revision)
+class RevisionAdmin(admin.ModelAdmin):
+    list_display = ('comment', 'date_created', 'objeto', 'codigo_presupuesto_asociado')
+    inlines = [
+        VersionInline
+    ]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def objeto(self, obj):
+        if obj.comment[:1] == 'P':
+            return 'Presupuesto'
+        elif obj.comment[:1] == 'T':
+            return 'Turno'
+        return ''
+
+    def codigo_presupuesto_asociado(self, obj):
+        if obj.comment[:1] == 'P':
+            presupuesto_id = obj.version_set.filter(content_type=10)[0].object_id
+            presupuesto_obj = Presupuesto.objects.get(pk=presupuesto_id)
+            return presupuesto_obj.codigo
+        elif obj.comment[:1] == 'T':
+            turno_id = obj.version_set.filter(content_type=7)[0].object_id
+            turno_obj = Turno.objects.get(pk=turno_id)
+            return turno_obj.presupuesto.codigo
+        return ''
+
+
 @admin.register(Presupuesto)
-class PresupuestoAdmin(VersionAdmin):
+class PresupuestoAdmin(admin.ModelAdmin):
     search_fields = ['codigo', 'nro_presea', 'usuario__nombre', 'centro_costos__nombre', 'estado', 'turno__area']
     list_display = ('codigo', 'nro_presea', 'usuario', area, 'centro_costos', 'fecha_solicitado', 'fecha_realizado', 'estado')
     inlines = [
@@ -82,13 +120,13 @@ class CentroDeCostoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Contacto)
-class ContactoAdmin(VersionAdmin):
+class ContactoAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'usuario__nombre']
     list_display = ('nombre', 'telefono', 'mail', 'usuario')
 
 
 @admin.register(Usuario)
-class UsuarioAdmin(VersionAdmin):
+class UsuarioAdmin(admin.ModelAdmin):
     search_fields = ['nro_usuario', 'nombre', 'cuit']
     list_display = ('nro_usuario', 'nombre', 'cuit', 'mail')
     inlines = [
@@ -119,13 +157,13 @@ class FacturaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Instrumento)
-class InstrumentoAdmin(VersionAdmin):
+class InstrumentoAdmin(admin.ModelAdmin):
     search_fields = ['nro_recepcion', 'presupuesto__codigo']
     list_display = ('nro_recepcion', 'fecha_llegada', 'presupuesto', 'detalle')
 
 
 @admin.register(OfertaTec)
-class OfertaTecAdmin(VersionAdmin):
+class OfertaTecAdmin(admin.ModelAdmin):
     search_fields = ['codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle']
     list_display = ('codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle', 'precio')
 
