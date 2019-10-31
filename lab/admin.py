@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import Turno, OfertaTec_Linea, OfertaTec_Descripcion
-from reversion.admin import VersionAdmin
-
+from .models import Turno, OfertaTec_Linea
 
 
 class OfertatecTecLineaInline(admin.TabularInline):
@@ -13,19 +11,8 @@ class OfertatecTecLineaInline(admin.TabularInline):
         return False
 
 
-@admin.register(OfertaTec_Descripcion)
-class OfertaTec_DescripcionAdmin(VersionAdmin):
-    pass
-
-@admin.register(OfertaTec_Linea)
-class OfertaTecLineaAdmin(VersionAdmin):
-    search_fields = ('id', 'codigo',)
-    list_display = ('id', 'codigo',)
-    fields = ('ofertatec', 'codigo', 'detalle', 'tipo_servicio', 'cantidad', 'cant_horas', 'precio', 'precio_total',
-              'observaciones')
-
 @admin.register(Turno)
-class TurnoAdmin(VersionAdmin):
+class TurnoAdmin(admin.ModelAdmin):
     search_fields = ['estado', 'presupuesto__usuario__nombre', 'presupuesto__codigo', 'presupuesto__nro_presea']
     list_display = ('estado', 'usuario', 'fecha_inicio', 'fecha_fin', 'aceptacion_presupuesto', 'nro_anexo', 'nro_presea')
     inlines = [
