@@ -60,6 +60,7 @@ def area(obj):
 
 @admin.register(Presupuesto)
 class PresupuestoAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'nro_presea', 'usuario__nombre', 'centro_costos__nombre', 'estado', 'turno__area']
     list_display = ('codigo', 'nro_presea', 'usuario', area, 'centro_costos', 'fecha_solicitado', 'fecha_realizado', 'estado')
     inlines = [
         InstrumentoInline,
@@ -69,21 +70,25 @@ class PresupuestoAdmin(admin.ModelAdmin):
 
 @admin.register(Provincia)
 class ProvinciaAdmin(admin.ModelAdmin):
+    search_fields = ['nombre', 'abreviatura']
     list_display = ('nombre', 'abreviatura')
 
 
 @admin.register(CentroDeCostos)
 class CentroDeCostoAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'nombre']
     list_display = ('codigo', 'nombre')
 
 
 @admin.register(Contacto)
 class ContactoAdmin(admin.ModelAdmin):
+    search_fields = ['nombre', 'usuario__nombre']
     list_display = ('nombre', 'telefono', 'mail', 'usuario')
 
 
 @admin.register(Usuario)
-class ContactoAdmin(admin.ModelAdmin):
+class UsuarioAdmin(admin.ModelAdmin):
+    search_fields = ['nro_usuario', 'nombre', 'cuit']
     list_display = ('nro_usuario', 'nombre', 'cuit', 'mail')
     inlines = [
         ContactoInline,
@@ -92,6 +97,7 @@ class ContactoAdmin(admin.ModelAdmin):
 
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
+    search_fields = ['numero',]
     list_display = ('numero', 'ot', 'fecha', 'importe', 'fecha_aviso')
     fields = ('numero', 'fecha', 'importe', 'fecha_aviso', 'ot')
     readonly_fields = ('ot',)
@@ -113,21 +119,25 @@ class FacturaAdmin(admin.ModelAdmin):
 
 @admin.register(Instrumento)
 class InstrumentoAdmin(admin.ModelAdmin):
+    search_fields = ['nro_recepcion', 'presupuesto__codigo']
     list_display = ('nro_recepcion', 'fecha_llegada', 'presupuesto', 'detalle')
 
 
 @admin.register(OfertaTec)
 class OfertaTecAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle']
     list_display = ('codigo', 'rubro', 'subrubro', 'tipo_servicio', 'area', 'detalle', 'precio')
 
 
 @admin.register(OTML)
 class OTMLAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'estado', 'vpe', 'vpr', 'vpuu', 'usuario__nombre', 'usuarioRep__nombre']
     list_display = ('codigo', 'estado', 'vpe', 'vpr', 'vpuu', 'usuario', 'usuarioRep', 'fecha_realizado', 'importe_bruto')
 
 
 @admin.register(OT)
 class OTAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'estado', 'presupuesto__codigo', 'presupuesto__nro_presea', 'presupuesto__usuario__nombre', 'presupuesto__turno__area']
     list_display = ('codigo', 'estado', 'nro_anexo', 'nro_presea', 'fecha_realizado', 'usuario', 'importe_bruto', 'area')
     inlines = [
         OTLineaInline,
@@ -154,16 +164,20 @@ class OTAdmin(admin.ModelAdmin):
 
 @admin.register(PDT)
 class PDTAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'nombre', 'anio', 'tipo']
     list_display = ('codigo', 'nombre', 'anio', 'tipo', 'contribucion')
 
 
 @admin.register(AreaTematica)
 class AreaTematicaAdmin(admin.ModelAdmin):
-    list_displat = ('nombre', )
+    search_fields = ['nombre', ]
+    list_display = ('nombre', )
 
 
 @admin.register(SOT)
 class SOTAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'estado', 'presupuesto__codigo', 'solicitante',
+                     'deudor__nombre', 'ejecutor__nombre', 'ot', 'usuario_final__nombre']
     list_display = ('codigo', 'estado', 'fecha_realizado', 'presupuesto', 'solicitante', 'deudor', 'ejecutor', 'ot', 'usuario_final')
     inlines = [
         OTLineaInline,
@@ -172,6 +186,7 @@ class SOTAdmin(admin.ModelAdmin):
 
 @admin.register(RUT)
 class RUTAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'estado', 'solicitante', 'deudor__nombre', 'ejecutor__nombre']
     list_display = ('codigo', 'estado', 'fecha_realizado', 'solicitante', 'deudor', 'ejecutor')
     inlines = [
         OTLineaInline,
@@ -180,6 +195,7 @@ class RUTAdmin(admin.ModelAdmin):
 
 @admin.register(SI)
 class SIAdmin(admin.ModelAdmin):
+    search_fields = ['codigo', 'estado', 'presupuesto__codigo', 'solicitante', 'ejecutor']
     list_display = ('codigo', 'estado', 'fecha_realizado', 'presupuesto', 'solicitante', 'ejecutor')
     inlines = [
         TareaLineaInline

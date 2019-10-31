@@ -12,6 +12,7 @@ class OfertatecTecLineaInline(admin.TabularInline):
 
 @admin.register(Turno)
 class TurnoAdmin(admin.ModelAdmin):
+    search_fields = ['estado', 'presupuesto__usuario__nombre', 'presupuesto__codigo', 'presupuesto__nro_presea']
     list_display = ('estado', 'usuario', 'fecha_inicio', 'fecha_fin', 'aceptacion_presupuesto', 'nro_anexo', 'nro_presea')
     inlines = [
         OfertatecTecLineaInline,
